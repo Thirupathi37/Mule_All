@@ -1,0 +1,167 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+            
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+          
+      - name: Add repo credentials
+        uses: s4u/maven-settings-action@v2.4.0
+        with:
+          servers: |
+            [{
+             "id": "mule-enterprise",
+             "username": "${{ secrets.USERNAME }}",
+             "password": "${{ secrets.PASSWORD }}"
+            }]
+            
+      - name: Print effective-settings (optional)
+        run: mvn help:effective-settings
+    
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml   
+        
+      - name: Stamp artifact file name with commit hash
+        run: |
+          artifactName1=$(ls target/*.jar | head -1)
+          commitHash=$(git rev-parse --short "$GITHUB_SHA")
+          artifactName2=$(ls target/*.jar | head -1 | sed "s/.jar/-$commitHash.jar/g")
+          mv $artifactName1 $artifactName2
+      - name: Upload artifact 
+        uses: actions/upload-artifact@master
+        with:
+            name: artifacts
+            path: target/*.jar
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:    
+    
+    - uses: actions/checkout@v2
+    
+    - uses: actions/cache@v1
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+    
+    - uses: actions/download-artifact@master
+      with:
+        name: artifacts
+    
+    - name: Deploy to Sandbox
+      env:
+        USERNAME: ${{ secrets.ANYPOINTUSERNAME }}
+        PASSWORD: ${{ secrets.ANYPOINTPASSWORD }}
+      run: |
+        artifactName=$(ls *.jar | head -1)
+        mvn deploy -DmuleDeploy \
+         -Dmule.artifact=$artifactName \
+         -Danypoint.username="$USERNAME" \
+         -Danypoint.password="$PASSWORD" \
+         -Denv=Sandbox \
+
+
+
+
+Links:
+=====
+Sai Venkata Gopinadh Pedavalli, 13 min
+Multiple projects from the same repository 
+https://apisero.com/bitbucket-ci-cd-pipeline-for-multiple-projects-from-one-repository/
+Multi branch Pipeline
+https://apisero.com/deploy-mule-application-to-cloudhub-via-jenkins-multi-branch-pipeline/
+End to End DEvOps : including Testing + monitoring
+https://dzone.com/articles/configuring-jenkins-pipeline-for-deploying-mulesof
+MUnit +CI/CD OR Munit with Azure Pipeline OR MUnit with Jenkins Pipeline
+https://apisero.com/cicd-implementation-in-standalone-server-using-jenkins-poc/
+This still needs to be tried with a POC and more R&D is needed.  I am still looking into it
+
+
+
+
+
+
+%dw 2.0
+output application/json
+var a= vars.a
+---
+(if(payload != null)
+{
+  (if(payload.accountStatus == "Active")
+    {
+
+        (if(payload.wrongPin < 3)
+        {
+            (if(a.atmPin == payload.atmPin)
+                {
+                   (if(payload.totalBalance >= a.amountToBeWithdraw)
+                   {
+                       "custAccNum": a.accountNum as String,
+                       "amountToBeWithdraw1": payload.totalBalance - a.amountToBeWithdraw,
+                       "flag": 1
+                   }
+                   else { 
+                    		"Error": "Insufficient Balance, please enter Minimum Amount",
+                    		"flag": 2
+                    	})
+                }
+                else 
+                    {
+                    	"Error": "Invalid PIN, try with correct PIN",
+                        "wrongPin": payload.wrongPin + 1,
+                        "flag": 3
+                     }
+                )
+        }
+        else { 
+        		"Error": "No of retries has been completed",
+                "accountStatus": "InActive",
+                "flag": 4,
+                "wrongPin": payload.wrongPin
+             })
+
+    }
+    else  { 
+    		"Error": "Your Account is Temporarely Blocked",
+    		"flag": 5
+    	  })
+}
+else {
+		"Error": "There is No Account Founded",
+		"flag": 6
+	})

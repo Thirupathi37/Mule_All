@@ -1,0 +1,223 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "required": [
+    "fare",
+    "dropoff",
+    "vehicle_id",
+    "distance",
+    "start_city",
+    "status_changes",
+    "surge_multiplier",
+    "pickup",
+    "driver_id",
+    "status",
+    "duration",
+    "trip_id",
+    "currency_code"
+  ],
+  "properties": {
+    "fare": {
+      "$id": "#/properties/fare",
+      "type": "number",
+      "title": "The Fare Schema",
+      "default": 0,
+      "examples": [
+        6.2
+      ]
+    },
+    "dropoff": {
+      "$id": "#/properties/dropoff",
+      "type": "object",
+      "title": "The Dropoff Schema",
+      "required": [
+        "timestamp"
+      ],
+      "properties": {
+        "timestamp": {
+          "$id": "#/properties/dropoff/properties/timestamp",
+          "type": "integer",
+          "title": "The Timestamp Schema",
+          "default": 0,
+          "examples": [
+            1502844378
+          ]
+        }
+      }
+    },
+    "vehicle_id": {
+      "$id": "#/properties/vehicle_id",
+      "type": "string",
+      "title": "The Vehicle_id Schema",
+      "default": "",
+      "examples": [
+        "0082b54a-6a5e-4f6b-b999-b0649f286381"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "distance": {
+      "$id": "#/properties/distance",
+      "type": "number",
+      "title": "The Distance Schema",
+      "default": 0,
+      "examples": [
+        0.37
+      ]
+    },
+    "start_city": {
+      "$id": "#/properties/start_city",
+      "type": "object",
+      "title": "The Start_city Schema",
+      "required": [
+        "latitude",
+        "display_name",
+        "longitude"
+      ],
+      "properties": {
+        "latitude": {
+          "$id": "#/properties/start_city/properties/latitude",
+          "type": "number",
+          "title": "The Latitude Schema",
+          "default": 0,
+          "examples": [
+            38.3498
+          ]
+        },
+        "display_name": {
+          "$id": "#/properties/start_city/properties/display_name",
+          "type": "string",
+          "title": "The Display_name Schema",
+          "default": "",
+          "examples": [
+            "Charleston, WV"
+          ],
+          "pattern": "^(.*)$"
+        },
+        "longitude": {
+          "$id": "#/properties/start_city/properties/longitude",
+          "type": "number",
+          "title": "The Longitude Schema",
+          "default": 0,
+          "examples": [
+            -81.6326
+          ]
+        }
+      }
+    },
+    "status_changes": {
+      "$id": "#/properties/status_changes",
+      "type": "array",
+      "title": "The Status_changes Schema",
+      "items": {
+        "$id": "#/properties/status_changes/items",
+        "type": "object",
+        "title": "The Items Schema",
+        "required": [
+          "status",
+          "timestamp"
+        ],
+        "properties": {
+          "status": {
+            "$id": "#/properties/status_changes/items/properties/status",
+            "type": "string",
+            "title": "The Status Schema",
+            "default": "",
+            "examples": [
+              "accepted"
+            ],
+            "pattern": "^(.*)$"
+          },
+          "timestamp": {
+            "$id": "#/properties/status_changes/items/properties/timestamp",
+            "type": "integer",
+            "title": "The Timestamp Schema",
+            "default": 0,
+            "examples": [
+              1502843899
+            ]
+          }
+        }
+      }
+    },
+    "surge_multiplier": {
+      "$id": "#/properties/surge_multiplier",
+      "type": "integer",
+      "title": "The Surge_multiplier Schema",
+      "default": 0,
+      "examples": [
+        1
+      ]
+    },
+    "pickup": {
+      "$id": "#/properties/pickup",
+      "type": "object",
+      "title": "The Pickup Schema",
+      "required": [
+        "timestamp"
+      ],
+      "properties": {
+        "timestamp": {
+          "$id": "#/properties/pickup/properties/timestamp",
+          "type": "integer",
+          "title": "The Timestamp Schema",
+          "default": 0,
+          "examples": [
+            1502843903
+          ]
+        }
+      }
+    },
+    "driver_id": {
+      "$id": "#/properties/driver_id",
+      "type": "string",
+      "title": "The Driver_id Schema",
+      "default": "",
+      "examples": [
+        "8LvWuRAq2511gmr8EMkovekFNa2848lyMaQevIto-aXmnK9oKNRtfTxYLgPq9OSt8EzAu5pDB7XiaQIrcp-zXgOA5EyK4h00U6D1o7aZpXIQah--U77Eh7LEBiksj2rahB=="
+      ],
+      "pattern": "^(.*)$"
+    },
+    "status": {
+      "$id": "#/properties/status",
+      "type": "string",
+      "title": "The Status Schema",
+      "default": "",
+      "examples": [
+        "completed"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "duration": {
+      "$id": "#/properties/duration",
+      "type": "integer",
+      "title": "The Duration Schema",
+      "default": 0,
+      "examples": [
+        475
+      ]
+    },
+    "trip_id": {
+      "$id": "#/properties/trip_id",
+      "type": "string",
+      "title": "The Trip_id Schema",
+      "default": "",
+      "examples": [
+        "b5613b6a-fe74-4704-a637-50f8d51a8bb1"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "currency_code": {
+      "$id": "#/properties/currency_code",
+      "type": "string",
+      "title": "The Currency_code Schema",
+      "default": "",
+      "examples": [
+        "USD"
+      ],
+      "pattern": "^(.*)$"
+    }
+  }
+}

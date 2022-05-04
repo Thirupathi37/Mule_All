@@ -1,0 +1,212 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "required": [
+    "count",
+    "limit",
+    "payments",
+    "offset"
+  ],
+  "properties": {
+    "count": {
+      "$id": "#/properties/count",
+      "type": "integer",
+      "title": "The Count Schema",
+      "default": 0,
+      "examples": [
+        1200
+      ]
+    },
+    "limit": {
+      "$id": "#/properties/limit",
+      "type": "integer",
+      "title": "The Limit Schema",
+      "default": 0,
+      "examples": [
+        1
+      ]
+    },
+    "payments": {
+      "$id": "#/properties/payments",
+      "type": "array",
+      "title": "The Payments Schema",
+      "items": {
+        "$id": "#/properties/payments/items",
+        "type": "object",
+        "title": "The Items Schema",
+        "required": [
+          "payment_id",
+          "category",
+          "event_time",
+          "trip_id",
+          "cash_collected",
+          "amount",
+          "driver_id",
+          "breakdown",
+          "rider_fees",
+          "partner_id",
+          "currency_code"
+        ],
+        "properties": {
+          "payment_id": {
+            "$id": "#/properties/payments/items/properties/payment_id",
+            "type": "string",
+            "title": "The Payment_id Schema",
+            "default": "",
+            "examples": [
+              "5cb8304c-f3f0-4a46-b6e3-b55e020750d7"
+            ],
+            "pattern": "^(.*)$"
+          },
+          "category": {
+            "$id": "#/properties/payments/items/properties/category",
+            "type": "string",
+            "title": "The Category Schema",
+            "default": "",
+            "examples": [
+              "fare"
+            ],
+            "pattern": "^(.*)$"
+          },
+          "event_time": {
+            "$id": "#/properties/payments/items/properties/event_time",
+            "type": "integer",
+            "title": "The Event_time Schema",
+            "default": 0,
+            "examples": [
+              1502842757
+            ]
+          },
+          "trip_id": {
+            "$id": "#/properties/payments/items/properties/trip_id",
+            "type": "string",
+            "title": "The Trip_id Schema",
+            "default": "",
+            "examples": [
+              "5cb8304c-f3f0-4a46-b6e3-b55e020750d7"
+            ],
+            "pattern": "^(.*)$"
+          },
+          "cash_collected": {
+            "$id": "#/properties/payments/items/properties/cash_collected",
+            "type": "integer",
+            "title": "The Cash_collected Schema",
+            "default": 0,
+            "examples": [
+              0
+            ]
+          },
+          "amount": {
+            "$id": "#/properties/payments/items/properties/amount",
+            "type": "number",
+            "title": "The Amount Schema",
+            "default": 0,
+            "examples": [
+              4.12
+            ]
+          },
+          "driver_id": {
+            "$id": "#/properties/payments/items/properties/driver_id",
+            "type": "string",
+            "title": "The Driver_id Schema",
+            "default": "",
+            "examples": [
+              "8LvWuRAq2511gmr8EMkovekFNa2848lyMaQevIto-aXmnK9oKNRtfTxYLgPq9OSt8EzAu5pDB7XiaQIrcp-zXgOA5EyK4h00U6D1o7aZpXIQah--U77Eh7LEBiksj2rahB=="
+            ],
+            "pattern": "^(.*)$"
+          },
+          "breakdown": {
+            "$id": "#/properties/payments/items/properties/breakdown",
+            "type": "object",
+            "title": "The Breakdown Schema",
+            "required": [
+              "other",
+              "toll",
+              "service_fee"
+            ],
+            "properties": {
+              "other": {
+                "$id": "#/properties/payments/items/properties/breakdown/properties/other",
+                "type": "number",
+                "title": "The Other Schema",
+                "default": 0,
+                "examples": [
+                  4.16
+                ]
+              },
+              "toll": {
+                "$id": "#/properties/payments/items/properties/breakdown/properties/toll",
+                "type": "integer",
+                "title": "The Toll Schema",
+                "default": 0,
+                "examples": [
+                  1
+                ]
+              },
+              "service_fee": {
+                "$id": "#/properties/payments/items/properties/breakdown/properties/service_fee",
+                "type": "number",
+                "title": "The Service_fee Schema",
+                "default": 0,
+                "examples": [
+                  -1.04
+                ]
+              }
+            }
+          },
+          "rider_fees": {
+            "$id": "#/properties/payments/items/properties/rider_fees",
+            "type": "object",
+            "title": "The Rider_fees Schema",
+            "required": [
+              "split_fare"
+            ],
+            "properties": {
+              "split_fare": {
+                "$id": "#/properties/payments/items/properties/rider_fees/properties/split_fare",
+                "type": "number",
+                "title": "The Split_fare Schema",
+                "default": 0,
+                "examples": [
+                  0.5
+                ]
+              }
+            }
+          },
+          "partner_id": {
+            "$id": "#/properties/payments/items/properties/partner_id",
+            "type": "string",
+            "title": "The Partner_id Schema",
+            "default": "",
+            "examples": [
+              "8LvWuRAq2511gmr8EMkovekFNa2848lyMaQevIto-aXmnK9oKNRtfTxYLgPq9OSt8EzAu5pDB7XiaQIrcp-zXgOA5EyK4h00U6D1o7aZpXIQah--U77Eh7LEBiksj2rahB=="
+            ],
+            "pattern": "^(.*)$"
+          },
+          "currency_code": {
+            "$id": "#/properties/payments/items/properties/currency_code",
+            "type": "string",
+            "title": "The Currency_code Schema",
+            "default": "",
+            "examples": [
+              "USD"
+            ],
+            "pattern": "^(.*)$"
+          }
+        }
+      }
+    },
+    "offset": {
+      "$id": "#/properties/offset",
+      "type": "integer",
+      "title": "The Offset Schema",
+      "default": 0,
+      "examples": [
+        0
+      ]
+    }
+  }
+}

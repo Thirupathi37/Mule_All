@@ -1,0 +1,50 @@
+https://dzone.com/articles/publishing-mulesoft-common-assets-or-libraries-to
+https://www.youtube.com/watch?v=lShclGVDEls
+
+JSON LOGGER:
+===========
+1). we have to enter the (https://github.com/mulesoft-consulting/json-logger/tree/mule-4.x/json-logger) url in browser and copy the url now.
+    Next we have to create a new folder and open the cmd from folder and give command
+
+    --> git clone and paste the latest copied url and it will download the json logger folder and open it
+
+2). open settings.xml in template files folder and edit the server details with anypoint platform credentials and copy that server details and got0 .m2 folder
+    open settings.xml file add the copied server under servers details
+
+   <servers>
+     <server>
+	<id>Exchange2</id>
+	<username>TLM2</username>
+	<password>Btr@1234</password>
+    </server>
+  </servers>
+
+
+3). Next open the pom.xml file in(json logger->json logger->pom.xml) copy the GroupId
+    Copy the path upto(we should see json logger & template file folder & deployed-to-exchange folder) open cmd and write(cd "paste the copied path")
+    next command->./deploy-to-exchange.sh (paste the platform acoount organization id) and enter, it will download the json logger into exchange, then we can 
+    add into studio
+
+
+
+
+
+
+
+Publishing MuleSoft Common Assets or Libraries to Anypoint Exchange and Nexus:
+=============================================================================
+Step 1: Add Anypoint Exchange Credentials Into settings.xml of Your Local .m2 Repository
+
+You need to add the Anypoint Platform username and password in the settings.xml of your local maven repository. Add the below entry with the correct Anypoint
+username and password in the settings.xml.
+
+<servers>
+  <server>
+    <id>MuleRepository</id>
+    <username>Anypoint_Username</username>
+    <password>Anypoint_Password</password>
+  </server>
+</servers>
+
+
+Next Refer--> https://dzone.com/articles/publishing-mulesoft-common-assets-or-libraries-to

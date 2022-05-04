@@ -1,0 +1,41 @@
+To deploy the application to CloudHub:
+======================================
+ command: mvn package deploy -DmuleDeploy
+
+
+
+Run Postman collection-Jenkins:
+==============================
+1. we have to trigger from postaman and add 2 test scripts
+
+    pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+pm.test("Response time is less than 2000ms", function () {
+    pm.expect(pm.response.responseTime).to.be.below(2000);
+});
+
+
+2. Run again
+3. export the collection as a json file to a folder.
+4.open cmd globally and run below commands
+
+     1.newman run C:\Users\admin\AppData\Local\Postman\app-8.12.4\WorldTimeZone-Jenkins.postman_collection.json --disable-unicode
+     2.npm install -g newman-reporter-htmlextra (next it will create following(newman -reporter-htmlextra) folder in (C:\Users\admin\AppData\Roaming\npm\node_modules) 
+     3.newman run C:\Users\admin\AppData\Local\Postman\app-8.12.4\WorldTimeZone-Jenkins.postman_collection.json -r htmlextra --reporter-htmlextra-export C:\Users\admin\AppData\Local\Postman\app-8.12.4
+       (it will create a html report for in above file loc)
+     
+     4.newman run C:\Users\admin\AppData\Local\Postman\app-8.12.4\WorldTimeZone-Jenkins.postman_collection.json -r htmlextra --reporter-htmlextra-export C:\Users\admin\AppData\Local\Postman\app-8.12.4 --reporter-htmlextra-darkTheme
+        (it will create a darkTheme html report in above file loc)
+
+
+newman run C:\Users\admin\AppData\Local\Postman\app-8.12.4\WorldTimeZone-Jenkins.postman_collection.json -r htmlextra --reporter-htmlextra-export C:\Users\admin\AppData\Local\Postman\app-8.12.4 --reporter-htmlextra-darkTheme
+
+
+
+
+
+
+
+cd C:\Users\admin\AppData\Roaming\npm
+newman run C:\Users\admin\AppData\Local\Postman\app-8.12.4\WorldTimeZone-Jenkins.postman_collection.json

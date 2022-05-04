@@ -1,0 +1,467 @@
+1).
+
+%dw 2.0
+output application/json
+var a= [
+   {
+      "PESEL":"SDFASD",
+      "startDate":"2021-01-01",
+      "endDate":"2021-01-10",
+      "childIndicator":false,
+      "status": "A"
+   },
+   {
+      "passportNo":"ASDFA4343",
+      "startDate":"2021-02-01",
+      "endDate":"2021-02-10",
+      "childIndicator":true,
+      "status": "A"
+   },
+   {
+      "PESEL":"SDFASD221",
+      "passportNo":"ASDFA11234",
+      "startDate":"2021-03-01",
+      "endDate":"2021-03-10",
+      "childIndicator":true,
+      "status": "I"
+   }
+]
+---
+// a map(empValue, indOfemp)->{
+//  (empValue mapObject
+//  if(($) as String == "SDFASD" or ($) as String == "SDFASD221")
+//   {
+//      ($$): $,
+//      "Loc": "INDIA"
+//   }
+//   else 
+//   {
+//      ($$): $,
+//   }
+// ),
+// "Loc": "JAPAN",
+// }
+
+a filter ($.status == "A") map(item, index)->{
+    (item mapObject 
+        if(($) as String == 'SDFASD')
+        {
+            ($$): $,
+            "City": "Hyd"
+        }
+        else
+        {
+          ($$): $
+        }
+     )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2). 
+
+%dw 2.0
+output application/json
+var a= [
+   {
+       "empNo": "1",
+      "PESEL":"SDFASD",
+      "startDate":"2021-01-01",
+      "endDate":"2021-01-10",
+      "childIndicator":false,
+      "status": "A"
+   },
+   {
+       "empNo": "2",
+      "passportNo":"ASDFA4343",
+      "startDate":"2021-02-01",
+      "endDate":"2021-02-10",
+      "childIndicator":true,
+      "status": "A"
+   },
+   {
+       "empNo": "3",
+      "PESEL":"SDFASD221",
+      "passportNo":"ASDFA11234",
+      "startDate":"2021-03-01",
+      "endDate":"2021-03-10",
+      "childIndicator":true,
+      "status": "I"
+   }
+]
+---
+// a  map{
+//     ($ mapObject{
+//         ($$): $
+//     })
+// } 
+
+
+{
+    "distinctBy": a distinctBy ((item, index) ->item.status ),
+    "orderByAsc": a orderBy ((item, index) ->item.empNo),
+    "orderByDesc": a orderBy -$.empNo,
+    "joinBy": (a filter ($.status == "I")).empNo joinBy  ", ",
+    "emps": a orderBy $.empNo distinctBy $.status  map((emp, indexOfemp)->{
+        "empNo": if(emp.empNo >= '1') emp.empNo else "0",
+        "Pesel": emp.PESEL,
+        "passportNo": emp.passportNo,
+        "startDate": emp.startDate,
+        "endDate": emp.endDate,
+        "childIndicator": emp.childIndicator,
+        "status": emp.status
+    })
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%dw 2.0
+output application/json
+var a= [
+  {
+    "empid": 1,
+    "fname": "Mohan",
+    "lname": "Asa",
+    "address": "Guntur",
+    "emailID": "aramsai@eniquesolutions.com",
+    "mname": "Ram",
+    "designation": "Intern",
+    "joiningdate": "19-04-2021",
+    "title": "mulesoft",
+    "phno": "7013084527",
+    "deptname": "Production",
+    "status": "active"
+  },
+  {
+    "empid": 2,
+    "fname": "Mohan",
+    "lname": "Asa",
+    "address": "Guntur",
+    "emailID": "alakshman@eniquesolutions.com",
+    "mname": "Lakshman",
+    "designation": "Intern",
+    "joiningdate": "19-04-2021",
+    "title": "mulesoft",
+    "phno": "9347359767",
+    "deptname": "Purchasing",
+    "status": "active"
+  },
+  {
+    "empid": 5,
+    "fname": "Anirudh",
+    "lname": "Era",
+    "address": "Kakinada",
+    "emailID": "adamera@eniquesolutions.com",
+    "mname": "Dam",
+    "designation": "Consultant",
+    "joiningdate": "01-09-2021",
+    "title": "mulesoft",
+    "phno": "9441784843",
+    "deptname": "Accounting",
+    "status": "active"
+  },
+  {
+    "empid": 7,
+    "fname": "Anu",
+    "lname": "Muttineni ",
+    "address": "Khammam",
+    "emailID": "anuroopa@eniquesolutions.com",
+    "mname": "Roopa",
+    "designation": "Developer",
+    "joiningdate": "03-03-2021",
+    "title": "mulesoft",
+    "phno": "7729039701",
+    "deptname": "Human Resource",
+    "status": "active"
+  },
+  {
+    "empid": 8,
+    "fname": "Suma",
+    "lname": "Varikallu",
+    "address": "Guntur",
+    "emailID": "sumalatha@eniquesolutions.com",
+    "mname": "Latha",
+    "designation": "Senior Developer",
+    "joiningdate": "01-01-2019",
+    "title": "mulesoft",
+    "phno": "9515845488",
+    "deptname": "Development",
+    "status": "active"
+  },
+  {
+    "empid": 10,
+    "fname": "Sai Venkata ",
+    "lname": "Pedavalli ",
+    "address": "Vijayawada",
+    "emailID": "spedavalli@eniquesolutions.com",
+    "mname": "Gopinadh",
+    "designation": "Consultant",
+    "joiningdate": "01-09-2021",
+    "title": "mulesoft",
+    "phno": "9603813274",
+    "deptname": "Human Resource",
+    "status": "active"
+  },
+  {
+    "empid": 12,
+    "fname": "Mitali",
+    "lname": "lekar",
+    "address": "Mumbai",
+    "emailID": "\tmitaliverlekar@eniquesolutions.com",
+    "mname": "Ver",
+    "designation": "HR Associate",
+    "joiningdate": "01-01-2020",
+    "title": "mulesoft",
+    "phno": "7386700166",
+    "deptname": "Human Resource",
+    "status": "active"
+  },
+  {
+    "empid": 14,
+    "fname": "Srikanth",
+    "lname": "Nalla",
+    "address": "Hyderabad",
+    "emailID": "snalla@eniquesolutions.com",
+    "mname": "Reddy",
+    "designation": "Accounts Manager",
+    "joiningdate": "01-01-2019",
+    "title": "mulesoft",
+    "phno": "40 4832 1372",
+    "deptname": "Accounting",
+    "status": "active"
+  }
+]
+
+var b= [
+  {
+    "depid": "DEP101",
+    "deptname": "Production"
+  },
+  {
+    "depid": "DEP102",
+    "deptname": "Purchasing"
+  },
+  {
+    "depid": "DEP103",
+    "deptname": "R&D"
+  },
+  {
+    "depid": "DEP104",
+    "deptname": "Accounting"
+  },
+  {
+    "depid": "DEP105",
+    "deptname": "Finance"
+  },
+  {
+    "depid": "DEP106",
+    "deptname": "Human Resource"
+  },
+  {
+    "depid": "DEP107",
+    "deptname": "Development"
+  },
+  {
+    "depid": "DEP108",
+    "deptname": "Sales"
+  }
+]
+
+---
+a map (a1)->
+{
+(b filter($.*deptname contains a1.deptname) map(b1)->
+{ 
+                "deptId": b1.depid,
+                "empid": a1.empid,
+                "fname": a1.fname,
+                "mname": a1.mname,
+                "lname": a1.lname,
+                "address": a1.address,
+                "emailID": a1.emailID,
+                "design": a1.designation,
+                "joiningdate": a1.joiningdate,
+                "ttile": a1.title,
+                "phno": a1.phno,
+                "deptname": a1.deptname,
+                "status": a1.status
+            } )  
+} 
+
+
+
+
+
+
+
+1).
+input1 = {
+	"XYZ": {
+		"abc": "1234",
+		"currentDateTime": "2022-01-12 06:58:22",
+		"observation": [
+			{
+				"article": "ID12345567",
+				"price": 14.986456,
+				"langauage": "XXXXXXXXXXXXXXXXXXXXXXXX"
+			},
+			{
+				"article": "ID3456789",
+				"price": 13.986456,
+				"langauage": "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
+			},
+			{
+				"article": "ID1234560",
+				"price": 12.986456,
+				"langauage": "ZZZZZZZZZZZZZZZZZZZZZZZZZZ"
+			},
+			{
+				"article": "ID09876543",
+				"price": 11.986456,
+				"langauage": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+			}
+		]
+	}
+}
+
+input2= {
+	"output1": {
+		"proc": 0,
+		"goods": [
+                    {
+                        "article": "ID1234567",
+                        "fullName": "maxicab",
+                                "qty": 1
+                    },
+                    {
+                        "article": "ID3456789",
+                        "fullName": "uber",
+                                "qty": 2
+                    },
+                    {
+                        "article": "ID2345670",
+                        "fullName": "uber",
+                                "qty": 2
+                    }
+				]
+			}
+}
+
+
+%dw 2.0
+output application/json
+var input2={
+	"output1": {
+		"proc": 0,
+		"goods": [
+                    {
+                        "article": "ID1234567",
+                        "fullName": "maxicab",
+                                "qty": 1
+                    },
+                    {
+                        "article": "ID3456789",
+                        "fullName": "uber",
+                                "qty": 2
+                    },
+                    {
+                        "article": "ID2345670",
+                        "fullName": "uber",
+                                "qty": 2
+                    }
+				]
+			}
+}
+
+var a2 = input2.output1.goods
+var a1 = payload.XYZ.observation
+
+fun combineByKey(a1,a2,k) = do {
+    var groupedBy = a2 groupBy $[k]
+    ---
+    a1 map {
+        ($),
+        mergedata: groupedBy[$[k]]
+    }
+}
+---
+payload mapObject{
+    
+    "XYZ": {
+                "abc": payload.XYZ.abc,
+                "currentDateTime": payload.XYZ.currentDateTime,
+                "observation": [ 
+combineByKey(a1,a2,"article")
+        ]
+            }
+}
+
+
+
+
+
+output= {
+  XYZ: {
+    abc: "1234",
+    currentDateTime: "2022-01-12 06:58:22",
+    observation: [
+      {
+        article: "ID12345567",
+        price: 14.986456,
+        langauage: "XXXXXXXXXXXXXXXXXXXXXXXX",
+        "merge-data": null
+      }, 
+      {
+        article: "ID3456789",
+        price: 13.986456,
+        langauage: "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+        "merge-data": {
+          article: "ID3456789",
+          fullName: "uber",
+          qty: 2
+        }
+      }, 
+      {
+        article: "ID1234560",
+        price: 12.986456,
+        langauage: "ZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "merge-data": null
+      }, 
+      {
+        article: "ID09876543",
+        price: 11.986456,
+        langauage: "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+        "merge-data": null
+      }
+    ]
+  }
+}
+

@@ -1,0 +1,64 @@
+Input:
+=====
+
+[
+    {
+        "id": "39747",
+        "recordtype": "customrecord_trainingevent",
+        "columns": {
+            "custrecord_eventid": "CLASS444-S5524",
+            "internalid": {
+                "name": "39747",
+                "internalid": "39747"
+            }
+        }
+    }
+]
+
+[
+  {
+    "id": "39747",
+    "recordtype": "customrecord_trainingevent",
+    "columns": {
+      "name": "Elasticsearch Engineer - Virtual - Classroom - Past Public Training - US Eastern Time from 03 March 2020 till 06 March 2020",
+      "internalid": {
+        "name": "39747",
+        "internalid": "39747"
+      }
+    }
+  }
+]
+
+
+[
+  {
+    "id": "39747",
+    "recordtype": "customrecord_trainingevent",
+    "columns": {
+      "displayname": "Elasticsearch Engineering Event 5678",
+      "internalid": {
+        "name": "39747",
+        "internalid": "39747"
+      }
+    }
+  }
+]
+
+OUTPUT:
+===========
+
+[
+  {
+    "id": "39747",
+    "recordtype": "customrecord_trainingevent",
+    "columns": {
+"custrecord_eventid": "CLASS444-S5524",
+      "name": "Elasticsearch Engineer - Virtual - Classroom - Past Public Training - US Eastern Time from 03 March 2020 till 06 March 2020",
+"displayname": "Elasticsearch Engineering Event 5678",
+      "internalid": {
+        "name": "39747",
+        "internalid": "39747"
+      }
+    }
+  }
+]

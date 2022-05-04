@@ -1,0 +1,161 @@
+THIRUPATHI
+==========
+
+RAML
+what is RAML
+traits
+types
+datatypes
+examples
+methods(POST,Get, Delete,PUT,Patch)
+Libararies
+queryParameters
+uriParameters
+Headers
+error codes
+(with hands-on)
+
+Mule Event Structure
+what is event
+fields in event
+how to access those
+(with hands-on)
+
+Dataweave
+what is dataweave
+how to write is
+how to create a varibale in dataweave
+what is metadata and how to choose it
+what is preview 
+(with hands-on)
+
+Connectors
+1. Components
+    -  Logger
+    -  Transaform Message
+    -  Flow Reference
+    -  Scheduler
+2. Flow Controls
+    -  Choice Router
+    -  Scatter-Gather
+    -  First Successful
+    -  Round Robbin
+3. Scopes
+    -  Flow
+    -  Sub Flow
+    -  Cache
+    -  Synchronous
+    -  Asynchronous
+    -  For Each
+    -  Parallel For Each
+    -  Try
+    -  Until Successfull
+3. Transformers
+    -  Set varibale
+    -  Remove varibale
+    - Set Payload
+4. HTTP Connectors
+    -  HTTP Listener
+    -  HTTP Requester
+5. End Point Connectors(only what is what with sample examples)
+    -  HTTP Request
+    -  JMS
+    -  Salesforce
+    -  Database
+    -  Object Store
+    -  File
+6. Batch Job
+	- what is batch
+	- phases in batch
+	- difference b/w for each vs Parallel For each Vs batch
+	- batch step
+	- bathc aggregator
+
+7. Database
+    1. What is Database
+    2. CRUD Operations of Database
+         -  GET  (Fetch Infor)
+         -  POST (Create)
+         -  Delete  (Delete)
+         -  PUT   (Update or Create)
+         -  PATCH   (Partial Update)
+
+8. Final Project (Banking Project)
+
+
+
+=======================================================================================================================================================
+
+MAHESH:
+======
+1.Dataweave(concepts, some imp functions in dataweave)
+
+2.JMS
+     1. What is ActieMQ
+     2. Installation of ActiveMQ
+     3. What is JMS
+     4. Operations of JMS
+       -  Publish
+       -  Publish Consume
+       -  Consume
+       - On New Message
+       -  Ack
+     5. What is Queue
+     6. What is Topic
+
+3. File
+   1. What is the use of File Connectors
+   2. Operations with File Connector:
+    	-  Copy File
+    	-  Read File
+    	- Wrtite File
+    	- Delete File
+    	- Move File
+    	-  Rename File
+    	- List File
+    	-  On New or Updated File
+   	 - Create Directory
+
+4.Object Store
+  1. What is Object Store
+  2. Use of Object Store
+  3. Types of Object Stores
+  5. Operations of Object Store
+    -  Store
+    -  Retrieve
+    -  Retrieve All
+    -  Retrieve All Keys
+    -  Clear
+    -  Contains
+    -  Remove
+    
+7. Error Handling
+ 	 1. What is Error Handling ?
+  	2. What is the use of it ?
+  	3. Types of Error Handling
+   	 - On Error Propagate
+   	 - On Error Continue
+   	 - Raise Error
+ 	4. Hands On Scenarios
+
+8. Validation Connectors
+	1. What is Validation
+	2. Diff Validation Connectors in Mule
+
+9. GitGub
+   github account creation
+   what is github
+   why it is
+   what are the commands to push the code into guthub
+   how to create a repository in guthub
+   how to pull the code into studio
+   
+10. Deploying the Application
+   CloudHub deployment
+   On-Premise deployment
+
+11. Applying policies
+    1. Client Id enrocement
+    2. Rate Limiting
+    3, SLA based Rate Limiting
+    4. Json Threat protection 

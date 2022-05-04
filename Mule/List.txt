@@ -1,0 +1,47 @@
+- Object store
+- JMS and VM connector
+- Try Scope
+-  One way and two way SSL
+- Error handling
+- Client id enforcement
+- JWT Token
+- Secure properties
+- Encrypting password
+-  Active MQ (DLQ)
+- Until Successful scope
+- Domain Project
+- Scatter-Gather with error handling
+- Choice Router
+- Splunk
+- Parallel For Each Scope
+-  Try and For Each Scope
+- RAML (resource types, traits)
+- API Manager (Policies - Client Id Enforcement, JWT, Rate limiting, Rate limiting - SLA, Auto discovery)
+- Correlation Id
+- SOAP 
+- DWL functions (map, mapobject, flatten, filter, lookup, groupby, orderby, distinctBy, fliterObject, defineing matadata)
+- SFTP
+- POM file configurations for deployment on RTF
+- JSON Loggers
+- Async Scope
+- Thread Pooling
+
+
+
+Pending from my side
+
+- Workday
+- Anypoint MQ
+- Anypoint Monitoring
+- Visualizer
+
+- Vertical Scaling
+
+- Connection Pooling
+-RAML (security schemes, fragments)
+- Cache Scope
+- Salesforce composite connector
+- Stored procedures
+- Integration Patterns
+- Asset ID
+

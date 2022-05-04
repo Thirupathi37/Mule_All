@@ -1,0 +1,94 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "required": [
+    "request_id",
+    "product_id",
+    "status",
+    "vehicle",
+    "driver",
+    "location",
+    "eta",
+    "surge_multiplier"
+  ],
+  "properties": {
+    "request_id": {
+      "$id": "#/properties/request_id",
+      "type": "string",
+      "title": "The Request_id Schema",
+      "default": "",
+      "examples": [
+        "852b8fdd-4369-4659-9628-e122662ad257"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "product_id": {
+      "$id": "#/properties/product_id",
+      "type": "string",
+      "title": "The Product_id Schema",
+      "default": "",
+      "examples": [
+        "a1111c8c-c720-46c3-8534-2fcdd730040d"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "status": {
+      "$id": "#/properties/status",
+      "type": "string",
+      "title": "The Status Schema",
+      "default": "",
+      "examples": [
+        "processing"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "vehicle": {
+      "$id": "#/properties/vehicle",
+      "type": "null",
+      "title": "The Vehicle Schema",
+      "default": null,
+      "examples": [
+        null
+      ]
+    },
+    "driver": {
+      "$id": "#/properties/driver",
+      "type": "null",
+      "title": "The Driver Schema",
+      "default": null,
+      "examples": [
+        null
+      ]
+    },
+    "location": {
+      "$id": "#/properties/location",
+      "type": "null",
+      "title": "The Location Schema",
+      "default": null,
+      "examples": [
+        null
+      ]
+    },
+    "eta": {
+      "$id": "#/properties/eta",
+      "type": "integer",
+      "title": "The Eta Schema",
+      "default": 0,
+      "examples": [
+        5
+      ]
+    },
+    "surge_multiplier": {
+      "$id": "#/properties/surge_multiplier",
+      "type": "null",
+      "title": "The Surge_multiplier Schema",
+      "default": null,
+      "examples": [
+        null
+      ]
+    }
+  }
+}

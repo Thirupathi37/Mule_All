@@ -1,0 +1,140 @@
+SELF INTRODUCTION:
+=================
+Hi, hello
+First of all thanks for this opportunity.
+
+
+NAME & FROM:
+============
+Myself my name is Thirupathi
+
+I belongs to Jagtial, Telangana, India
+
+
+
+Education qualifications:
+========================
+I have done my graducation in computer Science in 2018 from jyothi.. inst with 68.9%.
+
+
+
+
+WORK EXPERIENCE & SKILLS:
+========================
+I have 3+ yrs of  total IT experience and 2 yrs of experience on Mulesoft.
+I am currently working in Enique Solutions from last 5 months. Previously I worked at Capgemini for nearly 2.10 yrs.
+ 
+And I have experience On TIBCO BW 5.
+And My project in Capgemini is ASCENCIA Diabetes HealthCare, it is using Mulesoft as a middleware.
+
+my role in the project is developer
+ASCENCIA: Basically Ascencia deals with manufacturing of diabetes meters, ascencia is a global company established in 2016 and it is subsidiary with panasonic.
+========= It is dedicated to improving the healths and lives of people with diabetes.
+          
+          It spreaded across all the major 3 regions
+                  1.North America   2.Europe     3.Pacific Asia
+
+         so we get the req's from all these 3 regions
+
+  Ascensia using MuleSoft as a middleware for data transformation from different systems. 
+
+Here the source is EPI website, Microsoft dynamic CRM, Active Directories, we will get the req data in the form of Java Object, we will convert it into Json and will do some
+internal operations and finally send the data to destination, here the destinaion is Netsuite, CRM, Salesforce.
+
+And we used Basic Authentication with  username and password
+
+1.AD-----Netsuite
+2.CRM----Netsuite (For Orders)
+
+
+Libraries: we used NQjc.jar  & Netsuite drivers as Libraries.
+
+CIF= Core Integration Framework
+It is a java based framework it is used to store logs, error transactions along with parameter for cross reference.It provides business friendly GUI to 
+monitor & manage transactions. and for failure scenarios and the configured source data formats can be viewed in CIF.
+
+
+I have trained on TIBCO BW 5.14 for Novelis Aluminium Manufacturing project,in that i have worked for support & developement for 3 months
+
+
+
+TIBCO:
+======
+  Novelis is the leading producer of flat-rolled aluminium products and the world's largest recycler of aluminum.
+  Novelis is a subsidiary of Hindalco Industries Limited, an industry leader in aluminum, copper and metals; and a flagship company of the Aditya Birla Group based in Mumbai, India.
+
+
+after that I trained and certified on Mule 3.9(Integration & API Associate) and mule4(MCD Level-1) as per company requiement and now working for ASCENCIA Diabetes 
+HealthCare on mulesoft, in that Intiall I worked as a suppot and later I moved to development team.
+
+
+
+
+SKILLS:
+======
+My primary skill is Mulesoft
+and i have done with
+         1. MCD Level-1 certification &
+         2. Integration & API associate
+         3. MCPA Level-1
+
+and also I have good knowledge and expertise in C, Core java, SQL, HTML, JEE with cloud.
+and I have an aware on Tools like Postman, SOAPUI, GIT, SQL Developer.
+
+
+ACHIEVEMENTS:
+=============
+
+professional achievements: 
+=========================
+Till now i have completed 2 certifications on Mule
+1. Integration and API Associate-Mule 3.9
+2. MCD Level 1-Mule 4
+
+I have participated as a mentor for  capgemini hosted events like India Mule Architect Summit
+                           and I got appreciated and appreciation certificate from capgemini.
+
+And I have given Slide prsentation on Online carwash application on mulesoft to all  capgemini mulesoft employees across all over india.
+
+
+personal achievements:
+====================
+I have so many achievements During my graduation.
+and I have participated in different workshops and trainings and certified like
+ 1.National workshop on Androind Application development
+ 2.100 hours skill enhancement programme.
+
+
+
+
+
+STRENTHS & WEAKNESS:
+===================
+Strengths:
+ 
+  I am very workaholic person
+  I am very determined towards work
+  Unless I cmplt my work I can not take rest 
+  I am a quick learner and enthusiastic in learning new things.
+  
+
+weaknesses:
+   Unless I cmplt my work I can not take rest
+   If somebody ask me for any help I have a hobbit of saying no
+
+
+
+
+HOBBIES:
+========
+Daily I follow the NEWS
+
+
+Design Pattetrns:
+1. scheduler based
+2. Guarantee delivery with JMS
+3. Guarantee delivery with ObjectStore
+4. BroadCast
+5. Sync and Async
+
+

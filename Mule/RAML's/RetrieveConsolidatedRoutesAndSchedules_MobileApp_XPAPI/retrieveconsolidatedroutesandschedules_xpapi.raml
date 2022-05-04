@@ -1,0 +1,69 @@
+#%RAML 1.0
+title: RetrieveConsolidatedRoutesAndSchedules_MobileApp_XPAPI
+description: This RAML File Retrieves Consolidate Routes & Schedules for Mobile App
+
+uses:
+  common : /Libraries/common/common-traits.raml
+  routes: /Libraries/routes/routesCommonBusiness.raml
+  schedules: /Libraries/schedules/schedulesCommonBusiness.raml
+
+/booking:
+  /{transport}:
+    /routes:
+      get:
+        is:
+          - common.transactionid
+          - common.CompanyName
+          - common.departureLoc
+          - common.destinationLoc
+        responses:
+          200:
+            body:
+              application/json:
+                type: routes.getRoutes200RespDatatype             
+                example: !include /Libraries/routes/examples/getRoutes-200-Resp-example.json       
+          400:
+            body:
+              application/json:
+                type: common.commonErrorDataType
+                example: !include /Libraries/common/examples/400-Resp-Example.json
+          404:
+            body:
+              application/json:
+                type: common.commonErrorDataType
+                example: !include /Libraries/common/examples/404-Resp_Example.json
+          500:
+            body:
+              application/json:
+                type: common.commonErrorDataType
+                example: !include /Libraries/common/examples/500-Resp-Example.json    
+
+    /schedules:
+      get:
+        is:
+          - common.transactionid
+          - common.CompanyName
+          - common.departureLoc
+          - common.destinationLoc
+          - common.requestTimezone  
+        responses:
+          200:
+            body:
+              application/json:
+                type: schedules.getSchedules200RespDatatype
+                example: !include /Libraries/schedules/examples/getSchedules-200-Resp-example.json
+          400:
+            body:
+              application/json:
+                type: common.commonErrorDataType
+                example: !include /Libraries/common/examples/400-Resp-Example.json
+          404:
+            body:
+              application/json:
+                type: common.commonErrorDataType
+                example: !include /Libraries/common/examples/404-Resp_Example.json
+          500:
+            body:
+              application/json:
+                type: common.commonErrorDataType
+                example: !include /Libraries/common/examples/500-Resp-Example.json

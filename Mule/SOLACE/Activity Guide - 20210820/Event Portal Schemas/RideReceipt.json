@@ -1,0 +1,115 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "required": [
+    "request_id",
+    "subtotal",
+    "total_charged",
+    "total_owed",
+    "total_fare",
+    "currency_code",
+    "charge_adjustments",
+    "duration",
+    "distance",
+    "distance_label"
+  ],
+  "properties": {
+    "request_id": {
+      "$id": "#/properties/request_id",
+      "type": "string",
+      "title": "The Request_id Schema",
+      "default": "",
+      "examples": [
+        "b5512127-a134-4bf4-b1ba-fe9f48f56d9d"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "subtotal": {
+      "$id": "#/properties/subtotal",
+      "type": "string",
+      "title": "The Subtotal Schema",
+      "default": "",
+      "examples": [
+        "$12.78"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "total_charged": {
+      "$id": "#/properties/total_charged",
+      "type": "string",
+      "title": "The Total_charged Schema",
+      "default": "",
+      "examples": [
+        "$5.92"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "total_owed": {
+      "$id": "#/properties/total_owed",
+      "type": "null",
+      "title": "The Total_owed Schema",
+      "default": null,
+      "examples": [
+        null
+      ]
+    },
+    "total_fare": {
+      "$id": "#/properties/total_fare",
+      "type": "string",
+      "title": "The Total_fare Schema",
+      "default": "",
+      "examples": [
+        "$5.92"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "currency_code": {
+      "$id": "#/properties/currency_code",
+      "type": "string",
+      "title": "The Currency_code Schema",
+      "default": "",
+      "examples": [
+        "USD"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "charge_adjustments": {
+      "$id": "#/properties/charge_adjustments",
+      "type": "array",
+      "title": "The Charge_adjustments Schema"
+    },
+    "duration": {
+      "$id": "#/properties/duration",
+      "type": "string",
+      "title": "The Duration Schema",
+      "default": "",
+      "examples": [
+        "00:11:35"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "distance": {
+      "$id": "#/properties/distance",
+      "type": "string",
+      "title": "The Distance Schema",
+      "default": "",
+      "examples": [
+        "1.49"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "distance_label": {
+      "$id": "#/properties/distance_label",
+      "type": "string",
+      "title": "The Distance_label Schema",
+      "default": "",
+      "examples": [
+        "miles"
+      ],
+      "pattern": "^(.*)$"
+    }
+  }
+}

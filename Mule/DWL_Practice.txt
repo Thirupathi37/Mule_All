@@ -1,0 +1,350 @@
+1 : INPUT payload:
+{
+ Allen: "1",
+ sEan: "2",
+ Kim: "3",
+ MARs: "4"
+} 
+-------------------------
+OUTPUT expected:
+{
+ allen: "1",
+ sEan: "2",
+ kim: "3",
+ mARs: "4"
+} 
+
+************************************************
+
+
+2 : INPUT payload
+[
+  {"regions": "2", "env": "dev"},
+  {"regions": "3", "env": "test"},
+  {"regions": "2", "env": "uat"},
+  {"regions": "1", "env": "prod"}
+]
+Expected output:
+ 
+{
+  "dev": "2",
+  "test": "3",
+  "uat": "2",
+  "prod": "1"
+}
+
+ANS:
+%dw 2.0
+output application/json
+---
+payload map{
+    (payload.env[$$]): payload.regions[$$]
+} reduce ($$ ++ $)
+
+*************************************************************
+
+
+3 : INPUT payload
+ 
+ 
+  <Root> <PrimeEntity> <FinEntity> <RegData> Tag does not exists </RegData> <PassEntity> <PassInnerEntity> <Desc>DataTest1</Desc> </PassInnerEntity> </PassEntity> <PassInnerEntity> <Desc>DataTest2</Desc> </PassInnerEntity> <PassInnerEntity> <Desc>DataTest22</Desc> </PassInnerEntity> <PassEntity> <PassInnerEntity> <Desc>DataTest3</Desc> </PassInnerEntity> </PassEntity> <PassEntity> <PassInnerEntity></PassInnerEntity> </PassEntity> </FinEntity> <FinEntity> <RegData> <CustValue>Test2</CustValue> </RegData> <PassEntity> <PassInnerEntity> <Desc>DataTest12</Desc> </PassInnerEntity> </PassEntity> <PassInnerEntity> <Desc>DataTest22</Desc> </PassInnerEntity> <PassInnerEntity> <Desc>DataTest23</Desc> </PassInnerEntity> <PassEntity> <PassInnerEntity> <Desc>DataTest24</Desc> </PassInnerEntity> </PassEntity> <PassEntity> <PassInnerEntity></PassInnerEntity> </PassEntity> </FinEntity> </PrimeEntity> <PrimeEntity> <FinEntity> <RegData> <CustValue>Test3</CustValue> </RegData> <PassEntity> <PassInnerEntity> <Desc>DataTest31</Desc> </PassInnerEntity> </PassEntity> <PassInnerEntity> <Desc>DataTest32</Desc> </PassInnerEntity> <PassInnerEntity> <Desc>DataTest33</Desc> </PassInnerEntity> <PassEntity> <PassInnerEntity> <Desc>DataTest34</Desc> </PassInnerEntity> </PassEntity> <PassEntity> <PassInnerEntity></PassInnerEntity> </PassEntity> </FinEntity> <FinEntity> <RegData> <CustValue>Test4</CustValue> </RegData> <PassEntity> <PassInnerEntity> <Desc>DataTest41</Desc> </PassInnerEntity> </PassEntity> <PassInnerEntity> <Desc>DataTest42</Desc> </PassInnerEntity> <PassInnerEntity> <Desc>DataTest43</Desc> </PassInnerEntity> <PassEntity> <PassInnerEntity> <Desc>DataTest44</Desc> </PassInnerEntity> </PassEntity> <PassEntity> <PassInnerEntity></PassInnerEntity> </PassEntity> </FinEntity> </PrimeEntity> </Root>
+ 
+Output:
+ 
+{
+"Transactions": [
+{
+"Id": ""
+}, 
+{
+"Id": "Test2-DataTest12-DataTest22-DataTest23-DataTest24"
+}, 
+{
+"Id": "Test3-DataTest31- DataTest32-DataTest33-DataTest34"
+}, 
+{
+"Id": "Test4-DataTest41- DataTest42-DataTest43-DataTest44"
+}]
+}
+
+
+********************************************************************************
+
+4 : INPUT payload
+Transformation : XML to Json and Json to XMl
+ 
+<string-array>
+<item>English</item>
+<item>Chinese</item>
+<item>French</item>
+<item>Spanish</item>
+</string-array>
+ 
+ 
+{
+    "string-array" : [
+        {
+            "item" : English
+        },
+        {
+            "item" : "Chinese"
+        },
+        {
+            "item" : "French"
+        },
+        {
+            "item : Spanish"
+        }
+    ]
+}
+
+*************************************************************************
+
+5 : INPUT payload
+Extract Objects where,
+Condition - 1 : Error is not an empty array
+Condition - 2 :  All other Objects where the TransactionId and Date matches the Errored Object's TransactionId and Date
+ 
+Input :
+[
+  {
+    "TransactionId": "ab2e-srgc-783",
+    "Date": "01/01/2021",
+    "lineOfBusiness": "L&T",
+    "Error": ["Validation error", "Invalid range input"]
+  },
+  {
+    "TransactionId": "ab2e-srgc-999",
+    "Date": "05/01/2021",
+    "lineOfBusiness": "L&T",
+    "Error": ["Invalid range input"]
+  },
+  {
+    "TransactionId": "ab2e-srgc-435",
+    "Date": "05/01/2021",
+    "lineOfBusiness": "L&T",
+    "Error": ["Wrong match"]
+  },
+  {
+    "TransactionId": "ab2e-srgc-197",
+    "Date": "12/01/2021",
+    "lineOfBusiness": "Bricks machinery",
+    "Error": []
+  },
+    {
+    "TransactionId": "ab2e-srgc-783",
+    "Date": "01/01/2021",
+    "lineOfBusiness": "Cement & steel",
+    "Error": []
+  },
+    {
+    "TransactionId": "ab2e-srgc-999",
+    "Date": "07/01/2021",
+    "lineOfBusiness": "L&T",
+    "Error": []
+  },
+   {
+    "TransactionId": "ab2e-srgc-435",
+    "Date": "05/01/2021",
+    "lineOfBusiness": "Woodworks",
+    "Error": []
+  }
+]
+ 
+ 
+Output:
+ 
+ 
+[
+  {
+    "TransactionId": "ab2e-srgc-783",
+    "Date": "01/01/2021",
+    "lineOfBusiness": "L&T",
+    "Error": ["Validation error", "Invalid range input"]
+  },
+  {
+    "TransactionId": "ab2e-srgc-999",
+    "Date": "05/01/2021",
+    "lineOfBusiness": "L&T",
+    "Error": ["Invalid range input"]
+  },
+  {
+    "TransactionId": "ab2e-srgc-435",
+    "Date": "05/01/2021",
+    "lineOfBusiness": "L&T",
+    "Error": ["Wrong match"]
+  },
+    {
+    "TransactionId": "ab2e-srgc-783",
+    "Date": "01/01/2021",
+    "lineOfBusiness": "Cement & steel",
+    "Error": []
+  },
+   {
+    "TransactionId": "ab2e-srgc-435",
+    "Date": "05/01/2021",
+    "lineOfBusiness": "Woodworks",
+    "Error": []
+ }
+]
+
+*******************************************************************************
+
+6: Input: Payload
+ 
+{
+"body": {
+"AddResponse": "<?xml version='1.0' encoding='UTF-8'?>\n<ns0:AddResult xmlns:ns0=\"http://tempuri.org/\">15</ns0:AddResult>"
+}
+}
+ 
+Output: (Json)
+{
+  "AddResult": "15"
+}
+
+
+********************************************************************
+7: Input 1
+
+ 
+
+[
+
+                {
+
+                                "PESEL": "SDFASD",
+
+                                "startDate": "2021-01-01",
+
+                                "endDate": "2021-01-10",
+
+                                "childIndicator": false
+
+                },
+
+                {
+
+                                "passportNo": "ASDFA4343",
+
+                                "startDate": "2021-02-01",
+
+                                "endDate": "2021-02-10",
+
+                                "childIndicator": true
+
+                },
+
+                {
+
+                                "PESEL": "SDFASD221",
+
+                                "passportNo": "ASDFA11234",
+
+                                "startDate": "2021-03-01",
+
+                                "endDate": "2021-03-10",
+
+                                "childIndicator": true
+
+                }
+
+]
+
+ 
+
+Input 2 :
+
+ 
+
+[
+
+                {
+
+                                "employeeID": 1
+
+                },
+
+                {
+
+                                "employeeID": 2,
+
+                                "passportNo": "ASDFA4343"
+
+                },
+
+                {
+
+                                "employeeID": 3,
+
+                                "PESEL": "SDFASD"
+
+                },
+
+                {
+
+                                "employeeID": 4,
+
+                                "PESEL": "SDFASD221",
+
+                                "passportNo": "ASDFA11234"
+
+                }
+
+]
+
+ 
+
+Output :
+
+ 
+
+[
+
+                {
+
+                                "employeeID": 2,
+
+                                "passportNo": "ASDFA4343",
+
+                                "startDate": "2021-02-01",
+
+                                "endDate": "2021-02-10",
+
+                                "childIndicator": true
+
+                },
+
+                {
+
+                                "employeeID": 3,
+
+                                "PESEL": "SDFASD",
+
+                                "startDate": "2021-01-01",
+
+                                "endDate": "2021-01-10",
+
+                                "childIndicator": false
+
+                },
+
+                {
+
+                                "employeeID": 4,
+
+                                "PESEL": "SDFASD221",
+
+                                "passportNo": "ASDFA11234",
+
+                                "startDate": "2021-03-01",
+
+                                "endDate": "2021-03-10",
+
+                                "childIndicator": true
+
+                }
+
+]
+
+***********************************************************************************************

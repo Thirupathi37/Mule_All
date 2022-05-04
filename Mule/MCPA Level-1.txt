@@ -1,0 +1,40 @@
+MCPA Level-1:
+------------
+https://vceguide.com/an-api-implementation-is-updated-when-must-the-raml-definition-of-the-api-also-be-updated/
+
+
+
+The word FABRIC is useed to define the Scalability and Elasticity
+
+we cannot set auto-scaling rules based on error messages. Auto-scaling rules are kicked-off based on CPU/Memory usages and not due to some given error or 
+disk space issues.
+
+We CANNOT use Shared Load balancer to load balance APIs on customer hosted runtimes. Load balancing is not provided for Hybrid deployments, but we can manage load balance with 
+the tools connected to ourr on-premises resources. 
+
+For Hybrid deployment models, the on-premises are first connected to Runtime Manager using Runtime Manager agent. So, the connection is initiated first from 
+On-premises to Runtime Manager. Then all control can be done from Runtime Manager.
+
+
+Anypoint Runtime Manager CANNOT ensure automatic HA. Clusters/Server Groups etc should be configured before hand.
+
+API implementations can run successfully in customer-hosted Mule runtimes, even when they are unable to communicate with the control plane. 
+There are several references below to justify this statement.1
+1. https://docs.mulesoft.com/runtime-manager/deployment-strategies#hybrid-deployments
+2. https://help.mulesoft.com/s/article/On-Premise-Runtimes-Disconnected-From-US-Control-Plane-June-18th-2018
+
+
+
+Below TWO are characteristics of Integration Tests but NOT unit tests:
+
+>> They test the validity of input and output of source and target systems.
+>> They must be triggered by an external client tool or event source.
+
+It is NOT TRUE that Unit Tests must be run in a unit testing environment with dedicated Mule runtimes for the environment.
+MuleSoft offers MUnit for writing Unit Tests and they run in an embedded Mule Runtime without needing any separate/ dedicated Runtimes to execute them. 
+They also do NOT need any external connectivity as MUnit supports mocking via stubs.
+
+
+
+file:///C:/Users/admin/Desktop/Assignments/Mule_Final_Project_Post_Training.pdf
+https://www.sfdcpanther.com/mulesoft-training-for-absolute-beginners/#google_vignette

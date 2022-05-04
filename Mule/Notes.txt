@@ -1,0 +1,610 @@
+Useful Links:
+============ 
+LinkedIn Url ----(https://www.linkedin.com/in/thirupathi-bommishetty-361143159)
+1. https://mulesy.com/dataweave-streaming-in-mule-4/
+2. https://www.youtube.com/watch?v=EIwaT3wSzug
+3. https://www.youtube.com/watch?v=Y09mm0P1RQQ (Guaranteed Msg Delivery with jms)
+4. https://www.youtube.com/watch?v=o1jGWs6HhM0 (Guaranteed Msg Delivery with ObjectStore)
+5. https://www.youtube.com/watch?v=Sreiy0sXZ3Y  (Transactions with JMS)
+6. https://www.youtube.com/watch?v=BtzHhekvHYM&list=PL5GwZHHgKcuCpN8bNdyg5B4UFN3nx8VX1 (Enable HTTP Wire Logging for CloudHub Application)(package: org.mule.service.http.impl.service.HttpMessageLogger)
+7. http://fabiopeblog.blogspot.com/2019/09/achieving-reliability-in-mulesoft-4.html
+8. https://www.youtube.com/watch?v=bXuFDlmehPs (Local Transactions)
+9. developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_composite_composite.htm  (Salesforce Documentation)
+10. https://www.linkedin.com/pulse/dataweave-20-part-3-generate-pdf-files-image-from-base64-lingam/
+11. https://mulesy.com/base64-string-to-pdf/
+12. https://apisero.com/inserting-data-to-google-sheet-using-google-sheets-api-and-mule-in-6-easy-steps/ (googlesheet)
+13. https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append (Google sheets for Developers)
+    https://mulesoft-labs.dev/codelabs/connect-to-google-sheets/index.html#5
+14. https://meetups.mulesoft.com
+15. https://docs.mulesoft.com/mule-runtime/4.3/dataweave
+16. https://training.mulesoft.com/course/development-flow-design
+17. https://www.youtube.com/watch?v=tlFywmc2KF8&list=PL5GwZHHgKcuDU2A-5cCV0H0jvHZ4-wJ1u&index=2  (Custom policy)
+18. https://mulesy.com/custom-policy/  (Custom Policy)
+19. https://www.tutorialspoint.com/mulesoft/index.htm
+20. https://mulesy.com/getting-started-on-mulesoft/  (Mulesoft Tutorial-Mulesy)
+    https://www.tutorialspoint.com/mulesoft/mulesoft_dataweave_language.htm (Tutorialspoint)
+21. https://dzone.com/articles/how-to-update-object-store-values-using-object-sto (Update Object Store Values Using Object Store V2 REST APIs)
+22. https://apisero.com/creating-pdf-with-custom-data-in-mulesoft-2/ (Creating PDF with Custom Data in MuleSoft)
+23. https://www.coforge.com/salesforce/blog/mulesoft/mule-cryptocraphy-module-jce-strategy/  (Cryptography)
+24. https://www.youtube.com/watch?v=_1oXCBieGjk&list=PLMlSAPm-JjnlKjqD0pK4RRl77CO4jiWv-  (CI/CD tutorial)
+25. https://www.youtube.com/watch?v=sGzpAvPRwUI (data format Streaming)
+
+
+
+First Successfull Router:
+========================
+when there is a maintainance it will connect with other system. in that scenario we can use this
+
+
+Round Robbin:
+============
+When we don't want to hit particular system, that cause load balance. in that scenarios we can use round robbin
+
+
+
+
+JMS ACK's:
+=========
+AUTO:
+-----
+Automatically acknowledges (ACK) the received message only if the flow execution completes successfully; otherwise, the message is not acknowledged and is 
+redelivered.
+
+DUPS_OK:
+-------
+Like AUTO mode, automatically acknowledges (ACK) the received message only if the flow execution completes successfully, but leads to duplicate messages 
+if the message is redelivered before the ACK is performed.
+
+
+
+MULE 3 Vs MULE 4:
+================
+(https://www.plektonlabs.com/mule-4-vs-mule-3-the-good-the-bad-and-the-ugly/#:~:text=Mule%203%20does%20not%20really,cleaner%2C%20readable%20and%20simpler%20now.)
+
+1. What is the difference between DataWeave 1 and 2?
+dw version syntax changed from %dw 1.0 to %dw 2.0. Except for %dw no longer is needed to start the directive with % in 2.0. 
+Functions in DataWeave 1.0 are defined with function directive. In DataWeave 2.0, it has shortened to “fun.” Along with, function body and function signature
+must separate by = instead of a space
+
+1. Mule runtime engine:
+----------------------
+Mule 4 Runtime has a self-tuning runtime engine in mule 4 that dynamically allocates resources, threads and the thread-pool. Depending on the situation, 
+whether it is CPU or IO sensitive, the runtime engine smartly and automatically assigns thread pools to any mule 4 connectors.
+Manual configuration of the thread pool exists through conf/scheduler-pools.conf file.
+
+2. Project structure:
+----------------------
+Mulesoft introduced a new version of Anypoint Studio, i.e. version 7 that only runs mule 4 application and Anypoint studio 6.x.x or below can only run mule 3.
+Mule 3 project structure is not recognized by Anypoint studio 7.x.x
+All mule 4 applications are Maven based now.  Eventually, Anypoint studio 7.x.x embeds maven and a default configuration which is not the case in Anypoint 
+studio 6.x.x or below.
+
+3. Mule message structure:
+-------------------------
+Mule 3: message header and payload. Message header again consists of some properties, mainly inbound and outbound. Variables in mule 3 are metadata of the message.
+Mule 4: However, mule 4 consider more like event-based model where each Mule event consists of a message and associated variables. There is nothing called 
+        inbound or outbound properties in mule 4, rather, there is an attribute that contains all the headers and other relevant properties.
+
+4.MEL is replaced by DataWeave:
+------------------------------
+Yes, you read that right! Mule expression language (MEL) is no longer available in mule 4. They introduced DataWeave 1.0 in mule 3 in replace of their 
+DataMapper. DataWeave is very simple yet powerful. It is based on functional programming and lambda calculus. mule 4 started with DataWeave version 2.0 and 
+replaced MEL with it.
+
+5. Error handling:
+-----------------
+Mule 3 does not really have any specific framework to identify the error type and nature, rather, it totally relies on developers implementation based on 
+Java exception. Mule 4 has taken a step ahead and come up with some error groups, types and different way to handle them. It’s much cleaner, readable and 
+simpler now.
+
+
+
+
+EMAIL SMTP:
+===========
+<email:properties > 
+<email:property key="mail.smtp.starttls.enable" value="true" /> 
+</email:properties>
+
+
+
+
+Monitoring for On-premise Apps:
+==============================
+(https://www.youtube.com/watch?v=tbhCQevjmsI&list=PL5GwZHHgKcuCsqAjFld3tycHvtyiHGCi9&index=19)
+
+Set-ExecutionPolicy Unrestricted
+
+
+Creating a cluster:
+===================
+https://www.youtube.com/watch?v=bE-xjKv5KO0&list=PL5GwZHHgKcuDU2A-5cCV0H0jvHZ4-wJ1u&index=34
+
+CREATING A Persistant Database for OnPrem Clustering:
+====================================================
+mule.cluster.jdbcstoreurl=jdbc:mysql://localhost:3306/object_store
+mule.cluster.jdbcstoreusername=root
+mule.cluster.jdbcstorepassword=Btr@1234
+mule.cluster.jdbcstoredriver=com.mysql.cj.jdbc.Driver
+mule.cluster.jdbcstorequerystrategy=mysql
+
+
+
+https://t.me/muleyindia
+https://login.salesforce.com/services/data/v42.0/query?q=SELECT id,lastname,lastmodifieddate from contact limit 10
+
+
+SALESFORCE:
+==========
+tokenUrl: https://ap16.salesforce.com/services/oauth2/token
+AuthorizeUrl: https://ap16.salesforce.com/services/oauth2/authorize
+
+http://localhost:8081/authorize
+
+
+
+              Req/downstream call
+Client---------------------------------->Server
+      <----------------------------------
+              Res/upstream call
+
+CUSTOM-POLICY:
+=============
+(https://mulesy.com/custom-policy/)
+(https://www.youtube.com/watch?v=tlFywmc2KF8&list=PL5GwZHHgKcuDU2A-5cCV0H0jvHZ4-wJ1u&index=2)
+
+1. mvn -Parchetype-repository archetype:generate -DarchetypeGroupId=org.mule.tools -DarchetypeArtifactId=api-gateway-custom-policy-archetype -DarchetypeVersion=1.2.0 -DgroupId=a44efcfc-2021-4dde-940d-a9863b4e8bd0(anypoint platform org ID-copy paste here) -DartifactId=mule-logging-demo -Dversion=1.0.0-SNAPSHOT -Dpackage=mule-policy
+2. Next it will create a project in local(C:\Windows\System32)
+3. We need to import that project into Studio
+4. Set a profile and server in .m2/settings.xml file
+
+
+
+
+429-Too Many Requests(Error Message: Quota Exceeded)
+
+
+
+
+WORKDAY:
+=======
+Workday is a Software-as-a-Service (SaaS) solution developed by Workday, Inc. ... Workday provides a set of software apps for financial and human capital 
+management, such as human resources, staffing, recruiting, and performance.
+
+
+
+
+How to do Autoscaling in CloudHub:
+=================================
+1. By deafult we will not get any Autoscaling availability in CloudHub, If we want that we should buy the license for that and the autoscaling is based on CPU utilization
+2. It is inbuild in RTF
+
+
+
+
+Agile Methodology:
+=================
+In this methodology after we deploy the application into Production, if we get any changes we do that change only not from requirement gathering stage
+(not from 1st stage of development)
+
+Scrum Master:
+============
+Scrum master is the on who will be taking the requirement and assigning that into the Jira
+
+Sprint:
+======
+It will be like 2 weeks or 3 weeks ,so he will be assigning all the storage that are to be completed in the particuler Sprint
+
+
+
+Waterfall Methodology:
+=====================
+In this requirement after we deployed the app into the Production, If we get any changes in the application we need to change it from requirement gathering
+stage
+
+TODO:
+====
+1. custom policy
+2. custom connector
+3. REST Vs SOAP
+4. Can we use mapObject for Object inside Object
+5. String to Array conversion in dwl
+     
+%dw 2.0
+output application/json
+---
+"Manu" splitBy (",")
+
+output: ["Manu"]
+
+
+6. Life Cycle ( Design-->Echange(approvals from manager)--> Studio-->Munit-->QA-->SIT-->UAT-->Production)
+7. Netsuit
+8. Response Timeout( we will connect to external system successfulyy but if we don't get resp in time whatever we configured here then it will close the connection with external system)
+9. lookup
+10. p
+11. Mule 3 & 4
+12. Throtling
+13. lookup
+14. Workday
+15. Snowflake
+
+
+
+mapObject:
+=========
+input: Object
+output: Object
+
+pluck():
+=======
+input: Object
+output: Array
+
+map:
+===
+input: Array
+output: Array
+
+
+Latest RAML version is 2.0. Mulesoft does not support that but it available in market
+
+
+
+Structure Of RAML:
+=================
+
+QueryParams: For any filteration
+UriParams: For Unique Identifier
+Headers: Metadata
+Metadata: Metadata contains Headers and queryparams
+ResourceType: ResourceType is collection of traits and types
+
+
+SCATTER_GATHER:
+==============
+1. If any router fail, the entire scatter-gather will also fail
+
+
+
+For Each & Parallel For Each:
+============================
+1.For Each:
+----------
+payload Before and after For each: Same
+variableBefore and after For each: Change( we will get last variable value in For Each)
+
+2. Parallel For Each:
+====================
+payload Before and after Parallel For each: Change (Collectin of all payload in Parallel For Each)
+variableBefore and after Parallel For each: Same
+
+
+
+API LED:
+=======
+Advantages:
+-----------
+1. Implement Our Business requirement into small parts
+2. So that does not impact any other parts if any issue with particuler part
+3. We can reuse the assets
+
+Disadvantages:
+--------------
+1. Initially our development effort is more but it will very advantage in future purspective
+2. Due to multiple API's costing will increase
+
+
+WORKER:
+=======
+Worker is a smallest unit of Mule Runtime where we can deploy our applications.
+1 worker can handle max 1 app only
+1 worker with 1vCore we can see 115 or 130 threads
+Worker is a smallest unit or instance or space in Mule Runtime
+vCore is size of the worker
+we have 8 types of workers
+
+
+PLUCK():
+=======
+Useful for mapping an object into an list (array), pluck iterates over an object and returns an array of keys, values, or indices in that object.
+It is an alternative to mapObject, which is similar but returns an object, instead of an array.
+
+
+Parallel For Each & Batch:
+=========================
+1. For Parallel For Each we will get final output but whereas Batch Processing we will get only statistics
+2. In Batch Processing we will not able to control no of threads that will be decided by Runtime(based on Vcores of system) whereas in Parallel For Each we have control on no of threads running, we can define no of threadds
+3. In Batch we can apply batch step conditions for incomming records whereas in Parallel For Each we can't do that
+4. Batch will continue the process even if there are failure but there is a limit we have to mention that till how many failure the process should run seccussfully
+5. If we mentioned -1 as max failed records it can catch n no of failures
+6. we can handle the failure records by default but if we want to handle failed records in Parallel for each we can use try block to continue the remaining
+7. Max Concurrency in Parallel For Each means how many threads should be created
+
+
+
+Difference Between ObjectStore V1 & V2:
+=====================================
+(https://help.mulesoft.com/s/article/The-Different-Types-of-Object-Stores-Explained#:~:text=Object%20Store%20V2%20is%20the,external%20to%20the%20Mule
+  %20Application.&text=CloudHub%20Runtimes%20for%20Mule%203,only%20support%20Object%20Store%20V2)
+
+MuleSoft has several different types of Object Stores, and it can be confusing to understand which should be used for different use-cases. 
+This article will help explain the differences, when each should be used and how to know which one is being used by your application.
+
+The three types of Object Store are:
+
+1. Anypoint Object Store V2 (This will be created outside of the Worker)
+2. CloudHub Object Store V1
+3. Mule Object Store (this will be created inside the worker)
+
+Object Store V2 is the latest version of CloudHub Object Store. This is a Cloud Service that is external to the Mule Application. ... 
+CloudHub Runtimes for Mule 3 support both Object Store V1 and Object Store V2, while newer CloudHub Runtimes 4x and above now only support Object Store V2.
+
+Object Store:For On-Primise we can use 'Redis' for temparary data maintanance.
+
+
+
+
+ObjectStore Platform Support Matrix:
+===================================
+ 	CloudHub	     Hybrid      On-Premise	Runtime Fabric
+Anypoint Object Store V2      Yes	     No	             No
+CloudHub Object Store V1      Yes	     No		     No
+Mule Object Store	      Yes	     Yes	     Yes
+
+
+
+
+Mule4 Execution Engine:
+======================
+In Mule4 the runtime engine is designed for nonblocking and asynchronous execution. Mule4 runtime is a “Reactive” execution engine.
+https://dzone.com/articles/mule4-thread-management-amp-self-tuning-runtime
+
+
+
+
+keytool -genseckey -keystore D:\WorkSpace\Practice_Files\crypto\aeskeystore.jck -storetype jceks -storepass mulesoft -keyalg AES -keysize 128 -alias aeskey -keypass mulesoft
+
+JWT Policy with Authorization code:
+==================================
+1.create a app in AuthO Provider and set granttype is Authorization code
+2. give Allowed Callback URLs as ex: http://localhost:8081/callback
+3. copy the JSON Web Key Set url from AuthO provider and paste in API Manage JWT policy at JWKS Url
+
+
+Form Authorization url: copy the Authorization Url from AuthO provider & client_id & scope=openid & redirect_uri(callback uri-above point-2) & response_type
+-----------------------
+  (https://thiru-b.us.auth0.com/authorize?client_id=88zMgiX3A8IIxzEHWIQyXU3oFjbha9Q8&scope=openid&redirect_uri=http://localhost:8081/callback&response_type=code)
+
+After entering the above url in browser, it will give a unique code in headers(ex:http://localhost:8081/callback?code=.....)like below
+Authorization code: dbKZaUwMcsddqvDhTkFxUd-p6zR85SaZpah7yBMymUGGf#
+
+Next we need to generate the token by below token url and giveabove code in the url as below 
+
+In postman
+Token Url: https://thiru-b.us.auth0.com/oauth/token
+
+Body-
+Body content type= Encode Payload
+Editor View=Raw input
+
+client_id=88zMgiX3A8IIxzEHWIQyXU3oFjbha9Q8&client_secret=4YbzpTaqg7EIgMxLdJ-bsXoFTn8eHBwYNfTapGGUAXo0a8uJl-E_y47AIrFvjBlD&redirect_uri=http://localhost:8081/callback&grant_type=authorization_code&code=dbKZaUwMcsddqvDhTkFxUd-p6zR85SaZpah7yBMymUGGf#
+
+It will give access_token, copy paste the access token and paste in actual req header part with Authorization-Bearer "Access_token"
+
+
+
+
+
+JWT Policy with Refresh Token:
+=============================
+same like above
+
+1.create a app in AuthO Provider and set granttype is Authorization code
+2. give Allowed Callback URLs as ex: http://localhost:8081/callback
+3. copy the JSON Web Key Set url from AuthO provider and paste in API Manage JWT policy at JWKS Url
+
+
+Form Authorization url: copy the Authorization Url from AuthO provider & client_id & scope=openid offline_access & redirect_uri(callback uri-above point-2) & response_type
+-----------------------
+  (https://thiru-b.us.auth0.com/authorize?client_id=88zMgiX3A8IIxzEHWIQyXU3oFjbha9Q8&scope=openid offline_access&redirect_uri=http://localhost:8081/callback&response_type=code)
+
+follow remaining as above
+
+
+
+
+
+
+HEAP SIZE In Studio:
+===================
+-XX:PermSize=5072m
+-XX:MaxPermSize=5072m
+
+
+
+Salesforce Account:
+=================
+username: thirupathiraj2018@gmail.com
+pass: Btr@1233
+token: fDGAfCg9kJi1IHkVb7IMiQ42
+
+
+
+
+Parallel ForEach:
+================
+we can not get accumulated values outside from parallel for each, bcs in parallel foreach each element runs in individual thread so we can not accumulate all
+different threads values at once(in a variable), if we try to access that variable outside it prints null
+
+We should not put parallel foreach inside try, if any failure in parallel foreach means,it handled with try & onError Continue. So entire parallel foreach 
+values are overridden with on error continue message. we will loose the success payloads also
+
+Instead of that we can use in reverse that is try inside the parallel foreach, if any iteration failed it handled for that particular iteration by try and 
+it continues the remaining iterations
+
+
+
+
+
+FTP FileZilla port: 14148
+AWS DEVOPS CHANNEL TELUGU
+
+DML operations: Insert, Delete, Update
+
+email send connector configuration:
+=================================
+we have to give permission in our google chrome(https://myaccount.google.com/lesssecureapps?pli=1)
+
+
+
+Secure Properties:
+=================
+To encrypt a pasword and anything we need to add secure properties module from exchange to studio
+next we have to install a software:
+Name as : Anypoint Enterprise Security
+Location as: http://security-update-site-1.4.s3.amazonaws.com
+
+
+
+
+
+
+1 WAY SSL:-
+===========
+to generate keystore: create a folder and inside that create 1 client & 1 server folder
+and open server folder and open cmd from inside the server folder and create keystore at server side
+
+GENERATE SERVER KEY STORE:
+========================
+1). keytool -genkey -alias server-keystore -keyalg RSA -keystore D:\WorkSpace\Practice_Files\1WaySSL\Server\server-keyStore.jks
+    it geneartes a server key store in(D:\WorkSpace\Practice_Files\1WaySSL\Server\) Loc . it will generates 
+        1. public_key(sharable)   
+        2. private_key(does not share)
+
+Extract public key from server keystore(This is for generating server side public cert file):
+--------------------------------------------------------------------------------------------
+keytool -export -alias server-keystore -keystore D:\WorkSpace\Practice_Files\1WaySSL\Server\server-keyStore.jks -file D:\WorkSpace\Practice_Files\1WaySSL\Server\server-public-key.crt
+keytool -export -alias *.localhost(give same alias name) -file server_public.cer(any name-server side public cert file name) -keystore tutorialspedia.pfx(particuler keystore-for which keystore we want cert file)
+
+
+GENERATE CLIENT TRUST STORE:
+==========================
+command:
+1. keytool -import -alias server-keystore -keystore D:\WorkSpace\Practice_Files\1WaySSL\Client\client-trustStore.jks -file D:\WorkSpace\Practice_Files\1WaySSL\Server\server-public-key.crt
+
+
+
+
+GENERATE CLIENT KEY STORE:
+========================
+1. keytool -genkey -alias client-keystore -keyalg RSA -keystore D:\WorkSpace\Practice_Files\1WaySSL\Client\client-keyStore.jks
+
+
+Extract public key from client-keystore:
+---------------------------------------
+1. keytool -export -alias client-keystore -keystore D:\WorkSpace\Practice_Files\1WaySSL\Client\client-keyStore.jks -file D:\WorkSpace\Practice_Files\1WaySSL\Client\client-public-key.crt
+
+GENERATE SERVER-TRUST-STORE:
+==========================
+command:
+1. keytool -import -alias client-keystore -keystore D:\WorkSpace\Practice_Files\1WaySSL\Server\server-trustStore.jks -file D:\WorkSpace\Practice_Files\1WaySSL\Client\client-public-key.crt
+
+
+
+
+
+
+Pluck():
+=======
+Useful for mapping an object into an list (array), pluck iterates over an object and returns an array of keys, values, or indices in that object.
+
+It is an alternative to mapObject, which is similar but returns an object, instead of an array.
+
+Reduce:
+========
+Array of objects into single object
+reduce($)---$ will give last value 
+reduce($$)--$$ will give 1st value
+
+
+
+JSON LOGGER:
+===========
+we have to enter the (https://github.com/mulesoft-consulting/json-logger/tree/mule-4.x/json-logger) url in browser and copy the url now.
+Next we have to create a new folder and open the cmd from folder and give command
+--> git clone and paste the latest copied url and it will download the json logger folder and open it
+open settings.xml in template files folder and edit the server details with anypoint platform credentials and copy that server details and goto .m2 folder
+open settings.xml file add the copied server under servers details
+
+Next open the pom.xml file in(json logger->json logger->pom.xml) copy the GroupId
+
+
+Copy the path upto(we should see json logger & template file folder & deployed-to-exchange folder) open cmd and write(cd "paste the copied path")
+next command->./deploy-to-exchange.sh (paste the platform acoount organization id) and enter, it will download the json logger into exchange
+
+
+
+MUNIT:
+=====
+1.set Event
+2.MunitTools::notNullValue()-payload should not null
+3.MunitTools::withMediaType('application/json')-output format should be as Json
+4.MunitTools::equalTo('101')-output for particuler element should be 101\
+5. both--both conditions should be pass---#[MunitTools::both(MunitTools::notNullValue(), MunitTools::withMediaType('application/json'))]
+6. either--any one of the condition should be pass
+7. allof-all conditions should be pass----#[MunitTools::allof([MunitTools::notNullValue(), MunitTools::withMediaType('application/json'), MunitTools::withEncoding('UTF-8')])]
+8. anyof-atleast one condition should be pass
+
+set Event connector:
+for incomming uri or query params we have to set #[{ uriParams:{ region :  'Asia', city : 'Kolkata'}}]
+
+In validation part we will do validations with Assert That connector
+1.-->Expression: payload
+-->Is: MunitTools::notNullValue() (to check out come-it should not be null)
+       MunitTools::withMediaType('application/xml')  (It checks for output format is xml or not, if not give error)
+
+2.If we want to check particular element in payload
+--->Expression: payload.empId
+--->Is:  MunitTools::equalTo('101') (if the output for empid is otherthan 101, it will fail)
+
+
+
+
+
+GitHub:
+======
+1. create a repository in github called "test"(main) repository and it is by default main or master branch, and create a child branch called 'develop' repository
+   and copy the clone link
+2. Next create a empty folder in local system callled ex: "Git-Mule-Repo" or any name. right click and open git bach here and type command "git clone and paste the copied link"
+3. Next it will download the "test" folder which is we created in github, we can find README file in that folder
+4. Next if we want enter into "test" folder through bash, type command "cd test" enter. Now you are inside the test repository in git bash and by default
+   it open as main branch, if we want change from main to any child branch type command "git checkout 'child branch name(develop)'"
+5.Create a new project in studio and open the project in local and copy all the files and paste in "test" folder(in point 3)
+6. check the status "git status" &
+                    "git add *" &
+                    "git commit -m 'my first project'" &
+                    "git push"
+7. Now the code will publish into our child branch "develop'
+8. If I want to move my code from develop branch to main branch--> we need to click on "compare & pull Request"
+   Next we will see like  (main<--develop) structure, right side is "From" & left side is "To" branch. next click on "craeate pull request" button at down.
+   Creating pull request means we are asking owner of the project that review the code and merge into the main branch
+
+
+
+    
+Cloning A existing project from github to Anypoint Studio:
+=========================================================
+1. copy the clone url
+2. goto "Git-Mule-Repo"(locally created folder) and open the git bash and type command "git clone paste the url". next it will download the project to our local
+3. Next we have to go into the that project in gitbash-->cd "projectname"(that is foldername, just created in above point)
+4. Next we want this project into our studio, for that goto studio and just right click on white space at project explorer-->
+    import---->AnypointStudio---->Anypoint Studio Project From File System---->and select the project and make sure that tick the option of copy the project 
+    into workspace also, it will create the same project in workspace also
+
+5. Next if we perform any changes or development, that will reflect in workspace project only, not in Git-Mule-Repo project
+   Next we have to copy the files which are changed or developed newly from workspace folder and paste in Git-Mule-Repo projecta and next puch, commit and code into gitHub
+
+   
+ 
+

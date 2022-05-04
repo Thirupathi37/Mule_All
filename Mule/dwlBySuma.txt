@@ -1,0 +1,166 @@
+input1 = {
+	"XYZ": {
+		"abc": "1234",
+		"currentDateTime": "2022-01-12 06:58:22",
+		"observation": [
+			{
+				"article": "ID12345567",
+				"price": 14.986456,
+				"langauage": "XXXXXXXXXXXXXXXXXXXXXXXX"
+			},
+			{
+				"article": "ID3456789",
+				"price": 13.986456,
+				"langauage": "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
+			},
+			{
+				"article": "ID1234560",
+				"price": 12.986456,
+				"langauage": "ZZZZZZZZZZZZZZZZZZZZZZZZZZ"
+			},
+			{
+				"article": "ID09876543",
+				"price": 11.986456,
+				"langauage": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+			}
+		]
+	}
+}
+input2= {
+	"output1": {
+		"proc": 0,
+		"goods": [
+                    {
+                        "article": "ID1234567",
+                        "fullName": "maxicab",
+                                "qty": 1
+                    },
+                    {
+                        "article": "ID3456789",
+                        "fullName": "uber",
+                                "qty": 2
+                    },
+                    {
+                        "article": "ID2345670",
+                        "fullName": "uber",
+                                "qty": 2
+                    }
+				]
+			}
+}
+
+output= {
+  XYZ: {
+    abc: "1234",
+    currentDateTime: "2022-01-12 06:58:22",
+    observation: [
+      {
+        article: "ID12345567",
+        price: 14.986456,
+        langauage: "XXXXXXXXXXXXXXXXXXXXXXXX",
+        "merge-data": null
+      }, 
+      {
+        article: "ID3456789",
+        price: 13.986456,
+        langauage: "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+        "merge-data": {
+          article: "ID3456789",
+          fullName: "uber",
+          qty: 2
+        }
+      }, 
+      {
+        article: "ID1234560",
+        price: 12.986456,
+        langauage: "ZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "merge-data": null
+      }, 
+      {
+        article: "ID09876543",
+        price: 11.986456,
+        langauage: "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+        "merge-data": null
+      }
+    ]
+  }
+}
+
+solution:
+
+%dw 2.0
+output application/json
+var input1 = {
+	"XYZ": {
+		"abc": "1234",
+		"currentDateTime": "2022-01-12 06:58:22",
+		"observation": [
+			{
+				"article": "ID12345567",
+				"price": 14.986456,
+				"langauage": "XXXXXXXXXXXXXXXXXXXXXXXX"
+			},
+			{
+				"article": "ID3456789",
+				"price": 13.986456,
+				"langauage": "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
+			},
+			{
+				"article": "ID1234560",
+				"price": 12.986456,
+				"langauage": "ZZZZZZZZZZZZZZZZZZZZZZZZZZ"
+			},
+			{
+				"article": "ID09876543",
+				"price": 11.986456,
+				"langauage": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+			}
+		]
+	}
+}
+var input2= {
+	"output1": {
+		"proc": 0,
+		"goods": [
+                    {
+                        "article": "ID1234567",
+                        "fullName": "maxicab",
+                                "qty": 1
+                    },
+                    {
+                        "article": "ID3456789",
+                        "fullName": "uber",
+                                "qty": 2
+                    },
+                    {
+                        "article": "ID2345670",
+                        "fullName": "uber",
+                                "qty": 2
+                    }
+				]
+			}
+}
+var a2 = input2.output1.goods
+var a1 = input1.XYZ.observation
+
+fun combineByKey(a1,a2,k) = do {
+    var groupedBy = a2 groupBy $[k]
+    ---
+    a1 map {
+        ($),
+        mergedata: groupedBy[$[k]]
+    }
+}
+
+---
+input1 mapObject ((value, key, index) -> {
+    XYZ: {
+        abc: value.abc,
+        currentDateTime: value.currentDateTime,
+        observation: [ 
+combineByKey(a1,a2,"article")
+        ]
+    }
+})
+
+

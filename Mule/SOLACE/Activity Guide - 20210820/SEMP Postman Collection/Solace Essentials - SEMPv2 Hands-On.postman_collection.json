@@ -1,0 +1,198 @@
+{
+	"info": {
+		"_postman_id": "ecacee32-dd9c-4630-bfcd-bc0a3fbd9142",
+		"name": "Solace Essentials - SEMPv2 Hands-On",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Message-VPN",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8080/SEMP/v2/config/msgVpns/default",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"SEMP",
+						"v2",
+						"config",
+						"msgVpns",
+						"default"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all Queues",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8080/SEMP/v2/config/msgVpns/{{FirstName}}_vpn/queues",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"SEMP",
+						"v2",
+						"config",
+						"msgVpns",
+						"{{FirstName}}_vpn",
+						"queues"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create VPN",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"msgVpnName\": \"{{FirstName}}_vpn\",\n\t\"enabled\": true\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8080/SEMP/v2/config/msgVpns",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"SEMP",
+						"v2",
+						"config",
+						"msgVpns"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Queue",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"queueName\": \"{{FirstName}}_q3\"\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8080/SEMP/v2/config/msgVpns/{{FirstName}}_vpn/queues",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"SEMP",
+						"v2",
+						"config",
+						"msgVpns",
+						"{{FirstName}}_vpn",
+						"queues"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Queue",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"maxMsgSpoolUsage\": 100\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8080/SEMP/v2/config/msgVpns/{{FirstName}}_vpn/queues/{{FirstName}}_q3",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"SEMP",
+						"v2",
+						"config",
+						"msgVpns",
+						"{{FirstName}}_vpn",
+						"queues",
+						"{{FirstName}}_q3"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "admin",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "admin",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"id": "f305fa0c-8d8c-435b-a4f8-52f2249ea9ce",
+			"key": "BrokerIP",
+			"value": "127.0.0.1"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

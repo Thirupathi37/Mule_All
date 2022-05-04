@@ -1,0 +1,42 @@
+Youtube Link:  https://www.youtube.com/watch?v=N5paFykF54Q
+
+
+
+Steps To Follow To Create MULE 4.X Custom Policy
+
+
+Step 1 : Download apache maven software and unzip the software.
+
+Spet 2: Configure maven Home in environment variables.
+
+Step 3: Update the conf.xml with mulesoft server credentials and repo.
+
+Step 4 : Prepare and Execute the maven command to create a mule 4.x custom policy.
+
+Step 5: Once Pblicy created then Upadate the template.xml and yaml definition file based on y 8 Step 6: if reuired update the pom.xml with required jar dependency
+
+Step 7: If required Update mulesoft runtime version on pom.xml and mule-artifact.json
+
+Step 8: Excecute intall maven command to package the project as Jar file.
+
+Step 9: Publish the Jar to anypoint plaform exchange by using deploy maven command.
+
+Step 10: Apply the policy to the application.
+
+
+
+(Custom Project in Local File)
+Create a Empty Floder and open cmd from folder and next give the below command and enter
+For Step-4: mvn -Parchetype-repository archetype:generate -DarchetypeGroupId=org.mule.tools -DarchetypeArtifactId=api-gateway-custom-policy-archetype -DarchetypeVersion=1.2.0 -DgroupId=72b1fe1f-e899-48a9-b51d-85e2fc18983f ${our anypoint platform account organizationID} -DartifactId=mule-logging-demo(give any custom policy name) -Dversion=1.0.0-SNAPSHOT -Dpackage=mule-policy
+after entering it it will ask for policy name & policy description, we can give policy name same as in above command and enter
+Next it will ask for confirmation for properties configuration: Y
+Next it will build a folder with policy name in that folder and creates .yaml & pom.xml & mule-artifact.json files
+
+
+
+For Step-8:(to make prjoect as jar file)
+==========
+open the created project folder 1 step(upto to see--src, .yaml, .json files)
+and open cmd from there(command is: mvn clean install)
+
+

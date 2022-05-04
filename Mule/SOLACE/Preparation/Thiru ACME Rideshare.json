@@ -1,0 +1,1135 @@
+{
+  "applicationDomains": [
+    {
+      "createdTime": 1643019114993,
+      "updatedTime": 1643019114993,
+      "createdBy": "2z2tkoh1h0p",
+      "changedBy": "2z2tkoh1h0p",
+      "id": "m58vir9y23q",
+      "name": "Thiru ACME Rideshare",
+      "topicDomain": "thiru/rideshare",
+      "description": "",
+      "enforceUniqueTopicNames": true,
+      "schemas": [
+        {
+          "createdTime": 1643110849373,
+          "updatedTime": 1643110849373,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "7gbeo7e26ki",
+          "name": "ThiruTrip",
+          "shared": true,
+          "description": "Data Schema represents the information of a trip status",
+          "contentType": "JSON",
+          "content": "{\n  \"definitions\": {},\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"$id\": \"http://example.com/root.json\",\n  \"type\": \"object\",\n  \"title\": \"The Root Schema\",\n  \"required\": [\n    \"fare\",\n    \"dropoff\",\n    \"vehicle_id\",\n    \"distance\",\n    \"start_city\",\n    \"status_changes\",\n    \"surge_multiplier\",\n    \"pickup\",\n    \"driver_id\",\n    \"status\",\n    \"duration\",\n    \"trip_id\",\n    \"currency_code\"\n  ],\n  \"properties\": {\n    \"fare\": {\n      \"$id\": \"#/properties/fare\",\n      \"type\": \"number\",\n      \"title\": \"The Fare Schema\",\n      \"default\": 0,\n      \"examples\": [\n        6.2\n      ]\n    },\n    \"dropoff\": {\n      \"$id\": \"#/properties/dropoff\",\n      \"type\": \"object\",\n      \"title\": \"The Dropoff Schema\",\n      \"required\": [\n        \"timestamp\"\n      ],\n      \"properties\": {\n        \"timestamp\": {\n          \"$id\": \"#/properties/dropoff/properties/timestamp\",\n          \"type\": \"integer\",\n          \"title\": \"The Timestamp Schema\",\n          \"default\": 0,\n          \"examples\": [\n            1502844378\n          ]\n        }\n      }\n    },\n    \"vehicle_id\": {\n      \"$id\": \"#/properties/vehicle_id\",\n      \"type\": \"string\",\n      \"title\": \"The Vehicle_id Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"0082b54a-6a5e-4f6b-b999-b0649f286381\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"distance\": {\n      \"$id\": \"#/properties/distance\",\n      \"type\": \"number\",\n      \"title\": \"The Distance Schema\",\n      \"default\": 0,\n      \"examples\": [\n        0.37\n      ]\n    },\n    \"start_city\": {\n      \"$id\": \"#/properties/start_city\",\n      \"type\": \"object\",\n      \"title\": \"The Start_city Schema\",\n      \"required\": [\n        \"latitude\",\n        \"display_name\",\n        \"longitude\"\n      ],\n      \"properties\": {\n        \"latitude\": {\n          \"$id\": \"#/properties/start_city/properties/latitude\",\n          \"type\": \"number\",\n          \"title\": \"The Latitude Schema\",\n          \"default\": 0,\n          \"examples\": [\n            38.3498\n          ]\n        },\n        \"display_name\": {\n          \"$id\": \"#/properties/start_city/properties/display_name\",\n          \"type\": \"string\",\n          \"title\": \"The Display_name Schema\",\n          \"default\": \"\",\n          \"examples\": [\n            \"Charleston, WV\"\n          ],\n          \"pattern\": \"^(.*)$\"\n        },\n        \"longitude\": {\n          \"$id\": \"#/properties/start_city/properties/longitude\",\n          \"type\": \"number\",\n          \"title\": \"The Longitude Schema\",\n          \"default\": 0,\n          \"examples\": [\n            -81.6326\n          ]\n        }\n      }\n    },\n    \"status_changes\": {\n      \"$id\": \"#/properties/status_changes\",\n      \"type\": \"array\",\n      \"title\": \"The Status_changes Schema\",\n      \"items\": {\n        \"$id\": \"#/properties/status_changes/items\",\n        \"type\": \"object\",\n        \"title\": \"The Items Schema\",\n        \"required\": [\n          \"status\",\n          \"timestamp\"\n        ],\n        \"properties\": {\n          \"status\": {\n            \"$id\": \"#/properties/status_changes/items/properties/status\",\n            \"type\": \"string\",\n            \"title\": \"The Status Schema\",\n            \"default\": \"\",\n            \"examples\": [\n              \"accepted\"\n            ],\n            \"pattern\": \"^(.*)$\"\n          },\n          \"timestamp\": {\n            \"$id\": \"#/properties/status_changes/items/properties/timestamp\",\n            \"type\": \"integer\",\n            \"title\": \"The Timestamp Schema\",\n            \"default\": 0,\n            \"examples\": [\n              1502843899\n            ]\n          }\n        }\n      }\n    },\n    \"surge_multiplier\": {\n      \"$id\": \"#/properties/surge_multiplier\",\n      \"type\": \"integer\",\n      \"title\": \"The Surge_multiplier Schema\",\n      \"default\": 0,\n      \"examples\": [\n        1\n      ]\n    },\n    \"pickup\": {\n      \"$id\": \"#/properties/pickup\",\n      \"type\": \"object\",\n      \"title\": \"The Pickup Schema\",\n      \"required\": [\n        \"timestamp\"\n      ],\n      \"properties\": {\n        \"timestamp\": {\n          \"$id\": \"#/properties/pickup/properties/timestamp\",\n          \"type\": \"integer\",\n          \"title\": \"The Timestamp Schema\",\n          \"default\": 0,\n          \"examples\": [\n            1502843903\n          ]\n        }\n      }\n    },\n    \"driver_id\": {\n      \"$id\": \"#/properties/driver_id\",\n      \"type\": \"string\",\n      \"title\": \"The Driver_id Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"8LvWuRAq2511gmr8EMkovekFNa2848lyMaQevIto-aXmnK9oKNRtfTxYLgPq9OSt8EzAu5pDB7XiaQIrcp-zXgOA5EyK4h00U6D1o7aZpXIQah--U77Eh7LEBiksj2rahB==\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"status\": {\n      \"$id\": \"#/properties/status\",\n      \"type\": \"string\",\n      \"title\": \"The Status Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"completed\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"duration\": {\n      \"$id\": \"#/properties/duration\",\n      \"type\": \"integer\",\n      \"title\": \"The Duration Schema\",\n      \"default\": 0,\n      \"examples\": [\n        475\n      ]\n    },\n    \"trip_id\": {\n      \"$id\": \"#/properties/trip_id\",\n      \"type\": \"string\",\n      \"title\": \"The Trip_id Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"b5613b6a-fe74-4704-a637-50f8d51a8bb1\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"currency_code\": {\n      \"$id\": \"#/properties/currency_code\",\n      \"type\": \"string\",\n      \"title\": \"The Currency_code Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"USD\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    }\n  }\n}",
+          "applicationDomainId": "m58vir9y23q",
+          "revisionNumber": 1,
+          "versions": [],
+          "type": "schema"
+        },
+        {
+          "createdTime": 1643110599440,
+          "updatedTime": 1643110599440,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "j7qb92a9w6x",
+          "name": "ThiruDriverStatus",
+          "shared": false,
+          "description": "Schema represents the data format that the driver apps should be sending periodically \nthat represent the \"state\" of the driver.",
+          "contentType": "JSON",
+          "content": "{\n  \"definitions\": {},\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"$id\": \"http://example.com/root.json\",\n  \"type\": \"object\",\n  \"title\": \"The Root Schema\",\n  \"required\": [\n    \"driver_id\",\n    \"first_name\",\n    \"last_name\",\n    \"email\",\n    \"phone_number\",\n    \"picture\",\n    \"promo_code\",\n    \"rating\",\n    \"activation_status\"\n  ],\n  \"properties\": {\n    \"driver_id\": {\n      \"$id\": \"#/properties/driver_id\",\n      \"type\": \"string\",\n      \"title\": \"The Driver_id Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"8LvWuRAq2511gmr8EMkovekFNa2848lyMaQevIto-aXmnK9oKNRtfTxYLgPq9OSt8EzAu5pDB7XiaQIrcp-zXgOA5EyK4h00U6D1o7aZpXIQah--U77Eh7LEBiksj2rahB==\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"first_name\": {\n      \"$id\": \"#/properties/first_name\",\n      \"type\": \"string\",\n      \"title\": \"The First_name Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"Uber\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"last_name\": {\n      \"$id\": \"#/properties/last_name\",\n      \"type\": \"string\",\n      \"title\": \"The Last_name Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"Tester\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"email\": {\n      \"$id\": \"#/properties/email\",\n      \"type\": \"string\",\n      \"title\": \"The Email Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"uber.developer+tester@example.com\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"phone_number\": {\n      \"$id\": \"#/properties/phone_number\",\n      \"type\": \"string\",\n      \"title\": \"The Phone_number Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"+14155550000\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"picture\": {\n      \"$id\": \"#/properties/picture\",\n      \"type\": \"string\",\n      \"title\": \"The Picture Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"https://d1w2poirtb3as9.cloudfront.net/16ce502f4767f17b120e.png\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"promo_code\": {\n      \"$id\": \"#/properties/promo_code\",\n      \"type\": \"string\",\n      \"title\": \"The Promo_code Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"ubert4544ue\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"rating\": {\n      \"$id\": \"#/properties/rating\",\n      \"type\": \"integer\",\n      \"title\": \"The Rating Schema\",\n      \"default\": 0,\n      \"examples\": [\n        5\n      ]\n    },\n    \"activation_status\": {\n      \"$id\": \"#/properties/activation_status\",\n      \"type\": \"string\",\n      \"title\": \"The Activation_status Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"active\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    }\n  }\n}",
+          "applicationDomainId": "m58vir9y23q",
+          "revisionNumber": 1,
+          "versions": [],
+          "type": "schema"
+        },
+        {
+          "createdTime": 1643030658702,
+          "updatedTime": 1643030658702,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "cwai0sr9yir",
+          "name": "ThiruDriverRideAccept",
+          "shared": false,
+          "description": "Data format that represents the information required for a driver to accept a ride.",
+          "contentType": "JSON",
+          "content": "{\n  \"definitions\": {},\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"$id\": \"http://example.com/root.json\",\n  \"type\": \"object\",\n  \"title\": \"The Root Schema\",\n  \"required\": [\n    \"request_id\",\n    \"product_id\",\n    \"status\",\n    \"vehicle\",\n    \"driver\",\n    \"location\",\n    \"eta\",\n    \"surge_multiplier\"\n  ],\n  \"properties\": {\n    \"request_id\": {\n      \"$id\": \"#/properties/request_id\",\n      \"type\": \"string\",\n      \"title\": \"The Request_id Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"852b8fdd-4369-4659-9628-e122662ad257\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"product_id\": {\n      \"$id\": \"#/properties/product_id\",\n      \"type\": \"string\",\n      \"title\": \"The Product_id Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"a1111c8c-c720-46c3-8534-2fcdd730040d\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"status\": {\n      \"$id\": \"#/properties/status\",\n      \"type\": \"string\",\n      \"title\": \"The Status Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"processing\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"vehicle\": {\n      \"$id\": \"#/properties/vehicle\",\n      \"type\": \"null\",\n      \"title\": \"The Vehicle Schema\",\n      \"default\": null,\n      \"examples\": [\n        null\n      ]\n    },\n    \"driver\": {\n      \"$id\": \"#/properties/driver\",\n      \"type\": \"null\",\n      \"title\": \"The Driver Schema\",\n      \"default\": null,\n      \"examples\": [\n        null\n      ]\n    },\n    \"location\": {\n      \"$id\": \"#/properties/location\",\n      \"type\": \"null\",\n      \"title\": \"The Location Schema\",\n      \"default\": null,\n      \"examples\": [\n        null\n      ]\n    },\n    \"eta\": {\n      \"$id\": \"#/properties/eta\",\n      \"type\": \"integer\",\n      \"title\": \"The Eta Schema\",\n      \"default\": 0,\n      \"examples\": [\n        5\n      ]\n    },\n    \"surge_multiplier\": {\n      \"$id\": \"#/properties/surge_multiplier\",\n      \"type\": \"null\",\n      \"title\": \"The Surge_multiplier Schema\",\n      \"default\": null,\n      \"examples\": [\n        null\n      ]\n    }\n  }\n}",
+          "applicationDomainId": "m58vir9y23q",
+          "revisionNumber": 1,
+          "versions": [],
+          "type": "schema"
+        },
+        {
+          "createdTime": 1643111090178,
+          "updatedTime": 1643111090178,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "xvq4azl3kog",
+          "name": "ThiruDriverPayment",
+          "shared": false,
+          "description": "This Schema represents the data needed to inform drivers about being paid for a given ride \nand the payment breakdown",
+          "contentType": "JSON",
+          "content": "{\n  \"definitions\": {},\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"$id\": \"http://example.com/root.json\",\n  \"type\": \"object\",\n  \"title\": \"The Root Schema\",\n  \"required\": [\n    \"count\",\n    \"limit\",\n    \"payments\",\n    \"offset\"\n  ],\n  \"properties\": {\n    \"count\": {\n      \"$id\": \"#/properties/count\",\n      \"type\": \"integer\",\n      \"title\": \"The Count Schema\",\n      \"default\": 0,\n      \"examples\": [\n        1200\n      ]\n    },\n    \"limit\": {\n      \"$id\": \"#/properties/limit\",\n      \"type\": \"integer\",\n      \"title\": \"The Limit Schema\",\n      \"default\": 0,\n      \"examples\": [\n        1\n      ]\n    },\n    \"payments\": {\n      \"$id\": \"#/properties/payments\",\n      \"type\": \"array\",\n      \"title\": \"The Payments Schema\",\n      \"items\": {\n        \"$id\": \"#/properties/payments/items\",\n        \"type\": \"object\",\n        \"title\": \"The Items Schema\",\n        \"required\": [\n          \"payment_id\",\n          \"category\",\n          \"event_time\",\n          \"trip_id\",\n          \"cash_collected\",\n          \"amount\",\n          \"driver_id\",\n          \"breakdown\",\n          \"rider_fees\",\n          \"partner_id\",\n          \"currency_code\"\n        ],\n        \"properties\": {\n          \"payment_id\": {\n            \"$id\": \"#/properties/payments/items/properties/payment_id\",\n            \"type\": \"string\",\n            \"title\": \"The Payment_id Schema\",\n            \"default\": \"\",\n            \"examples\": [\n              \"5cb8304c-f3f0-4a46-b6e3-b55e020750d7\"\n            ],\n            \"pattern\": \"^(.*)$\"\n          },\n          \"category\": {\n            \"$id\": \"#/properties/payments/items/properties/category\",\n            \"type\": \"string\",\n            \"title\": \"The Category Schema\",\n            \"default\": \"\",\n            \"examples\": [\n              \"fare\"\n            ],\n            \"pattern\": \"^(.*)$\"\n          },\n          \"event_time\": {\n            \"$id\": \"#/properties/payments/items/properties/event_time\",\n            \"type\": \"integer\",\n            \"title\": \"The Event_time Schema\",\n            \"default\": 0,\n            \"examples\": [\n              1502842757\n            ]\n          },\n          \"trip_id\": {\n            \"$id\": \"#/properties/payments/items/properties/trip_id\",\n            \"type\": \"string\",\n            \"title\": \"The Trip_id Schema\",\n            \"default\": \"\",\n            \"examples\": [\n              \"5cb8304c-f3f0-4a46-b6e3-b55e020750d7\"\n            ],\n            \"pattern\": \"^(.*)$\"\n          },\n          \"cash_collected\": {\n            \"$id\": \"#/properties/payments/items/properties/cash_collected\",\n            \"type\": \"integer\",\n            \"title\": \"The Cash_collected Schema\",\n            \"default\": 0,\n            \"examples\": [\n              0\n            ]\n          },\n          \"amount\": {\n            \"$id\": \"#/properties/payments/items/properties/amount\",\n            \"type\": \"number\",\n            \"title\": \"The Amount Schema\",\n            \"default\": 0,\n            \"examples\": [\n              4.12\n            ]\n          },\n          \"driver_id\": {\n            \"$id\": \"#/properties/payments/items/properties/driver_id\",\n            \"type\": \"string\",\n            \"title\": \"The Driver_id Schema\",\n            \"default\": \"\",\n            \"examples\": [\n              \"8LvWuRAq2511gmr8EMkovekFNa2848lyMaQevIto-aXmnK9oKNRtfTxYLgPq9OSt8EzAu5pDB7XiaQIrcp-zXgOA5EyK4h00U6D1o7aZpXIQah--U77Eh7LEBiksj2rahB==\"\n            ],\n            \"pattern\": \"^(.*)$\"\n          },\n          \"breakdown\": {\n            \"$id\": \"#/properties/payments/items/properties/breakdown\",\n            \"type\": \"object\",\n            \"title\": \"The Breakdown Schema\",\n            \"required\": [\n              \"other\",\n              \"toll\",\n              \"service_fee\"\n            ],\n            \"properties\": {\n              \"other\": {\n                \"$id\": \"#/properties/payments/items/properties/breakdown/properties/other\",\n                \"type\": \"number\",\n                \"title\": \"The Other Schema\",\n                \"default\": 0,\n                \"examples\": [\n                  4.16\n                ]\n              },\n              \"toll\": {\n                \"$id\": \"#/properties/payments/items/properties/breakdown/properties/toll\",\n                \"type\": \"integer\",\n                \"title\": \"The Toll Schema\",\n                \"default\": 0,\n                \"examples\": [\n                  1\n                ]\n              },\n              \"service_fee\": {\n                \"$id\": \"#/properties/payments/items/properties/breakdown/properties/service_fee\",\n                \"type\": \"number\",\n                \"title\": \"The Service_fee Schema\",\n                \"default\": 0,\n                \"examples\": [\n                  -1.04\n                ]\n              }\n            }\n          },\n          \"rider_fees\": {\n            \"$id\": \"#/properties/payments/items/properties/rider_fees\",\n            \"type\": \"object\",\n            \"title\": \"The Rider_fees Schema\",\n            \"required\": [\n              \"split_fare\"\n            ],\n            \"properties\": {\n              \"split_fare\": {\n                \"$id\": \"#/properties/payments/items/properties/rider_fees/properties/split_fare\",\n                \"type\": \"number\",\n                \"title\": \"The Split_fare Schema\",\n                \"default\": 0,\n                \"examples\": [\n                  0.5\n                ]\n              }\n            }\n          },\n          \"partner_id\": {\n            \"$id\": \"#/properties/payments/items/properties/partner_id\",\n            \"type\": \"string\",\n            \"title\": \"The Partner_id Schema\",\n            \"default\": \"\",\n            \"examples\": [\n              \"8LvWuRAq2511gmr8EMkovekFNa2848lyMaQevIto-aXmnK9oKNRtfTxYLgPq9OSt8EzAu5pDB7XiaQIrcp-zXgOA5EyK4h00U6D1o7aZpXIQah--U77Eh7LEBiksj2rahB==\"\n            ],\n            \"pattern\": \"^(.*)$\"\n          },\n          \"currency_code\": {\n            \"$id\": \"#/properties/payments/items/properties/currency_code\",\n            \"type\": \"string\",\n            \"title\": \"The Currency_code Schema\",\n            \"default\": \"\",\n            \"examples\": [\n              \"USD\"\n            ],\n            \"pattern\": \"^(.*)$\"\n          }\n        }\n      }\n    },\n    \"offset\": {\n      \"$id\": \"#/properties/offset\",\n      \"type\": \"integer\",\n      \"title\": \"The Offset Schema\",\n      \"default\": 0,\n      \"examples\": [\n        0\n      ]\n    }\n  }\n}",
+          "applicationDomainId": "m58vir9y23q",
+          "revisionNumber": 1,
+          "versions": [],
+          "type": "schema"
+        },
+        {
+          "createdTime": 1643111246560,
+          "updatedTime": 1643111246560,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "syal97etwjg",
+          "name": "ThiruRideReceipt",
+          "shared": false,
+          "description": " This Schema conforms to the format of a customer receipt and should only be used when \nproviding receipts to end customers.",
+          "contentType": "JSON",
+          "content": "{\n  \"definitions\": {},\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"$id\": \"http://example.com/root.json\",\n  \"type\": \"object\",\n  \"title\": \"The Root Schema\",\n  \"required\": [\n    \"request_id\",\n    \"subtotal\",\n    \"total_charged\",\n    \"total_owed\",\n    \"total_fare\",\n    \"currency_code\",\n    \"charge_adjustments\",\n    \"duration\",\n    \"distance\",\n    \"distance_label\"\n  ],\n  \"properties\": {\n    \"request_id\": {\n      \"$id\": \"#/properties/request_id\",\n      \"type\": \"string\",\n      \"title\": \"The Request_id Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"b5512127-a134-4bf4-b1ba-fe9f48f56d9d\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"subtotal\": {\n      \"$id\": \"#/properties/subtotal\",\n      \"type\": \"string\",\n      \"title\": \"The Subtotal Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"$12.78\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"total_charged\": {\n      \"$id\": \"#/properties/total_charged\",\n      \"type\": \"string\",\n      \"title\": \"The Total_charged Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"$5.92\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"total_owed\": {\n      \"$id\": \"#/properties/total_owed\",\n      \"type\": \"null\",\n      \"title\": \"The Total_owed Schema\",\n      \"default\": null,\n      \"examples\": [\n        null\n      ]\n    },\n    \"total_fare\": {\n      \"$id\": \"#/properties/total_fare\",\n      \"type\": \"string\",\n      \"title\": \"The Total_fare Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"$5.92\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"currency_code\": {\n      \"$id\": \"#/properties/currency_code\",\n      \"type\": \"string\",\n      \"title\": \"The Currency_code Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"USD\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"charge_adjustments\": {\n      \"$id\": \"#/properties/charge_adjustments\",\n      \"type\": \"array\",\n      \"title\": \"The Charge_adjustments Schema\"\n    },\n    \"duration\": {\n      \"$id\": \"#/properties/duration\",\n      \"type\": \"string\",\n      \"title\": \"The Duration Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"00:11:35\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"distance\": {\n      \"$id\": \"#/properties/distance\",\n      \"type\": \"string\",\n      \"title\": \"The Distance Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"1.49\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"distance_label\": {\n      \"$id\": \"#/properties/distance_label\",\n      \"type\": \"string\",\n      \"title\": \"The Distance_label Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"miles\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    }\n  }\n}",
+          "applicationDomainId": "m58vir9y23q",
+          "revisionNumber": 1,
+          "versions": [],
+          "type": "schema"
+        },
+        {
+          "createdTime": 1643029727849,
+          "updatedTime": 1643029727849,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "s8g71wl52fv",
+          "name": "ThiruRideRequest",
+          "shared": false,
+          "description": "The Ride Request schema allows a user to define the ride that is to be requested.\n",
+          "contentType": "JSON",
+          "content": "{\n  \"definitions\": {},\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"$id\": \"http://example.com/root.json\",\n  \"type\": \"object\",\n  \"title\": \"The Root Schema\",\n  \"required\": [\n    \"fare_id\",\n    \"product_id\",\n    \"start_latitude\",\n    \"start_longitude\",\n    \"end_latitude\",\n    \"end_longitude\"\n  ],\n  \"properties\": {\n    \"customer_id\": {\n      \"$id\": \"#/properties/customer_id\",\n      \"type\": \"string\",\n      \"title\": \"The customer_id Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"d30e732b8bba22c9cdc10513ee86380087cb4a6f89e37ad21ba2a39f3a1ba960\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"request_id\": {\n      \"$id\": \"#/properties/request_id\",\n      \"type\": \"string\",\n      \"title\": \"The request_id Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"d30e732b8bba22c9cdc10513ee86380087cb4a6f89e37ad21ba2a39f3a1ba960\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"fare_id\": {\n      \"$id\": \"#/properties/fare_id\",\n      \"type\": \"string\",\n      \"title\": \"The Fare_id Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"d30e732b8bba22c9cdc10513ee86380087cb4a6f89e37ad21ba2a39f3a1ba960\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"product_id\": {\n      \"$id\": \"#/properties/product_id\",\n      \"type\": \"string\",\n      \"title\": \"The Product_id Schema\",\n      \"default\": \"\",\n      \"examples\": [\n        \"a1111c8c-c720-46c3-8534-2fcdd730040d\"\n      ],\n      \"pattern\": \"^(.*)$\"\n    },\n    \"start_latitude\": {\n      \"$id\": \"#/properties/start_latitude\",\n      \"type\": \"number\",\n      \"title\": \"The Start_latitude Schema\",\n      \"default\": 0,\n      \"examples\": [\n        37.761492\n      ]\n    },\n    \"start_longitude\": {\n      \"$id\": \"#/properties/start_longitude\",\n      \"type\": \"number\",\n      \"title\": \"The Start_longitude Schema\",\n      \"default\": 0,\n      \"examples\": [\n        -122.423941\n      ]\n    },\n    \"end_latitude\": {\n      \"$id\": \"#/properties/end_latitude\",\n      \"type\": \"number\",\n      \"title\": \"The End_latitude Schema\",\n      \"default\": 0,\n      \"examples\": [\n        37.775393\n      ]\n    },\n    \"end_longitude\": {\n      \"$id\": \"#/properties/end_longitude\",\n      \"type\": \"number\",\n      \"title\": \"The End_longitude Schema\",\n      \"default\": 0,\n      \"examples\": [\n        -122.417546\n      ]\n    }\n  }\n}",
+          "applicationDomainId": "m58vir9y23q",
+          "revisionNumber": 1,
+          "versions": [],
+          "type": "schema"
+        }
+      ],
+      "events": [
+        {
+          "createdTime": 1643110621530,
+          "updatedTime": 1643110621530,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "qz6zkt92mol",
+          "name": "DriverStatusUpdated",
+          "version": "0.0.1",
+          "shared": false,
+          "description": "When a driver status changes, this event is generated to notify up status changes.\n",
+          "schemaId": "j7qb92a9w6x",
+          "schemaVersionId": null,
+          "keySchemaId": null,
+          "keySchemaVersionId": null,
+          "applicationDomainId": "m58vir9y23q",
+          "revisionNumber": 1,
+          "keyPrimitivePayloadType": null,
+          "valuePrimitivePayloadType": null,
+          "topicAddress": {
+            "id": "nc4rkfx9wyx",
+            "virtualBrokerId": "6aj104vfxd7",
+            "topicAddressLevels": [
+              {
+                "id": "188zgyzcrdv",
+                "consumable": false,
+                "name": "thiru",
+                "displayName": "thiru",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "vtfnat68dij",
+                "consumable": false,
+                "name": "rideshare",
+                "displayName": "rideshare",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "hf40jrk5gas",
+                "consumable": false,
+                "name": "driver",
+                "displayName": "driver",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "aiv2ms92b8l",
+                "consumable": false,
+                "name": "status",
+                "displayName": "status",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "ksj50uzgyde",
+                "consumable": false,
+                "name": "updated",
+                "displayName": "updated",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "bsjqj3cmhj8",
+                "consumable": false,
+                "name": "1.0.2",
+                "displayName": "1.0.2",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "10axufz2mh6",
+                "consumable": false,
+                "name": "driver_id",
+                "displayName": "driver_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "spd3o3d3fte",
+                "consumable": true,
+                "name": "activation_status",
+                "displayName": "activation_status",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              }
+            ],
+            "type": "topicAddress"
+          },
+          "type": "event"
+        },
+        {
+          "createdTime": 1643037687987,
+          "updatedTime": 1643037687987,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "nf9toe0o2wp",
+          "name": "ThiruDriverRideAccepted",
+          "version": "0.0.1",
+          "shared": false,
+          "description": "This is the application that a driver uses to interact with the Acme Rideshare ecosystem",
+          "schemaId": "cwai0sr9yir",
+          "schemaVersionId": null,
+          "keySchemaId": null,
+          "keySchemaVersionId": null,
+          "applicationDomainId": "m58vir9y23q",
+          "revisionNumber": 1,
+          "keyPrimitivePayloadType": null,
+          "valuePrimitivePayloadType": null,
+          "topicAddress": {
+            "id": "60f3zq1ag2j",
+            "virtualBrokerId": "6aj104vfxd7",
+            "topicAddressLevels": [
+              {
+                "id": "188zgyzcrdv",
+                "consumable": false,
+                "name": "thiru",
+                "displayName": "thiru",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "vtfnat68dij",
+                "consumable": false,
+                "name": "rideshare",
+                "displayName": "rideshare",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "hf40jrk5gas",
+                "consumable": false,
+                "name": "driver",
+                "displayName": "driver",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "kj2o4z1m9kc",
+                "consumable": false,
+                "name": "accepted",
+                "displayName": "accepted",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "lvgprl4s7rl",
+                "consumable": false,
+                "name": "2.0.5",
+                "displayName": "2.0.5",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "r4kmtjr0ing",
+                "consumable": false,
+                "name": "location",
+                "displayName": "location",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "c2vtul9rkp1",
+                "consumable": false,
+                "name": "json",
+                "displayName": "json",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "mpkydxdiavr",
+                "consumable": false,
+                "name": "customer_id",
+                "displayName": "customer_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "4vjmbuog1ey",
+                "consumable": false,
+                "name": "request_id",
+                "displayName": "request_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "gtw8q0b1in2",
+                "consumable": true,
+                "name": "driver",
+                "displayName": "driver",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              }
+            ],
+            "type": "topicAddress"
+          },
+          "type": "event"
+        },
+        {
+          "createdTime": 1643111433017,
+          "updatedTime": 1643111433017,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "0y6a5000j02",
+          "name": "ThiruDriverRideRequested",
+          "version": "0.0.1",
+          "shared": false,
+          "description": "This is the event triggered to active drivers that are within a geospatial proximity to the \npassenger",
+          "schemaId": "s8g71wl52fv",
+          "schemaVersionId": null,
+          "keySchemaId": null,
+          "keySchemaVersionId": null,
+          "applicationDomainId": "m58vir9y23q",
+          "revisionNumber": 1,
+          "keyPrimitivePayloadType": null,
+          "valuePrimitivePayloadType": null,
+          "topicAddress": {
+            "id": "l5fximsdv3c",
+            "virtualBrokerId": "6aj104vfxd7",
+            "topicAddressLevels": [
+              {
+                "id": "090e6jw1005",
+                "consumable": false,
+                "name": "Thiru",
+                "displayName": "Thiru",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "7vphw60jysb",
+                "consumable": false,
+                "name": "rideshare",
+                "displayName": "rideshare",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "hc0051rlek7",
+                "consumable": false,
+                "name": "driver",
+                "displayName": "driver",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "qzd6gjm4kdv",
+                "consumable": false,
+                "name": "requested",
+                "displayName": "requested",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "slmr62ixexg",
+                "consumable": false,
+                "name": "3.8.1",
+                "displayName": "3.8.1",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "k985lckg60u",
+                "consumable": false,
+                "name": "start_latitude",
+                "displayName": "start_latitude",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "mezksy0t2hh",
+                "consumable": false,
+                "name": "start_longitude",
+                "displayName": "start_longitude",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "r867i7k1x8h",
+                "consumable": false,
+                "name": "json",
+                "displayName": "json",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "fjxofdnt0wj",
+                "consumable": false,
+                "name": "customer_id",
+                "displayName": "customer_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "aqj6y5ehcac",
+                "consumable": true,
+                "name": "request_id",
+                "displayName": "request_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              }
+            ],
+            "type": "topicAddress"
+          },
+          "type": "event"
+        },
+        {
+          "createdTime": 1643029742477,
+          "updatedTime": 1643036002376,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "ayi5camsuiw",
+          "name": "ThiruRideRequest",
+          "version": "0.0.1",
+          "shared": false,
+          "description": "This is the event that is fired when a customer has confirmed they want a ride.\n",
+          "schemaId": "s8g71wl52fv",
+          "schemaVersionId": null,
+          "keySchemaId": null,
+          "keySchemaVersionId": null,
+          "applicationDomainId": "m58vir9y23q",
+          "revisionNumber": 1,
+          "keyPrimitivePayloadType": null,
+          "valuePrimitivePayloadType": null,
+          "topicAddress": {
+            "id": "850jvgbo6dm",
+            "virtualBrokerId": "6aj104vfxd7",
+            "topicAddressLevels": [
+              {
+                "id": "188zgyzcrdv",
+                "consumable": false,
+                "name": "thiru",
+                "displayName": "thiru",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "vtfnat68dij",
+                "consumable": false,
+                "name": "rideshare",
+                "displayName": "rideshare",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "v0c0zg8i9gv",
+                "consumable": false,
+                "name": "ride",
+                "displayName": "ride",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "jdjr82zibpm",
+                "consumable": false,
+                "name": "requested",
+                "displayName": "requested",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "la4ns0zz8jd",
+                "consumable": false,
+                "name": "2.0.1",
+                "displayName": "2.0.1",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "j7eq3n2wpug",
+                "consumable": false,
+                "name": "start_latitude",
+                "displayName": "{start_latitude}",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "eb4xzfj3zgj",
+                "consumable": false,
+                "name": "start_longitude",
+                "displayName": "start_longitude",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "6hczk5723oq",
+                "consumable": false,
+                "name": "json",
+                "displayName": "json",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "lfsd426dauo",
+                "consumable": false,
+                "name": "customer_id",
+                "displayName": "customer_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "qe9w22x4tee",
+                "consumable": true,
+                "name": "request_id",
+                "displayName": "request_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              }
+            ],
+            "type": "topicAddress"
+          },
+          "type": "event"
+        },
+        {
+          "createdTime": 1643030679126,
+          "updatedTime": 1643036880956,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "6t9fmc9krlh",
+          "name": "ThiruRideAccepted",
+          "version": "0.0.1",
+          "shared": false,
+          "description": "This is the event which is fired when a ride has been accepted and committed to by a \ndriver.",
+          "schemaId": "cwai0sr9yir",
+          "schemaVersionId": null,
+          "keySchemaId": null,
+          "keySchemaVersionId": null,
+          "applicationDomainId": "m58vir9y23q",
+          "revisionNumber": 1,
+          "keyPrimitivePayloadType": null,
+          "valuePrimitivePayloadType": null,
+          "topicAddress": {
+            "id": "j0732l3i2uh",
+            "virtualBrokerId": "6aj104vfxd7",
+            "topicAddressLevels": [
+              {
+                "id": "090e6jw1005",
+                "consumable": false,
+                "name": "Thiru",
+                "displayName": "Thiru",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "7vphw60jysb",
+                "consumable": false,
+                "name": "rideshare",
+                "displayName": "rideshare",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "2nb14ma9ajp",
+                "consumable": false,
+                "name": "ride",
+                "displayName": "ride",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "0x2waav2q1f",
+                "consumable": false,
+                "name": "accepted",
+                "displayName": "accepted",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "adw6cqofjhj",
+                "consumable": false,
+                "name": "2.0.5",
+                "displayName": "2.0.5",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "p8v4wwus2jf",
+                "consumable": false,
+                "name": "location",
+                "displayName": "location",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "avf3gbomhmx",
+                "consumable": false,
+                "name": "json",
+                "displayName": "json",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "0i3x35m0d4c",
+                "consumable": false,
+                "name": "customer_id",
+                "displayName": "customer_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "73ghwyr12j9",
+                "consumable": false,
+                "name": "request_id",
+                "displayName": "request_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "vqcttr5rs4k",
+                "consumable": true,
+                "name": "driver",
+                "displayName": "driver",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              }
+            ],
+            "type": "topicAddress"
+          },
+          "type": "event"
+        },
+        {
+          "createdTime": 1643110861794,
+          "updatedTime": 1643110861794,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "crhd4iu9ai7",
+          "name": "ThiruTripUpdated",
+          "version": "0.0.1",
+          "shared": true,
+          "description": "This is the event which is fired periodically when a driver is on an active trip.",
+          "schemaId": "7gbeo7e26ki",
+          "schemaVersionId": null,
+          "keySchemaId": null,
+          "keySchemaVersionId": null,
+          "applicationDomainId": "m58vir9y23q",
+          "revisionNumber": 1,
+          "keyPrimitivePayloadType": null,
+          "valuePrimitivePayloadType": null,
+          "topicAddress": {
+            "id": "icwjgldf7f8",
+            "virtualBrokerId": "6aj104vfxd7",
+            "topicAddressLevels": [
+              {
+                "id": "090e6jw1005",
+                "consumable": false,
+                "name": "Thiru",
+                "displayName": "Thiru",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "7vphw60jysb",
+                "consumable": false,
+                "name": "rideshare",
+                "displayName": "rideshare",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "9dsd10a128e",
+                "consumable": false,
+                "name": "trip",
+                "displayName": "trip",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "oo6cq8u5887",
+                "consumable": false,
+                "name": "updated",
+                "displayName": "updated",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "ssn25d16whj",
+                "consumable": false,
+                "name": "7.0.2",
+                "displayName": "7.0.2",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "iek8ohzzffc",
+                "consumable": false,
+                "name": "json",
+                "displayName": "json",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "6zx7vqad4pj",
+                "consumable": false,
+                "name": "driver_id",
+                "displayName": "driver_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "bhi3ff10j3t",
+                "consumable": false,
+                "name": "trip_id",
+                "displayName": "trip_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "77nmr5jp0ca",
+                "consumable": true,
+                "name": "status",
+                "displayName": "status",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              }
+            ],
+            "type": "topicAddress"
+          },
+          "type": "event"
+        },
+        {
+          "createdTime": 1643111096587,
+          "updatedTime": 1643111096587,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "8x0ca8r60n3",
+          "name": "ThiruDriverFundsDeposited",
+          "version": "0.0.1",
+          "shared": false,
+          "description": "This event is triggered after billing has successfully deposited money into a drivers account\n",
+          "schemaId": "xvq4azl3kog",
+          "schemaVersionId": null,
+          "keySchemaId": null,
+          "keySchemaVersionId": null,
+          "applicationDomainId": "m58vir9y23q",
+          "revisionNumber": 1,
+          "keyPrimitivePayloadType": null,
+          "valuePrimitivePayloadType": null,
+          "topicAddress": {
+            "id": "6lfhsie3jcp",
+            "virtualBrokerId": "6aj104vfxd7",
+            "topicAddressLevels": [
+              {
+                "id": "090e6jw1005",
+                "consumable": false,
+                "name": "Thiru",
+                "displayName": "Thiru",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "7vphw60jysb",
+                "consumable": false,
+                "name": "rideshare",
+                "displayName": "rideshare",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "hc0051rlek7",
+                "consumable": false,
+                "name": "driver",
+                "displayName": "driver",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "jf2g3gf9ie9",
+                "consumable": false,
+                "name": "funds",
+                "displayName": "funds",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "r7kbza503nh",
+                "consumable": false,
+                "name": "deposited",
+                "displayName": "deposited",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "te5kfrgc4h3",
+                "consumable": false,
+                "name": "1.0.1",
+                "displayName": "1.0.1",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "fz6kr7hgd6e",
+                "consumable": false,
+                "name": "driver_id",
+                "displayName": "driver_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "m3fi0ar3yyq",
+                "consumable": false,
+                "name": "trip_id",
+                "displayName": "trip_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              },
+              {
+                "id": "uqps2e86r6k",
+                "consumable": true,
+                "name": "payment_id",
+                "displayName": "payment_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              }
+            ],
+            "type": "topicAddress"
+          },
+          "type": "event"
+        },
+        {
+          "createdTime": 1643111255918,
+          "updatedTime": 1643111255918,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "3uean0lwxc3",
+          "name": "ThiruCustomerReceiptGenerated",
+          "version": "0.0.1",
+          "shared": false,
+          "description": "This is the event which contains a customers receipt information once payment has gone \nthough\n",
+          "schemaId": "syal97etwjg",
+          "schemaVersionId": null,
+          "keySchemaId": null,
+          "keySchemaVersionId": null,
+          "applicationDomainId": "m58vir9y23q",
+          "revisionNumber": 1,
+          "keyPrimitivePayloadType": null,
+          "valuePrimitivePayloadType": null,
+          "topicAddress": {
+            "id": "h3aga6a0t7m",
+            "virtualBrokerId": "6aj104vfxd7",
+            "topicAddressLevels": [
+              {
+                "id": "090e6jw1005",
+                "consumable": false,
+                "name": "Thiru",
+                "displayName": "Thiru",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "7vphw60jysb",
+                "consumable": false,
+                "name": "rideshare",
+                "displayName": "rideshare",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "u3xme14m3ae",
+                "consumable": false,
+                "name": "billing",
+                "displayName": "billing",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "fikf5t3kicb",
+                "consumable": false,
+                "name": "receipt",
+                "displayName": "receipt",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "7seh553241p",
+                "consumable": false,
+                "name": "created",
+                "displayName": "created",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "asvlbl2y2sa",
+                "consumable": false,
+                "name": "1.0.1",
+                "displayName": "1.0.1",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "hcnfrlo7c19",
+                "consumable": false,
+                "name": "json",
+                "displayName": "json",
+                "description": "",
+                "children": [],
+                "topicNodeType": "literal",
+                "type": "topicNode"
+              },
+              {
+                "id": "0q91s04bm26",
+                "consumable": true,
+                "name": "request_id",
+                "displayName": "request_id",
+                "topicNodeType": "variable",
+                "type": "topicNode"
+              }
+            ],
+            "type": "topicAddress"
+          },
+          "type": "event"
+        }
+      ],
+      "applications": [
+        {
+          "createdTime": 1643030729942,
+          "updatedTime": 1643111564858,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "2igyfgub7ni",
+          "name": "Thiru Passenger App",
+          "version": "0.0.1",
+          "description": "This is the app that a user of acme rideshare uses in order to obtain rides from willing \ndrivers.",
+          "applicationDomainId": "m58vir9y23q",
+          "producedEventIds": [
+            "ayi5camsuiw"
+          ],
+          "consumedEventIds": [
+            "3uean0lwxc3",
+            "6t9fmc9krlh"
+          ],
+          "revisionNumber": 2,
+          "applicationClass": "unspecified",
+          "endpoints": [],
+          "type": "application"
+        },
+        {
+          "createdTime": 1643037103247,
+          "updatedTime": 1643112200763,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "lfhc533gk9p",
+          "name": "Thiru Driver Management",
+          "version": "0.0.1",
+          "description": "This application controls which rides need to be fulfilled, which are in route, and \ncompleted",
+          "applicationDomainId": "m58vir9y23q",
+          "producedEventIds": [
+            "0y6a5000j02",
+            "6t9fmc9krlh"
+          ],
+          "consumedEventIds": [
+            "ayi5camsuiw",
+            "crhd4iu9ai7",
+            "nf9toe0o2wp",
+            "qz6zkt92mol"
+          ],
+          "revisionNumber": 4,
+          "applicationClass": "unspecified",
+          "endpoints": [],
+          "type": "application"
+        },
+        {
+          "createdTime": 1643111748243,
+          "updatedTime": 1643111748243,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "27p7x4qbt98",
+          "name": "Thiru Driver App",
+          "version": "0.0.1",
+          "description": "This is the application that a driver uses to interact with the Acme Rideshare ecosystem.",
+          "applicationDomainId": "m58vir9y23q",
+          "producedEventIds": [
+            "crhd4iu9ai7",
+            "nf9toe0o2wp",
+            "qz6zkt92mol"
+          ],
+          "consumedEventIds": [
+            "0y6a5000j02",
+            "8x0ca8r60n3"
+          ],
+          "revisionNumber": 1,
+          "applicationClass": "unspecified",
+          "endpoints": [],
+          "type": "application"
+        },
+        {
+          "createdTime": 1643111821358,
+          "updatedTime": 1643111821358,
+          "createdBy": "2z2tkoh1h0p",
+          "changedBy": "2z2tkoh1h0p",
+          "id": "b8sa1f88dr7",
+          "name": "Thiru Billing App",
+          "version": "0.0.1",
+          "description": "This app processes customer payments and also pays the drivers.",
+          "applicationDomainId": "m58vir9y23q",
+          "producedEventIds": [
+            "3uean0lwxc3",
+            "8x0ca8r60n3"
+          ],
+          "consumedEventIds": [
+            "crhd4iu9ai7"
+          ],
+          "revisionNumber": 1,
+          "applicationClass": "unspecified",
+          "endpoints": [],
+          "type": "application"
+        }
+      ],
+      "type": "applicationDomain"
+    }
+  ],
+  "virtualBrokers": [
+    {
+      "createdTime": 1643019793360,
+      "updatedTime": 1643019793360,
+      "createdBy": "2z2tkoh1h0p",
+      "changedBy": "2z2tkoh1h0p",
+      "id": "6aj104vfxd7",
+      "name": "ThiruRideshareLEM",
+      "description": "",
+      "brokerType": "solace",
+      "levelDelimiter": "/",
+      "topicNodes": [],
+      "type": "virtualBroker"
+    }
+  ],
+  "topicValueSets": [],
+  "formatVersion": "1",
+  "type": "ApplicationDomainExport"
+}

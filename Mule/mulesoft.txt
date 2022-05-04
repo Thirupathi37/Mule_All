@@ -1,0 +1,44 @@
+Hawa Holidays needs to integrate various partner systems involved in their business process. Currently most of the systems are integrated, but the integration is 1:1 and that is putting a heavy load on their resources. Come up with a solution implemented in mulesoft to integrate the whole ecosystem.
+
+ 
+
+NOTE that this is a travel agency, they will speak to multiple partners. Partners include airline companies, railway systems, taxi and cab booking companies, meal services and restaurants, tour guide services, etc.
+
+ 
+
+Expected automated business process:
+
+ 
+
+Customer logs in via the website to book a holiday. (NO CHAT BOT or CALL CENTER or EMAIL for booking)
+Customer selects a holiday package and clicks the Submit button.
+System does the following:
+Sends a request to all hotel APIs for the selected destinations and retrieves prices.
+Sends a request to either of
+                                                               i.      all airline APIs for the selected route and retrieves prices.
+
+                                                             ii.      all railway companies for the selected route and retrieves prices.
+
+Sends a request to all meal providers and restaurants to provide meal-at-seat prices.
+Sends a request to an internal application to retrieve can provider prices and options for the selected routes.
+Sends a request to an internal application to retrieve sight-seeing package process for the selected destinations.
+Customer selects his or her option and clicks the Payment button.
+System calculates package amount and shows it to the user.
+User makes payment via credit card only
+System sends an email to all the parties involved in (2) above.
+System sends an email to the customer with an itinerary
+ 
+Use ARC or Postman to mimic the customer.
+
+REMEMBER: Mule services are split into 3 parts – experience layer, process layer and system layer. Experience layer services interact with the UI or App or Webpages or consumers. System Layer services  speaks to the end-systems or downstream systems or providers. Process layer services perform orchestration of messages between the experience and system layer services.
+
+You must have 3 separate projects, one for each layer.
+
+Follow the process correctly:
+
+Prepare the API specification first i.e. the RAML
+Publish it to exchange
+Import it in anypoint studio
+Create flows and feed in the logic
+Deploy to cloudhub.
+Test and demonstrate.

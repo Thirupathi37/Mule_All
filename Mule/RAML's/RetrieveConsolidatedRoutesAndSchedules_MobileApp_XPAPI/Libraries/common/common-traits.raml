@@ -1,0 +1,17 @@
+#%RAML 1.0 Library
+usage:
+traits:
+  transactionid: !include /Libraries/common/Traits/header-TransactionId-Trait.raml
+
+  CompanyName: !include /Libraries/common/Traits/queryParams-companyName-trait.raml
+
+  departureLoc: !include /Libraries/common/Traits/queryParams-DepartureLoc-Trait.raml
+
+  destinationLoc: !include /Libraries/common/Traits/queryparams-DestLocation.raml
+
+  requestTimezone: !include /Libraries/common/Traits/Queryparams-requestTimeZone.raml
+
+types:
+  # getRoutes200RespDatatype: !include /Libraries/routes/dataTypes/getRoutes-200-Resp-DataType.raml
+  # getSchedules200RespDatatype: !include /Libraries/schedules/dataTypes/getSchedules-200-Resp-DataType.raml
+  commonErrorDataType: !include /Libraries/common/dataTypes/common-error-dataType.raml

@@ -1,0 +1,21 @@
+realname: mulesoft
+email: tbommishetty@eniquesolutions.com
+reasonPhrase: Btr@1234
+fingerPrint: 29B692CA8EA97618
+keyid: CFA505092AE31210F422E5B329B692CA8EA97618
+
+public key only for encryption
+private key only for decryption and signing messages
+
+PGP:
+===
+1. gpg --gen-key
+2. gpg --list-secret-keys --keyid-format LONG
+3. gpg --output C:\\Users\\admin\\.gnupg\\mule_pub.gpg --export tbommishetty@eniquesolutions.com
+4. gpg --export-secret-keys CFA505092AE31210F422E5B329B692CA8EA97618 > C:\\Users\\admin\\.gnupg\\mule_private.gpg
+
+
+JCE:
+===
+1.keytool.exe -genseckey -alias encKey -keyalg Blowfish -keystore C:\\Users\\admin\\.gnupg\\keysencKeystore.jceks -keysize 128 -storeType jceks
+2. keytool -genkey -keyalg RSA -alias sampleAlias -keystore cryptokeystore.jks -storepass password123 -keypass password123

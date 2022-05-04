@@ -1,0 +1,721 @@
+Error Codes:
+400
+401
+404
+etc, errors which are started by 4 are client errors or client side errors
+
+500
+which are started by 5 are server side errors
+
+
+ANYPOINT HEAP SIZE:
+===================
+by default studio cantain very less heap size, if we want to increase heap size
+follow steps: Run -> Run Configurations... -> Select the Mule Application. And in VM Arguments, increase the value for XX:MaxPermSize to increase the 
+Perm Size or add the -Xmx param to increase the Heap, i.e: -Xmx1024M.
+
+
+
+
+Cache:Storing the useful data across  the project flows and the cached data available among the flows of project 
+=====
+          |----default
+chache-----                        |-----in memory( stores the data in RAM and it is fast to execute)
+          |----Objectstore---------
+                                   |-----persistant (Stores the data in Hard disk and it is slow)
+
+If you want deal with small amount data then go for in memory
+If you want deal with large amount of data then go for the persistant
+
+
+By default cache uses default caching strategy and generates key and stores response
+On each request it calculates the  key using below algorithm then stores  the response payload  of the flow as value  for that key
+   KEY=SHA256KeyGenerator + SHA256 Digest
+
+
+
+
+difference between jms queue and vm in mulesoft:
+===============================================
+
+VM:
+===
+VM is Mule's internal transport for messaging/queueing. The VM transport is for intra-JVM communication between Mule flows. 
+So, that means when you use a VM in your flow, you can communicate between different flows in the application. It can only be used by Mule applications. 
+When creating a VM queue it can only be accessed by the Mule application that creates it (Cloudhub for example) OR it can be reused by same Mule apps running 
+in a domain project or cluster. No existing broker infrastructure needs to be setup. Supports persistent and transient.
+
+
+Anypoint MQ:
+===========
+Anypoint MQ is Mulesoft's Cloud Messaging platform. This can be used by other applications - not just Mule. It can also be used across multiple Mule apps 
+regardless of domains or cluster, well suited for Cloudhub applications. No infra setup, all in the cloud. Think Amazon SQS but a lot better and great 
+integration with Anypoint Platform
+
+JMS:
+====
+JMS uses the Java Messaging Service protocol and requires an external JMS broker such as ActiveMQ. Can be used by any application that supports JMS connectivity.
+ 
+
+
+
+MULE 3 EXCEPTION STRETAGIES:
+===========================
+Mule 3 has 5 different Messaging Exception strategies:
+
+1. Default Exception Strategy. This strategy is applied to Mule flows implicitly and it can handle all exceptions in your flows. ...
+2. Rollback Exception Strategy. ...
+3. Catch Exception Strategy. ...
+4. Choice Exception Strategy. ...
+5. Reference Exception Strategy.
+
+
+In MULE 4:
+=========
+1. On Error Continue
+2. On Error Propagate
+3. Raise Error
+4.
+
+
+Name the various ESBs that are in the market:
+===========================================
+There are different ESBs in the market, both licensed and open source. They are:
+
+JBoss Fuse ESB
+Mule ESB
+Talend
+
+
+
+MUnit:
+=====
+MUnit is a Mule application testing framework that allows us to easily build automated tests for your integrations and APIs. It provides a full suite of 
+integration and unit test capabilities, and is fully integrated with Maven and Surefire for integration with your continuous deployment environment.
+
+
+
+
+Anypoint VPN:
+============
+Anypoint VPN is used to create a secure connection between our MuleSoft Virtual Private Cloud (VPC) and our on-premises network. You can create multiple 
+site-to-site VPNs if required.
+
+
+
+
+What are the different kinds of Flow Processing Strategies:
+=========================================================
+The following are the 6 kinds of Flow Processing Strategies:
+
+Thread Per Processing Strategy
+Custom Processing Strategy
+Queued Asynchronous Flow Processing Strategy:---Mule uses a queue to decouple the receiver thread from the rest of the flow.
+Asynchronous Flow Processing Strategy
+Synchronous Flow Processing Strategy
+Queued Flow Processing Strategy
+Non-blocking Flow Processing Strategy
+
+
+
+Types of messages in MuleSoft:
+==============================
+1) echo and log message
+2) bridge message
+3) build message.
+
+
+What is Mule Expression Language:
+================================
+MEL or Mule Expression Language is a light-weight mule specific language that can be used to access and evaluate data in the payload.
+
+
+
+Various types of Endpoints in Mule are 1) JMS, 2) HTTP, 3) SMTP, 4) IMAP, and 5) AJAX.
+
+The full form of SDO is a Service Data Object.
+
+
+
+Explain the concept of Correlation Context:
+==========================================
+It is a primitive that is used to pass values from request flow to response flow.
+
+SUB FLOW:
+========
+subflow works as synchronously---i.e. in the same thread.
+Inherits the exception strategy and process strategy from Parent flow 
+it is used to code reuse and to avoid code redundancy.
+
+Private Flow: Flows without  message source are called private flow.
+============
+
+Mule 4 mule-artifact.json file:
+==============================
+It has the infor about your apps like required mule version, secure property if any and package infor, package version, metadata 
+
+Edge Policy:
+===========
+It is used in Runtime Fabric Environment to secure all our proxies
+
+BATCH:
+=====
+Mule Batch is asynchronous, it is like fire and forget. If you want to call the second batch after first batch is completed, then invoke the second batch at 
+'On Complete' phase of first batch.
+
+Reduce Operator:
+==============
+Reduce can be used to process an array and operate on each of its elements. It performs an aggregation  operation on the elements of array after performing
+lambda Expression.
+
+Applies a reduction expression to the elements in an array.
+
+For each element of the input array, in order, reduce applies the reduction lambda expression (function), then replaces the accumulator with the new result.
+The lambda expression can use both the current input array element and the current accumulator value.
+
+Note that if the array is empty and no default value is set on the accumulator parameter, a null value is returned.
+
+Example:
+-------
+%dw 2.0
+var myNums = [1,2,3,4]
+var myEmptyList = []
+output application/json
+---
+{
+   "sum" : myNums reduce ($$ + $),
+   "concat" : myNums reduce ($$ ++ $),
+   "emptyList" : myEmptyList reduce ($$ ++ $)
+}
+
+
+
+
+
+
+ACTIVEMQ:
+========
+Apache ActiveMQ is an open source message broker written in Java with a full JMS client.
+
+ActiveMQ supports the JMS 1.1 and J2EE 1.4 specifications and it is easy to integrate with Mule
+ActiveMQ is used in ESB implementations such as Apache ServiceMix and MuleSoft. In the enterprise, ActiveMQ is used for its flexibility in configuration, 
+and its support for a relatively large number of transport protocols, including MQTT, AMQP, REST, and WebSockets.
+
+
+
+
+
+
+
+NETSUITE::
+==========
+Authentication types: NetSuite connections use token-based authentication, which uses either a consumer key and token ID or secret pairs to authenticate.
+--------------------
+
+
+DOMAIN PROJECT::
+==============
+Domain Project is normally used to share the resources like http configurations etc. But domain project can deploy only on On-Premise, not on cloudhb.
+by sharing the resources to applications, the size of application will decrease. and by sharing the resources to multiple app's we can avoid 
+'Port already in use' error msg.
+
+
+
+ANYPOINT PLATFORM::
+=================
+Horizantal Scaling: Horizantal Scaling means adding more no of machines into our pool of resources. 
+                    In Mule, horizantal scaling can be achieved by increasing no of workers in cloudHub.
+
+
+Vertical Scaling:  Vertical scaling means adding more power or compute resources like Memory,CPU in existing servers.
+                   In Mule,vertical scaling can be achieved by 	increasing worker size in cloudhub            
+
+CLUSTERING::
+==========
+Clustering is a group of servers or mule runtime which acts as a single unit. ... In simple terms, virtual servers composed of multiple nodes and they 
+communicate and share information through a distributed shared memory grid.To achieve high availability and load balancing.
+
+ex:    ---------------Cluster-----------------------
+       |                                            |
+       |Node 1(Instance 1)(server 1)(MuleRuntime)   |  here in cluster the 2 nodes are share the status of req, memory, load balance.
+       |                                            |
+       |Node 2 (Instance 2)(server 2)(MuleRuntime)  | IF any one of the server will down or disconnected then we will see "communication issue detected'
+        --------------------------------------------    worning msg.
+
+Multicast Clustering: in this clustering the nodes will share everything automatically like IP addrss, status of req
+Unicast Clustering: In this clustering we need to manually set the IP address's of nodes to each other, then only it can share evarything.
+
+
+AUTOMATED POLICIES::
+=================
+Automated policies are automatically applied to all the available api instances in api manager
+
+
+ERROR_HANDLING::
+=============
+ANY: It is a mule connector.Any means for example we are applying 3 validations in flow, from 3 of the validations any one should pass the validation then only it gives the 
+---- success msg.           structure: validation1 Or validation2 Or validation3
+
+ALL:  It is a mule connector.All means for example we are applying 3 validations in flow, from those 3 validations, 3 should be pass then only it will give success msg
+---                         structure: validation1 AND validation2 AND validation3
+
+
+
+AGGREGATOR MODULE:
+=================
+
+An Aggregator is a component that receives some data, processes it to extract some value and then adds that value to a list of aggregated elements. 
+After that, and depending on the configuration, the list of elements is sent to a set of components.
+
+Aggregators are pass-through routers, meaning that the same data that is received by the aggregator is going to be processed by the components that follow it.
+The only modifications are the propagation of variables in case any is set while executing any of the aggregation routes.
+
+1. Size Based Aggregator--it is size based that means for ex.. we are setting aggregator size is 5 in aggregator component, so it recieves 4 reqs and process
+                          in same flow but for 5th req it flow reference to the subflow from aggregation complete phase and it prints all the 5 reqs data in subflow.
+                          or we can use Aggregator Listener in another flow and reference it aggregator name in Aggregator Listener, so after reaching the 
+                          size(5) it automatically call to the Aggregator Listener.It uses Objectstore to store the first 4 req's and and 5th one.
+2. Time Based Aggregator
+3. Group Based Aggregator
+
+
+
+
+
+
+If we deploye app in cloud without API auto discovery, then we need to 	create proxy application from API Manager(proxy means-it is top of our main app-so 2 apps will run on cloudhub)
+but with API Auto Discovery we can avoid multiple app's deployed in cloudhub
+
+************************************
+
+1. What is an API?
+an API provides an interface between two applications so that they can talk to each other. 
+Application Programming Interface, which is a software intermediary that allows two applications to talk each other. Each time you use an app like 
+Facebook, send an instant message, or check the weather on your phone, you're using an API.
+
+
+
+
+
+JMS:
+===
+Anypoint Connector for JMS (JMS Connector) enables your app to do messaging using the JMS implementation of your choice. Its main features include:
+
+Pub/Sub pattern support on any given destination.
+Listen/Reply pattern support on any given destination.
+Publish-Consume pattern support on any given destination, with fixed or temporary reply Queue.
+
+
+QUEUE V/S TOPIC:
+==============
+QUEUE:There can be a multiple publishers,Producers but only 1 Consumer.Queue can sends the msg to only 1 consumer.
+TOPIC: There can multiple publishers,Producers and Multiple Consumers.Topic can sends the msg to multiple consumers.
+
+If we create QUEUE or TOPIC manually in mule flow, after consuming the msg the queue or topic will be deleted from ActiveMQ But
+If we create QUEUE or TOPIC in Active MQ After receiving the msg by consumer still the queue or topic will be present in ActiveMQ
+
+PUBLISH CONSUME:
+---------------
+It publishes the msg and wait for the consume that msg for particular time intervals if time will out it will raise the error
+ACKNOWLEDGMENT MODES:
+==================
+AUTO: after reciving the msg from jms queue or topic the flow will give the response automatcally.
+----
+DUPS_OK: Dups_ok is Duplicate Ok,it is aslo kind of AUTO but this ack is into the lezime, sometimes hit ack after someetime, in that case duplicate will 
+-------  happen then flow can receive duplicate ack, if the flow does not have any prblm with duplicate then we can use this.
+
+IMMEDIATE:Immediate will give the response immediately after picking up the msg from source, but after will loose the msg in furthor operations.
+---------
+MANUAL: If we use manual ack we fully have the control on the msgs, we can state it at broker and we can use it any time in flow and finally we can ack it 
+-------  manually
+
+
+
+if any queue created in MQ------will take by using the "On New Message" connector in mule flow, after taking we should give ack.
+                                                     |
+                                                     |
+                       PUBLISH----TO(inbound)----ACTIVE_MQ----------From(outbound)---------------CONSUME
+         
+
+
+
+
+
+Mesage Logging Policies:
+=======================
+Using msg logging policy we can log any data like payload, headers, queryParams, uriParams and we can provide some condiational statements like queryParam is XYZ
+We can apply the logging policy for request and respond and for both and applying with some conditions
+youtube video: https://www.youtube.com/watch?v=00iwHnbgCtQ
+
+
+JSON LOGGER:
+==========
+json logger not provided by mulesoft but it developed by Mulesoft services team. It is used for standardized logging in our mule flows.
+The JSON logger prints the JSON format logs. It logs the relevant information and is helpful in the customization of content and other fields. 
+JSON logger also supports the functionality for  sending data to AMQ or JMS. 
+
+MuleSoft uses the log4j2 logging standard for logging events.
+
+
+
+DATAWEAVE:
+=========
+
+LOOKUP:
+------
+This function enables you to execute a flow within a Mule app and retrieve the resulting payload.
+
+It works in Mule apps that are running on Mule Runtime version 4.1.4 and later.
+
+Similar to the Flow Reference component (recommended), the lookup function enables you to execute another flow within your app and to retrieve the resulting 
+payload. It takes the flow’s name and an input payload as parameters. For example, lookup("anotherFlow", payload) executes a flow named anotherFlow.
+
+The function executes the specified flow using the current attributes, variables, and any error, but it only passes in the payload without any attributes 
+or variables. Similarly, the called flow will only return its payload.
+
+Note that lookup function does not support calling subflows.
+
+
+
+P:
+==========
+p(String): String
+This function returns a string that identifies the value of one of these input properties: Mule property placeholders, System properties, or Environment variables.
+
+The p function returns a null value if the property is not set or if the function does not find the property.
+
+
+
+
+
+MATCH CASE:
+==========
+The match statement behaves like a match or switch statement in other languages, like Java or C++, and routes an input expression to a particular output 
+expression based on some conditions. Before you begin, note that DataWeave 2.0 is for Mule 4 apps. For a Mule 3 app, refer to the DataWeave 1.0 documentation
+set in the Mule 3.9 documentation. For other Mule versions, you can use the version selector for the Mule Runtime table of contents.
+
+SYNTAX:      inputExpression match {
+                                      case <condition> -> <routing expression>
+                                      case <condition> -> <routing expression>
+                                      else -> <default routing expression>
+                                   }
+
+Link:https://docs.mulesoft.com/mule-runtime/4.2/dataweave-pattern-matching#pattern_match_expressions
+
+
+
+
+Dynamic Evaluate Component:
+==========================
+The Dynamic Evaluate component evaluates an expression to select a DataWeave script, and then executes the new script to generate a result. 
+This behavior enables you to dynamically select the script, instead of hardcoding it into the Transform Message component.
+
+
+
+
+SECRET MANAGER:
+It is a vault provided by mule to store certificates
+
+command:keytool -genkey -alias mule-server -keyalg RSA -keystore C:\Users\tbommish\Desktop\certificates\server-keystore.jks
+keystore password: mulesoft
+key password: mulesoft
+
+
+
+
+SALESFORCE:
+==========
+FIND Clause:salesforce provides FIND clause, it is used to search the data in our object
+
+
+
+
+Banking-API:
+
+SILVER:
+client_id= e9c3be69952344b8a49e3551e802a2b4
+client_secret= 6ec8889Bca0445CEa68C6D7D72B95934
+
+GOLD:
+ab2136c7c1694fa3bbee767e06999b2b
+34d23c87A03845DE89ECe141784bFf38
+
+
+Songs auto discovery:
+client_id= 28da8a27109a4efa943078cb9694c164
+client_secret= AA6716698bed4FAC9C1c1691c29E4f94
+
+
+SONGS API:
+client_id= 1979ed607a9b4377b0626d4462e1e24d
+client_secret=48e9A97B25404BB089411952DCd95958
+
+SAP Connectors
+FTP
+Database
+Webservices
+VM Connectors
+     |
+     |
+     |
+SAP Connector functions:
+
+1. Synchronous Remote Function Call----Executes a BAPIFunction over a synchronous remote function call (sRFC). A synchronous RFC requires both the systems 
+                                       (client and server) to be available at the time of communication or data transfer. sRFC is the most common type and 
+                                       is used when a result is required immediately after the execution of sRFC. sRFC is a means of communication between 
+                                       systems where acknowledgments are required.
+
+2. Asynchronous Remote Function call---Executes a BAPIFunction over a queued Remote Function Call (qRFC). A queued RFC is an extension of a transactional RFC
+                                       (tRFC) that ensures that individual steps are processed in sequence.
+                                       To guarantee that multiple Logical Unit of Work (LUWs) transactions are processed in the order specified by the 
+                                       application. tRFC can be serialized using inbound and outbound queues; hence the name queued RFC (qRFC). 
+                                       qRFC is best used as an extension of tRFC to define a processing sequence. Use qRFC to guarantee that several 
+                                       transactions are processed in a predefined order. 
+
+3. Confirm Transaction----------------It Confirms a determined transaction.
+4. Document Listener -----------------It is a Source that listens for incoming IDocs.
+5. Function Listener------------------It is a Source that listens for incoming BAPI functions.
+6. Get Function ----------------------It is used to Retrieves a BAPI Function(Business Application Programming Interface) based on its name and will get response in binary format
+7. Retreive IDoc----------------------Retrieves an IDoc based on its key.
+8. send IDoc  ------------------------Sends an IDocument to SAP over an RFC. An RFC can be one of two types for IDocuments: tRFC & qRFC
+9. Start SAP Transaction--------------Creates a transaction ID to use as part of future calls.
+ 
+************************************
+
+
+
+
+RAML:--
+RESTful API Modeling Language (RAML) is a YAML-based language for describing RESTful APIs.It provides all the information necessary to describe RESTful APIs,
+providing a simpler way to design APIs.
+
+What's New in RAML 1.0
+RAML 1.0 is all about empowering developers with even more extensibility, code reuse options, and flexibility.
+This includes exciting new features such as libraries, overlays, improved examples, improved security schemas, annotations, and data-typing.
+
+
+
+
+
+
+
+
+Different Connectors in mule
+Error Handling
+List of Email(www.pepipost.com---for free online server for email)
+Validation(add)
+Flow vs Sub_flow vs private flow
+Try scope
+what are the secutiy features
+Active MQ
+Batch
+what is cloudhub
+
+
+Json Logger(search in Exchange and add it into studio).But we can not find it in exchange but Json logger is developed by mulesoft services team. 
+So we need to download it from GitHub(url: https://github.com/mulesoft-consulting/json-logger ) download zip and extract. 
+open /json-logger-mule-4.x/json-logger/pom/xml. And we should change the GroupID in pom.xml with our organization ID(Our organisationID will availabe in
+Anypoint platform-->Access management/click on our organisation name and will find organisation Id.
+(youtube link: https://www.youtube.com/watch?v=X9mdrtxIyoQ&list=PLfEAetjBY9s5gywT2hC95rnZaW5CEZis-&index=44 )
+
+
+Why Mule over Tibco:
+==================
+https://www.itcentralstation.com/products/comparisons/mule-anypoint-platform_vs_tibco-businessworks
+
+
+MuleSoft Ranked 5 out of 110 Enterprise Integration systems  ||   Tibco Ranked 17 out of 110 Enterprise Integration systems
+Small business, Medium business, Large business              ||   Medium business, Large business
+
+
+Dataweave--The Power of preview feature.
+    --Are younot sure about the syntax  you want to write?
+    --Are you struggling to deploy your  application  always  to check whether your syntax or Dataweave is correct or not ?
+    --Dataweave Preview  helps  us to  overcome it.
+
+
+
+
+1.Test Recorder in Mule
+
+2.It is best suited for Rest API development. Mule ESB uses RAML as an API descriptor which is less complex and easy to understand. RAML is an open standard
+  majorly supported by Mulesoft. Once RAML is developed, it is very easy (a few clicks)to create flows corresponding to the resources defined in the RAML. 
+  One can also include JSON schema validation in RAML, and with the use of APIkit router, Mule ESB makes the request validation very easy 
+  (it's automatic basically.)
+
+
+3. Mule ESB comes with a large spectrum of community and enterprise connectors. We have connectors for all the major platforms like Facebook, Twitter, 
+   Salesforce, SAP, etc. This enables Mule ESB to integrate with the other systems in a faster and more robust way. Mule ESB has many components to fulfill 
+   the requirements of each integration (for example batch processing, parallel processing, choice, etc.)
+
+
+4. Mule API gateway is one of the best tools (modules) of Mulesoft's offering. It supports API governance and management very well. One can easily enforce 
+   policies on their APIs with API gateway. It enables some of the must-have features in an API solution (i.e. throttling, oAuth, access levels, etc.)
+
+5. Mule majorly uses MAVEN as its build tool, which in turn makes it best suitable for CI/CD approach. Mule also provides MAVEN plugins for auto deployments
+   to the servers. Mule also has a best Unit testing module which is MUnit. MUnit can be used for both Unit and Functional testing, and it is easy to write 
+   and generates coverage reports in various formats.
+
+
+
+
+
+
+QUORA:
+=====
+
+There are lot of differences to mention.
+
+But coming to the best, Mulesoft has more advantages compared with TIBCO.
+
+Here are some advantages
+
+Mule ESB is a lightweight Java-based Enterprise Service Bus (ESB) and Integration Platform that enables developers to combine applications and enables data exchange.
+
+It’s an open source.
+
+Most remarkable is that, Mule is a pure esb, where other products comes with different functionality and platforms.
+
+Mule is less expensive compared to most of other products . Even community versions are available, which will not cost you anything.
+
+Mule earlier had a problem of it's small size of it's community. But now a days, Mule community is expanding like others.
+
+Message Transformer for Mapping
+
+
+
+
+
+RAML( RESTful API Modeling Language ):--
+-----
+1.Reusability
+
+
+
+
+Changes In Mule 4:
+-----------------
+
+1. APIkit is now a Mule plugin.
+   MuleSoft can update APIkit in a timely manner, independent from Mule Runtime updates. 
+   To use a different APIkit version, just change the dependency in the POM.
+
+
+
+
+
+
+
+API LED Connectivity: The term used to expose everything as API. Connect All applications as a API
+
+What are the Scopes?:--
+1.For Each
+2.Flow
+3.Sub Flow
+4. Try
+
+What are the different ways to deploy our application?
+1.Cloud-hub
+2.On-premise
+3.Runtime Fabric(RTF)
+4.Anypoint PCE( Anypoint Private Cloud edition )
+5.Anypoint PCF ( Anypoint Platform for Pivotal Cloud Foundry )
+
+
+How many ways we can deploy our app on cloudhub?
+1.Anypoint Studio
+2.Runtime Manager
+3.Anypoint CLI (It is command line inerface, through it we can deploy our app)
+4.CloudHub API
+
+
+
+
+POLICIES:
+=========
+When applying a policy with SLA, you can set an API alert to notify you when an API request violates that policy.
+
+In Mule 3.8.0 and later, you can enhance security through policies by using Gatekeeper, which disables an API until all online policies are applied.
+All policies are non-blocking, which is described in Mule 4 documentation.
+
+
+
+
+
+For Each Scope:
+=============
+The For Each scope splits a payload into elements and processes them one by one through the components that you place in the scope.
+
+By default, For Each tries to split the payload. If the payload is a simple Java collection, the For Each scope can split it without any configuration. 
+The payload inside the For Each scope is each of the split elements. Attributes within the original message are ignored because they are related to the 
+entire message.
+
+For Each does not modify the current payload. The output payload is the same as the input.
+
+For non-Java collections, such as XML or JSON, use a DateWeave expression to split data. Use the Collection field for this purpose.
+
+Error Handling:
+------------
+If one of the elements in a collection throws an exception, the For Each scope stops processing that collection and invokes the error handler.
+
+
+Parallel For Each Scope::
+=======================
+The Parallel For Each scope enables you to process a collection of messages by splitting the collection into parts that are simultaneously processed in 
+separate routes within the scope of any limitation configured for concurrent-processing. After all messages are processed, the results are aggregated 
+following the same order they were in before the split, and then the flow continues.
+
+Error Handling:
+Because every route is processed in parallel, if an error is thrown in one route, processing continues in all of the other routes until all finish processing.
+After that, all results (and any errors) are aggregated and then processed by the Error Handler.
+
+Differences between For Each and Parallel For Each Scopes::
+Both For Each and Parallel For Each split the defined collection, and the components within the scope process each element in the collection. Also, in both 
+cases, each route runs with the same initial context. The difference between these two scopes are:
+
+-----For Each works sequentially, while the Parallel For Each processes in parallel. This difference affects error handling:
+
+Because of the processing differences, the execution of For Each execution is interrupted when an error is raised (and the Error Handler is invoked), while Parallel For Each processes every route before invoking the Error Handler with a MULE:COMPOSITE_ROUTE error type.
+
+For Each does not modify the payload, while the Parallel For Each outputs a collection of the output messages from each iteration.
+
+
+
+OBJECT STORE:
+===========
+All operations:
+
+1.Store
+2.Retrieve
+3.Retrieve all
+4.Retrieve All keys
+5.Remove---remove will removes the data based on keys.
+6.Clear----it will clear all the data in store irrespective of keys.
+7.Contains
+
+EXCEPTION HANDLING::
+==================
+There are 3 types of mechanisms are available in mule 4
+1.On Error Continue--Exit with success message and success code(200 code) but not execute the remaining processes
+  On error continue consumes the error msg and it will not through the error msg to the parent flow, that's why parent flow ends with success code-200
+
+2.On Error Propagate--Exit with failurre message and failure code(500 code) and don't execute the remaining processes
+  on error Propagate consumes the error msg and sends the error msg to the parent flow and stops the next activitties.
+3.TRY-CATCH SCOPE:
+If we want to handle errors at component level, connector level instead of flow level then we can use try catch scope block
+if is there any error it will goto error catche scope-----1.if it is on error continue, exit with success msg& success coode and process next processes
+                                                    -----2.if it is on error propagate, exit with failure msg& failure code and don't prcess the remainin
+
+
+INTEGRATION PATTERNS::
+===================
+
+1. File based integrstion pattern
+
+system A<---------ESB(1.poll  2.process the file)we use transfer protocals here like FTP,SFTP----------------->System B(1 TO 1)
+it can send to multiple systems also 1 to many(heterogenious)
+receive from multiple system to 1 system(many to 1)
+
+when we want to pass info from System A to B then we use File based inte.. pattern.
+
+
+2.JDBC Integration pattern::

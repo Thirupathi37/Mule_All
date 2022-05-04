@@ -1,0 +1,93 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "required": [
+    "fare_id",
+    "product_id",
+    "start_latitude",
+    "start_longitude",
+    "end_latitude",
+    "end_longitude"
+  ],
+  "properties": {
+    "customer_id": {
+      "$id": "#/properties/customer_id",
+      "type": "string",
+      "title": "The customer_id Schema",
+      "default": "",
+      "examples": [
+        "d30e732b8bba22c9cdc10513ee86380087cb4a6f89e37ad21ba2a39f3a1ba960"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "request_id": {
+      "$id": "#/properties/request_id",
+      "type": "string",
+      "title": "The request_id Schema",
+      "default": "",
+      "examples": [
+        "d30e732b8bba22c9cdc10513ee86380087cb4a6f89e37ad21ba2a39f3a1ba960"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "fare_id": {
+      "$id": "#/properties/fare_id",
+      "type": "string",
+      "title": "The Fare_id Schema",
+      "default": "",
+      "examples": [
+        "d30e732b8bba22c9cdc10513ee86380087cb4a6f89e37ad21ba2a39f3a1ba960"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "product_id": {
+      "$id": "#/properties/product_id",
+      "type": "string",
+      "title": "The Product_id Schema",
+      "default": "",
+      "examples": [
+        "a1111c8c-c720-46c3-8534-2fcdd730040d"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "start_latitude": {
+      "$id": "#/properties/start_latitude",
+      "type": "number",
+      "title": "The Start_latitude Schema",
+      "default": 0,
+      "examples": [
+        37.761492
+      ]
+    },
+    "start_longitude": {
+      "$id": "#/properties/start_longitude",
+      "type": "number",
+      "title": "The Start_longitude Schema",
+      "default": 0,
+      "examples": [
+        -122.423941
+      ]
+    },
+    "end_latitude": {
+      "$id": "#/properties/end_latitude",
+      "type": "number",
+      "title": "The End_latitude Schema",
+      "default": 0,
+      "examples": [
+        37.775393
+      ]
+    },
+    "end_longitude": {
+      "$id": "#/properties/end_longitude",
+      "type": "number",
+      "title": "The End_longitude Schema",
+      "default": 0,
+      "examples": [
+        -122.417546
+      ]
+    }
+  }
+}
