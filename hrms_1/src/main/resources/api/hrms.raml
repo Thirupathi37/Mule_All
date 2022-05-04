@@ -1,0 +1,119 @@
+#%RAML 1.0
+title: HRMS
+
+uses:
+  common: Global_Library/common_library.raml
+
+
+types:
+  Json:
+    type: object
+    fileTypes: ['application/json']
+    example: !include /Global_Library/common/example/createEmpPOST_example.json
+      
+  Pdf:
+    type: file
+    fileTypes: ['application/pdf'] 
+
+  File: Json | Pdf
+
+/applicant:
+  get:
+    queryParameters:
+      soqlWhereClause:
+        required: false
+    responses:
+      200:
+        body:
+          application/json:
+            type: common.getAllEmps[]
+            example: !include /Global_Library/common/example/getAllEmpDetails_example.json
+
+      400:
+        body:
+          application/json:
+            type: common.commonError
+            example: !include /Global_Library/common/Error/400_Resp_example.json    
+
+  post:
+    is:
+      - common.createEmpQuery
+      - common.createEmpHeader
+    body:
+      # application/json:
+      #   type: common.createEmpDatatype
+      #   examples:
+      #     example: !include /Global_Library/common/example/createEmpPOST_example.json
+      
+       multipart/form-data:
+        displayName: Upload Resume
+        description: The file to be uploaded.
+        type: File[]
+
+    responses:
+      201:
+        body:
+          application/json:
+            example: {"message": "inserted successfully"}
+      400:
+        body:
+          application/json:
+            type: common.commonError
+            example: !include /Global_Library/common/Error/400_Resp_example.json     
+
+
+  /{id}:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              type: common.getEmp
+              example: !include /Global_Library/common/example/getEmpDetails_example.json
+        
+        400:
+          body:
+            application/json:
+              type: common.commonError
+              example: !include /Global_Library/common/Error/400_Resp_example.json 
+
+
+
+    put:
+      body:
+        application/json:
+          type: common.createEmpDatatype
+          example: !include /Global_Library/common/example/createEmpPOST_example.json
+      responses:
+        200:
+          body:
+            application/json:
+              example: { "message": "updated successfully"}
+
+        400:
+          body:
+            application/json:
+              type: common.commonError
+              example: !include /Global_Library/common/Error/400_Resp_example.json 
+
+
+    delete:
+      responses:
+        200:
+          body:
+            application/json:
+              example: 
+                { 
+                  "message": "Deleted Successfully"
+                }
+        400:
+          body:
+            application/json:
+              type: common.commonError
+              example: !include /Global_Library/common/Error/400_Resp_example.json 
+                
+            
+                
+            
+        
+                              

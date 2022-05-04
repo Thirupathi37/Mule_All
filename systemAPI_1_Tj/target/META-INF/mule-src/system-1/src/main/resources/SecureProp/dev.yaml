@@ -1,0 +1,10 @@
+httpListener:
+  sys1Http_host: "![kGpjdp7Gg1kVev1Krmykfw==]"
+  sys1Http_port: "![LSj+socYKuqSReSyjOrxRw==]"
+  sys1Http_path: "/api/"
+  
+database:
+  sys1_db_host: "![kGpjdp7Gg1kVev1Krmykfw==]"
+  sys1_db_port: "![R/S53XZAZvmacR9uVfwPvw==]"
+  sys1_db_username: "![gxIGKGypfFIuJAY7yirNsw==]"
+  sys1_db_password: "![R/S53XZAZvmacR9uVfwPvw==]"

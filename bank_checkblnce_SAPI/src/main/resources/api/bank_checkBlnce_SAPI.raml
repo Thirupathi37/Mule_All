@@ -1,0 +1,60 @@
+#%RAML 1.0
+title: Bank Check Balance SAPI
+
+uses:
+  library: Libraries/library.raml
+
+
+/checkBalance:
+  post:
+    is:
+      - library.chckBlnece_qryPrms
+    body:
+      application/json:
+        type: !include dataTypes/Req_Datatype/chckBlnce_Req_dataType.raml
+        example: !include examples/Responses/chckBlnce_Req_example.raml
+    responses:
+      200:
+        body:
+          application/json:
+            type: !include /dataTypes/Resp_Body/common_Resp_dataType.raml
+            example:
+              {
+                "status" : "Your total balance is xxxxxxxx as on 20-May-2020 
+is xxxxxx"
+               } 
+
+  /{getAccountDetails}:
+    description: This resource is to get total amount with sending AccountNo in UriParams
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                {
+                  "Amount": "Your total balance is xxxxxxxx"
+                }
+
+/updateWrongPin:
+  post:
+    body:
+      application/json:
+        type: !include /dataTypes/Req_Datatype/blockAccountdataType.raml
+        example:
+          {
+            "custAccNum": "1234567895",
+            "wrongPin": 1,
+            "accountStatus": "Active"
+          }
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              {
+                "ErrorMessage": "You have only 2 more retries"
+              }
+                                                        
+                
+

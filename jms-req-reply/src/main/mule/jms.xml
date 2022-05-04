@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:bti="http://www.mulesoft.org/schema/mule/ee/bti" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/bti http://www.mulesoft.org/schema/mule/ee/bti/current/mule-bti-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="726ac036-b428-4d1c-9278-93978a54291f" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="5f329737-c085-47f8-aabc-19130dab1ef3" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:caching-strategy >
+				<jms:no-caching />
+			</jms:caching-strategy>
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" enable-xa="true"/>
+		</jms:active-mq-connection>
+	</jms:config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="1f74a344-001a-4be5-ab47-3a945c9650e1" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234" useXaTransactions="true"/>
+	</db:config>
+	<bti:transaction-manager doc:name="Bitronix Transaction Manager" doc:id="4fbb57d7-f98e-49c4-84e3-6da575a46f87" />
+	<flow name="jmsFlow" doc:id="5d80a424-ac16-4f23-b359-677d183f481d" >
+		<jms:listener doc:name="On New Message" doc:id="acf6fcb7-0183-46ea-9b41-c8b5da037be8" config-ref="JMS_Config" destination="Q1" transactionalAction="ALWAYS_BEGIN" transactionType="XA" ackMode="MANUAL">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+			<jms:response persistentDelivery="true" />
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="052a30a4-5fd9-4957-90da-a6a6a98108ce" message='#["hello"]'/>
+		<try doc:name="Try" doc:id="c47f7b4d-0e27-4c44-bb46-b9e5f8c8c272" transactionalAction="BEGIN_OR_JOIN" transactionType="XA">
+			<logger level="INFO" doc:name="Logger" doc:id="a1e7bf7a-157d-434b-ac81-5ff81461f7f2" message='#["Hi"]'/>
+			<jms:ack doc:name="Ack" doc:id="e7448d79-7112-457f-8f42-35dda4673536" ackId="#[attributes.ackId]"/>
+			<set-payload value='#[{&#10;"empNo": 1,&#10;"empName": "Thiru",&#10;"empDesign": "Analyst",&#10;"empSal": "1000"&#10;}]' doc:name="Set Payload" doc:id="d37d49f5-639c-4f10-8ecb-3680dd31ae1b" />
+			<logger level="INFO" doc:name="Logger" doc:id="ce6d0c23-eae9-4110-804b-965d5278dfb6" message="#[payload]"/>
+			<jms:publish doc:name="Publish" doc:id="5bf6ee37-528d-490f-9935-ca5627dfd075" config-ref="JMS_Config" destination="Q2" transactionalAction="ALWAYS_JOIN"/>
+			<db:insert doc:name="Insert" doc:id="f2939648-2461-42f9-b549-9bf6b60030be" config-ref="Database_Config" transactionalAction="ALWAYS_JOIN">
+				<db:sql ><![CDATA[insert into emp.emp1 values(:empNo, :empName, :empDesign, :empSal)]]></db:sql>
+				<db:input-parameters ><![CDATA[#[{
+	"empNo": payload.empNo,
+	"empName": payload.empName,
+	"empDesign": payload.empDesign,
+	"empSal": payload.empSal
+}]]]></db:input-parameters>
+			</db:insert>
+		</try>
+	</flow>
+</mule>

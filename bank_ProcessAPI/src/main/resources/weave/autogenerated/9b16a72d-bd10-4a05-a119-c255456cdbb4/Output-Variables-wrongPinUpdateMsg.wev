@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_9b16a72d_bd10_4a05_a119_c255456cdbb4_Output_Variables_wrongPinUpdateMsg = Any
+

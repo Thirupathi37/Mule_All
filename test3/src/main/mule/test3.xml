@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="6193d869-3331-4923-b784-4d58c6669e0e" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:listener-config name="Flow1" doc:name="HTTP Listener config" doc:id="f94033bb-f11d-490f-9908-1dc56ce81bb8" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<http:listener-config name="Flow2" doc:name="HTTP Listener config" doc:id="33cd10c9-c752-4e49-8d05-fd90f257be86" >
+		<http:listener-connection host="0.0.0.0" port="8083" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="3a154bb1-67b9-420c-8843-9ac61a38e866">
+		<http:request-connection host="#[payload.host]" port="#[payload.port]" />
+	</http:request-config>
+	<flow name="test3Flow" doc:id="8d29a1da-72d3-43f6-9664-044965437ea0" >
+		<http:listener doc:name="Listener" doc:id="bef8c69a-1b52-4881-a347-9d0144f7239b" config-ref="HTTP_Listener_config" path="/flow2"/>
+		<ee:transform doc:name="Transform Message" doc:id="4d722b01-811f-4254-9827-4e7c03c3b861" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+if(attributes.requestPath == "/flow1")
+{
+	"host": "localhost",
+	"port": "8082",
+	"path": "flow1"
+}
+else
+{
+	"host": "localhost",
+	"port": "8083",
+	"path": "flow2"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="6bd5c3e8-5300-437c-958d-884fe0784617" message="#[payload]"/>
+		<http:request method="GET" doc:name="Request" doc:id="faa4f0e6-b7c7-4894-b5ea-a454b314bd25" config-ref="HTTP_Request_configuration" path='#["/" ++ payload.path]' responseTimeout="9000000"/>
+	</flow>
+	<flow name="test3Flow1" doc:id="6fb893b4-3442-48c5-b2c4-af2d09349c2f" >
+		<http:listener doc:name="Listener" doc:id="24ddf639-fa0a-4f0f-9e4a-5f879cac0985" config-ref="Flow1" path="/flow1"/>
+		<logger level="INFO" doc:name="Logger" doc:id="137067d8-4d65-4316-a905-20e110b290a2" message='"Flow 1"'/>
+	</flow>
+	<flow name="test3Flow2" doc:id="147b5ad6-2981-47ab-9b55-daecce1e8044" >
+		<http:listener doc:name="Listener" doc:id="4018dca4-1c81-44ac-9439-88c216f8bef1" config-ref="Flow2" path="/flow2"/>
+		<logger level="INFO" doc:name="Logger" doc:id="5f68aaac-bba8-4344-a96c-b8c4b62f4654" />
+	</flow>
+</mule>

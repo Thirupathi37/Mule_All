@@ -1,0 +1,8 @@
+form: FIXEDWIDTH
+id: 'EmployeeFile'
+name: 'EmployeeFile'
+values: 
+- { name: 'empNo', usage: M, type: String, length: 10 }
+- { name: 'empName', usage: M, type: String, length: 10 }
+- { name: 'empDesign', usage: M, type: String, length: 10 }
+- { name: 'empSal', usage: M, type: String, length: 10 }

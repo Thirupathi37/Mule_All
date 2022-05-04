@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:crypto="http://www.mulesoft.org/schema/mule/crypto"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/crypto http://www.mulesoft.org/schema/mule/crypto/current/mule-crypto.xsd">
+	
+		<flow name="withdrawAmountFlow" doc:id="688a6437-bcc8-490f-b764-a8d2c8d1f819" initialState="started">
+		
+		<logger level="INFO" doc:name="Logger" doc:id="e5d0cf68-78eb-43d9-af67-755c1ddf8990" message='"main Flow Started" '/>
+		<set-variable value='#[output application/json&#10;---&#10;(payload) ++ {"bank": attributes.queryParams.bank, "type": attributes.queryParams."type"}]' doc:name="Set Variable" doc:id="3e35e45c-5774-460c-aa15-50f0fa19f359" variableName="req" mimeType="application/json"/>
+		<flow-ref doc:name="getBalance" doc:id="271849dd-1c5f-4f90-882b-0596f3e6e0cf" name="getBalance_Flow"/>
+		<ee:transform doc:name="Transform Message" doc:id="95cbfecf-8f2e-489e-84db-db256f3419f2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var a= vars.req
+---
+(if(payload != null)
+{
+        (if(payload.bankName == a.bank and payload.accountType == a."type")
+            {
+                (if(payload.accountStatus == "Active")
+                {
+                    (if(payload.wrongPin <= 3)
+                    {
+                        (if(a.atmPin == payload.atmPin)
+                        {
+                            (if(payload.totalBalance >= a.amountToBeWithdraw)
+                            {
+                                "custAccNum": a.accountNum as String,
+                                "remainingBlnce": payload.totalBalance - a.amountToBeWithdraw,
+                                "hint": "Success"
+                            }
+                            else { 
+                                        "Error": "Insufficient Balance, please enter Minimum Amount",
+                                        "wrongPin": payload.wrongPin + 1,
+                                        "hint": "withdrawError",
+                                        "accountStatus": "InActive",
+                                        "custAccNum": payload.custAccNum
+                                    })
+                        }
+                        else 
+                            {
+                                "Error": "Invalid PIN, try with correct PIN",
+                                "wrongPin": payload.wrongPin + 1,
+                                "hint": "withdrawError",
+                                "accountStatus": "InActive",
+                                "custAccNum": payload.custAccNum
+                            })
+                    }
+                    else { 
+                        "Error": "Retry Exausted",
+                        "accountStatus": "InActive",
+                        "hint": "withdrawError",
+                        "wrongPin": payload.wrongPin 
+                    })
+
+                }
+                else{ 
+                    "Error": "Your Account is Temporarely Blocked",
+                    "hint": "commonError"
+                })
+            }
+            else{
+                "Error": "Incorrect Bank Name or Bank Type",
+                "hint": "commonError"
+            })
+}
+else {
+		"Error": "There is No Account Founded",
+        "hint": "commonError"
+	})]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="withdrawedAmount" ><![CDATA[vars.req.amountToBeWithdraw]]></ee:set-variable>
+			
+</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="check_Conditions(choice)" doc:id="f32ba3b5-158c-4707-8466-c73e963e8f3e" name="common_cond_route_Flow"/>
+		<ee:transform doc:name="Transform Message" doc:id="bec5308a-d996-44ac-a487-be715ec86ad0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	
+
+		<logger level="INFO" doc:name="Logger" doc:id="b952d7c8-ecd0-473a-8150-9279dab0be6b" message='"main Flow ended" '/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="7b0e4e9f-d0ef-46a7-a470-1a1c425b8070" type="HTTPR:CONNECTIVITY">
+				<ee:transform doc:name="Transform Message" doc:id="54985fe6-32ab-4109-b3f0-b7de482b76f6" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+error.muleMessage.typedValue default "Internal Server Error"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="73e507cb-244a-4e2b-8b4e-ebf926c5825a" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="4ad38c58-ef7d-4253-b4e1-d5e1afff1359">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"error": error.description default "Internal Server Error"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+		
+		
+</flow>	
+		<sub-flow name="getBalance_Flow" doc:id="1a360d68-63b2-4854-95b7-dc5afd46bf59" >
+		<logger level="INFO" doc:name="Logger" doc:id="d62a5c98-e56f-4799-93aa-29036ff7a162" message='"getAccountDetails Flow Started" '/>
+		<set-payload value="#[payload.accountNum]" doc:name="Set Payload" doc:id="71dc9fca-599d-41a0-a954-e8fae34633ad" />
+		<crypto:jce-encrypt-pbe doc:name="Jce encrypt pbe" doc:id="31bef61a-d98f-4384-89fb-e61c242e857d" password="Btr@1234"/>
+		<ee:transform doc:name="Transform Message" doc:id="dbfb3864-10e7-4953-9b00-d0f04060814b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/json
+---
+toBase64(payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f3dce943-ff0d-4d8e-b61f-85034a97911f" message="#[payload]"/>
+		<http:request method="GET" doc:name="Request" doc:id="ef91548e-43b0-420d-8452-28dc460fb60c" config-ref="HTTP_Request_withdraw1" path="/api/withDraw/{getAccountDetails}" responseTimeout="900000">
+			<error-mapping targetType="HTTPR:CONNECTIVITY" />
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"getAccountDetails" : payload
+}]]]></http:uri-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="3bc1af65-107b-41bb-a239-30c2fbcca782" message="#[payload]"/>
+		<set-payload value="#[(payload reduce($))]" doc:name="Set Payload" doc:id="5631cead-faab-46c2-a67a-b5cbc2496a0c" mimeType="application/json"/>
+	</sub-flow>
+	
+	
+	
+	</mule>

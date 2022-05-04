@@ -1,0 +1,20 @@
+#%RAML 1.0 DataType
+properties:
+  customerId:
+    type: string
+    required: true
+  shipLocationId:
+    type: string
+    required: true
+  lineItems:
+    type: array
+    required: true
+    items:
+      properties:
+        itemId:
+          type: string
+          required: true
+        quantity:
+          type: integer
+          required: true
+        

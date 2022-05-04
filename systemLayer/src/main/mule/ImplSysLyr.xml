@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd 
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<db:config name="Database_Config1" doc:name="Database Config" doc:id="3dc51bad-a09d-4c84-bf7f-2ed56473ed28" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234" />
+	</db:config>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="28d5e70a-3ced-45d2-9835-378453199076" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<flow name="ImplSysLyrFlow" doc:id="dc2d517e-3113-46a9-9915-8503ce98fb37">
+	
+	<set-variable value='#[output application/json&#10;&#10;---&#10;&#10;{&#10;&#10;	"UserID1" : attributes.queryParams.UserID1 default " ",&#10;&#10;	"UserID2" : attributes.queryParams.UserID2 default " ",&#10;&#10;	"UserID3" : attributes.queryParams.UserID3 default " "&#10;&#10;}]' doc:name="Set Variable" doc:id="334d7511-43a6-4ad9-8fe4-55dba415cf4b" variableName="ID"/>
+		<logger level="INFO" doc:name="Logger" doc:id="cadd091a-379f-4151-9cb5-a62689cf69ec" message="#[vars.ID]"/>
+		<ee:transform doc:name="Transform Message" doc:id="899efb2f-8857-46ad-bb91-67e587dfa225" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="failedUsersList" ><![CDATA[%dw 2.0
+output application/java
+---
+[] as Array]]></ee:set-variable>
+				<ee:set-variable variableName="succesUsersList" ><![CDATA[%dw 2.0
+output application/java
+---
+[] as Array
+//vars.successUsersList default [] + payload]]></ee:set-variable>
+			
+
+</ee:variables>
+		</ee:transform>
+		<set-payload value="#[vars.ID]" doc:name="Set Payload" doc:id="60bc6f9e-bf4e-4444-93b7-0ab3597d28be" />
+					
+					<foreach doc:name="For Each" doc:id="04c1a953-327c-4b41-94e5-1809e718b9ec">
+	
+					<set-variable value="#[[] + payload]" doc:name="Set Variable" doc:id="10a80392-b635-43f3-b6aa-10844d351ca8" variableName="currID"/>
+			<db:select doc:name="Select" doc:id="6d352c53-15ee-4f70-9364-965dc47f5653" config-ref="Database_Config">
+						<db:sql><![CDATA[select * from emp.details where USERID in (:UserID1, :UserID2, :UserID3)]]></db:sql>
+						<db:input-parameters><![CDATA[#[{
+	UserID1: payload.UserID1,
+	UserID2: payload.UserID2,
+	UserID3: payload.UserID3
+}]]]></db:input-parameters>
+					</db:select>
+			<ee:transform doc:name="Transform Message" doc:id="887d5f8c-3e93-41e9-97b2-bfaa4ea804e0">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+						</ee:message>
+				<ee:variables >
+				</ee:variables>
+					
+</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="0295efab-108a-4653-ba80-54fba92a601a" message="#[payload]"/>
+	
+			
+			<choice doc:name="Choice" doc:id="2d909cd5-5251-488a-bb42-bdee018bc48e" >
+			
+			<when expression="#[sizeOf(payload) &gt; 0]">
+								
+				<logger level="INFO" doc:name="Logger" doc:id="cbe507c3-f5c8-455b-8389-4ab2ddbc5f11" message="#[payload]" />
+					<ee:transform doc:name="Transform Message" doc:id="c3afc0d6-3655-4ead-97f2-084f4e4c0c87">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+//vars arr= #[vars.successUsersList]
+---
+payload map(item, index)->{
+    "successRec": "select USERID," ++ item.COLUMNAMES ++ " from emp." ++ item.TABLENAME ++ " where USERID= " ++ item.USERID
+}]]></ee:set-payload>
+						</ee:message>
+						<ee:variables>
+							<ee:set-variable variableName="currID1" ><![CDATA[%dw 2.0
+output application/java
+---
+[] as Array]]></ee:set-variable>
+
+						</ee:variables>
+					</ee:transform>
+					<logger level="INFO" doc:name="Logger" doc:id="0cafad5d-6fbd-4c33-a428-cae4c8710137" message="#[payload]" />
+					<foreach doc:name="For Each" doc:id="0e5483a9-7892-4578-9a2f-dc3041a21077">
+						<db:select doc:name="Select" doc:id="07fe35b3-4aea-4fdf-a74b-288ed4515008" config-ref="Database_Config">
+							<db:sql><![CDATA[#[payload.successRec]]]></db:sql>
+						</db:select>
+						<ee:transform doc:name="Transform Message" doc:id="75681473-2d07-4722-a8a8-e1e44c57b9b8">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<ee:transform doc:name="Transform Message" doc:id="767c7b26-7ce3-4d47-bba5-91c8927c4bf8">
+							<ee:message>
+							</ee:message>
+							<ee:variables>
+								<ee:set-variable variableName="successUsersList"><![CDATA[%dw 2.0
+output application/java
+---
+vars.successUsersList + payload
+]]></ee:set-variable>
+							</ee:variables>
+						</ee:transform>
+						<logger level="INFO" doc:name="Logger" doc:id="e10921e4-0cc3-4090-b36e-efbbc69b92b9" message="#[vars.successUsersList]" />
+					</foreach>
+					<logger level="INFO" doc:name="Logger" doc:id="b73ad3b8-4acd-47e6-b9c9-4afd3f4504d6" message="#[vars.successUsersList]"/>
+					
+				
+	
+</when>
+				<otherwise >
+						<set-payload value="#[vars.currID1]" doc:name="Set Payload" doc:id="6aeb3004-603c-47ee-b621-8176e1d6d82d" />
+					<logger level="INFO" doc:name="Logger" doc:id="8912582c-e9da-45c7-8e73-ec9934b4c7be" message='"The Failed UserID is: " #[vars.currID1] #[payload]' />
+						<ee:transform doc:name="Transform Message" doc:id="d06cadc7-fbc2-4111-9e11-84a438e46eca">
+						<ee:message>
+						</ee:message>
+						<ee:variables>
+							<ee:set-variable variableName="failedUsersList" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.failedUsersList + payload
+]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+						<logger level="INFO" doc:name="Logger" doc:id="3aef5e2c-b6ff-40dd-99d5-3fcc7fa74e5c" message="#[vars.failedUsersList]" />
+					
+				</otherwise>
+				
+		
+		</choice>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="92fded45-a844-4735-b98f-47e55887815c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+"SUCCESS RECORDS: ":
+     vars.successUsersList +
+"FAILED RECORDS: ":
+     vars.failedUsersList ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	
+	
+	</flow>
+	<flow name="JmsPublishQ1_Flow" doc:id="5b467935-9154-4af3-bfef-93f9aa488bc7" >
+		<jms:listener doc:name="On New Message" doc:id="984b30e1-07dc-44c8-a4ea-b44b95d46ec0" config-ref="JMS_Config" destination="Syn" ackMode="IMMEDIATE">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="064051d2-1814-4b57-9561-fe8777314845" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="aee7d404-07a9-43ba-b4bf-084f6e0618e5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></ee:set-payload>
+
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="failedUsersList" ><![CDATA[%dw 2.0
+output application/java
+---
+[] as Array]]></ee:set-variable>
+				<ee:set-variable variableName="successUsersList" ><![CDATA[%dw 2.0
+output application/java
+---
+[] as Array]]></ee:set-variable>
+				<ee:set-variable variableName="currID" ><![CDATA[%dw 2.0
+output application/java
+---
+[] as Array]]></ee:set-variable>
+			
+</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="bccab8bd-4e24-4d8b-a8fa-257c8e86ab6f" message="#[payload]"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="04e81c58-9641-4eb0-974b-d0d19245f4d8" />
+					
+					<foreach doc:name="For Each" doc:id="b1ced37b-5b25-4d4a-957a-addb1cfc90e3" collection="#[payload]">
+			<logger level="INFO" doc:name="Logger" doc:id="41a6f4d9-3bb3-4964-a612-a57701b1bbad" message="#[payload]"/>
+			<set-variable value="#[[] + payload]" doc:name="Set Variable" doc:id="c09d3f61-dce6-4527-a849-f389b89cbef8" variableName="currID1"/>
+			<db:select doc:name="Select" doc:id="ac4c8553-f97a-45ed-96e5-938e02fc4aef" config-ref="Database_Config">
+						<db:sql><![CDATA[select * from emp.details where USERID in (:UserID1, :UserID2, :UserID3)]]></db:sql>
+						<db:input-parameters><![CDATA[#[{
+	UserID1: payload.UserID1,
+	UserID2: payload.UserID2,
+	UserID3: payload.UserID3
+}]]]></db:input-parameters>
+					</db:select>
+			<ee:transform doc:name="Transform Message" doc:id="17e82875-a52c-4507-87eb-5433d9d1f64d">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+						</ee:message>
+				<ee:variables >
+				</ee:variables>
+					
+</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="341ff79c-95b7-4d3e-9497-c1bcac16f972" message="#[payload]"/>
+	
+			
+			<choice doc:name="Choice" doc:id="a3890dab-5d27-4dde-95ee-dfa814a3e704" >
+			
+			<when expression="#[sizeOf(payload) &gt; 0]">
+								
+				<logger level="INFO" doc:name="Logger" doc:id="691bb175-ef27-4eef-b110-b54f51bc4fe7" message="#[payload]" />
+					<ee:transform doc:name="Transform Message" doc:id="f4eb636c-b582-4d0d-8140-bb990459d1cb">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+//vars arr= #[vars.successUsersList]
+---
+payload map(item, index)->{
+    "successRec": "select USERID," ++ item.COLUMNAMES ++ " from emp." ++ item.TABLENAME ++ " where USERID= " ++ item.USERID
+}]]></ee:set-payload>
+						</ee:message>
+						<ee:variables>
+							<ee:set-variable variableName="currID1" ><![CDATA[%dw 2.0
+output application/java
+---
+[] as Array]]></ee:set-variable>
+
+						</ee:variables>
+					</ee:transform>
+					<logger level="INFO" doc:name="Logger" doc:id="fc6b72b1-6ebc-4c48-81a5-8765abc06701" message="#[payload]" />
+					<foreach doc:name="For Each" doc:id="2b339cb9-6d7b-4f60-985c-ebf43a88fa7d">
+						<db:select doc:name="Select" doc:id="4995d66e-b352-40ca-ba8a-3e7d7570f058" config-ref="Database_Config">
+							<db:sql><![CDATA[#[payload.successRec]]]></db:sql>
+						</db:select>
+						<ee:transform doc:name="Transform Message" doc:id="1d257978-ddda-4b36-a4fd-cc1d1c49d0ca">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<ee:transform doc:name="Transform Message" doc:id="3504f4b0-03e8-488f-b9fa-987de723848d">
+							<ee:message>
+							</ee:message>
+							<ee:variables>
+								<ee:set-variable variableName="successUsersList"><![CDATA[%dw 2.0
+output application/java
+---
+vars.successUsersList + payload
+]]></ee:set-variable>
+							</ee:variables>
+						</ee:transform>
+						<logger level="INFO" doc:name="Logger" doc:id="164b93fd-aec4-427e-846f-70a59fb10c50" message="#[vars.successUsersList]" />
+					</foreach>
+					<logger level="INFO" doc:name="Logger" doc:id="66dc687e-1b84-49cd-a7ba-69907f1f5d8a" message="#[vars.successUsersList]"/>
+					
+				
+	
+</when>
+				<otherwise >
+						<set-payload value="#[vars.currID1]" doc:name="Set Payload" doc:id="ca9baa77-aa15-414b-beca-b3261f692545" />
+					<logger level="INFO" doc:name="Logger" doc:id="a387c855-a3ce-4fa0-bb4a-1429bff20e6f" message='"The Failed UserID is: " #[vars.currID1] #[payload]' />
+						<ee:transform doc:name="Transform Message" doc:id="be20056a-383e-4ad0-9311-24f93ac0ce0f">
+						<ee:message>
+						</ee:message>
+						<ee:variables>
+							<ee:set-variable variableName="failedUsersList" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.failedUsersList + payload
+]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+						<logger level="INFO" doc:name="Logger" doc:id="c208bd77-6dde-4069-9030-7e7eba767118" message="#[vars.failedUsersList]" />
+					
+				</otherwise>
+				
+		
+		</choice>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="99da0eda-b3dd-4a38-b3a2-8314f28bf778" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+"SUCCESS RECORDS: ":
+     vars.successUsersList +
+"FAILED RECORDS: ":
+     vars.failedUsersList ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="aea72ca2-2cc7-4931-bb03-2b36b9e0b794" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="922462af-6c50-4057-9e7c-d8cd51575e0e" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Error": error.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+
+	</flow>
+	
+	<flow name="JmsPublishConsumeFlow" doc:id="38bea3c5-fc15-498d-ac8d-835dca6e3616" >
+		<jms:listener doc:name="On New Message" doc:id="147a7e77-0337-45e5-828b-9790b17851d0" config-ref="JMS_Config" destination="Asyn1" ackMode="MANUAL">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="41d41c94-c229-42ed-aba2-dc9aae978ddd" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="fa08c434-359f-4ee4-9e09-aa9fc5b30905" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></ee:set-payload>
+
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="failedUsersList" ><![CDATA[%dw 2.0
+output application/java
+---
+[] as Array]]></ee:set-variable>
+				<ee:set-variable variableName="successUsersList" ><![CDATA[%dw 2.0
+output application/java
+---
+[] as Array]]></ee:set-variable>
+				<ee:set-variable variableName="currID" ><![CDATA[%dw 2.0
+output application/java
+---
+[] as Array]]></ee:set-variable>
+			
+</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="95a4541a-5bf6-4e70-b47a-e801eba83e30" message="#[payload]"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="67b9b322-1ed0-4276-bedf-72978e73824d" />
+					
+					<foreach doc:name="For Each" doc:id="a6601c9a-0733-47a4-969c-905dc817ee13" collection="#[payload]">
+			<logger level="INFO" doc:name="Logger" doc:id="8eb2efea-8d6b-40f0-b75e-b2f07b7eab58" message="#[payload]"/>
+			<set-variable value="#[[] + payload]" doc:name="Set Variable" doc:id="364b2507-fc94-497b-98bb-24e228c4757a" variableName="currID1"/>
+			<db:select doc:name="Select" doc:id="53fb398f-daa0-4ddd-8938-029a4c15e3d6" config-ref="Database_Config">
+						<db:sql><![CDATA[select * from emp.details where USERID in (:UserID1, :UserID2, :UserID3)]]></db:sql>
+						<db:input-parameters><![CDATA[#[{
+	UserID1: payload.UserID1,
+	UserID2: payload.UserID2,
+	UserID3: payload.UserID3
+}]]]></db:input-parameters>
+					</db:select>
+			<ee:transform doc:name="Transform Message" doc:id="53485a50-1372-4c88-a055-b197c5dc7d3f">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+						</ee:message>
+				<ee:variables >
+				</ee:variables>
+					
+</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="b77b5ab3-c6b1-41f5-9159-d4ac173597e9" message="#[payload]"/>
+	
+			
+			<choice doc:name="Choice" doc:id="988ac7e4-2ba3-4693-b5da-e3dfc7ba551f" >
+			
+			<when expression="#[sizeOf(payload) &gt; 0]">
+								
+				<logger level="INFO" doc:name="Logger" doc:id="938bb3e4-60ab-44af-aaa2-4d5e5bab5d8d" message="#[payload]" />
+					<ee:transform doc:name="Transform Message" doc:id="8d55279e-8196-41d0-b455-f8a063fb2da7">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+//vars arr= #[vars.successUsersList]
+---
+payload map(item, index)->{
+    "successRec": "select USERID," ++ item.COLUMNAMES ++ " from emp." ++ item.TABLENAME ++ " where USERID= " ++ item.USERID
+}]]></ee:set-payload>
+						</ee:message>
+						<ee:variables>
+							<ee:set-variable variableName="currID1" ><![CDATA[%dw 2.0
+output application/java
+---
+[] as Array]]></ee:set-variable>
+
+						</ee:variables>
+					</ee:transform>
+					<logger level="INFO" doc:name="Logger" doc:id="354dfa40-ec11-4136-96e1-d0cfe7b6e083" message="#[payload]" />
+					<foreach doc:name="For Each" doc:id="a98fe77e-5c93-437a-b1a9-2c42f9863abc">
+						<db:select doc:name="Select" doc:id="2fcc4028-d091-4284-98cf-3871183d8a04" config-ref="Database_Config">
+							<db:sql><![CDATA[#[payload.successRec]]]></db:sql>
+						</db:select>
+						<ee:transform doc:name="Transform Message" doc:id="8c45c2cf-7d7c-4be4-b505-19f4aabed94a">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<ee:transform doc:name="Transform Message" doc:id="5e6f3c92-90c3-4153-aed8-fade66f95ecc">
+							<ee:message>
+							</ee:message>
+							<ee:variables>
+								<ee:set-variable variableName="successUsersList"><![CDATA[%dw 2.0
+output application/java
+---
+vars.successUsersList + payload
+]]></ee:set-variable>
+							</ee:variables>
+						</ee:transform>
+						<logger level="INFO" doc:name="Logger" doc:id="0b934c0d-8e91-4cc5-b858-3d1b0cba663a" message="#[vars.successUsersList]" />
+					</foreach>
+					<logger level="INFO" doc:name="Logger" doc:id="cb80f327-e638-4e56-af5c-97e2e6971c75" message="#[vars.successUsersList]"/>
+					
+				
+	
+</when>
+				<otherwise >
+						<set-payload value="#[vars.currID1]" doc:name="Set Payload" doc:id="68615d44-f675-4c4f-b9d6-637b77766d26" />
+					<logger level="INFO" doc:name="Logger" doc:id="3f9ef43d-f221-4bb9-82f1-e93b4ebc8ef4" message='"The Failed UserID is: " #[vars.currID1] #[payload]' />
+						<ee:transform doc:name="Transform Message" doc:id="ce3e1c99-ae7e-4c78-8d63-8542e2550fe1">
+						<ee:message>
+						</ee:message>
+						<ee:variables>
+							<ee:set-variable variableName="failedUsersList" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.failedUsersList + payload
+]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+						<logger level="INFO" doc:name="Logger" doc:id="b1d0aed1-dd62-4353-9bee-dc346c6d35fa" message="#[vars.failedUsersList]" />
+					
+				</otherwise>
+				
+		
+		</choice>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="d3a6f8b8-d27c-4825-ace0-27a24fcfdd7b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+"SUCCESS RECORDS: ":
+     vars.successUsersList +
+"FAILED RECORDS: ":
+     vars.failedUsersList ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<jms:ack doc:name="Ack" doc:id="ab172b45-db54-4c4f-bc42-9a2b34398962" ackId="#[attributes.ackId]"/>
+		<jms:publish doc:name="Publish" doc:id="08abcdc6-e9f0-46d9-8370-8ff53e86720e" config-ref="JMS_Config" destination="Asyn2"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="73a4ae38-9817-482a-b9b8-ac0b36531c2a" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="587b0bb9-a3ea-4f8a-b7cd-01b3de5c988b" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Error": error.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+
+	</flow>
+	
+	
+</mule>

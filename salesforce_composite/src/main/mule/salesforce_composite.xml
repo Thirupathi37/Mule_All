@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:netsuite="http://www.mulesoft.org/schema/mule/netsuite"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:salesforce-composite="http://www.mulesoft.org/schema/mule/salesforce-composite" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce-composite http://www.mulesoft.org/schema/mule/salesforce-composite/current/mule-salesforce-composite.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/netsuite http://www.mulesoft.org/schema/mule/netsuite/current/mule-netsuite.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<salesforce-composite:composite-config name="Salesforce_Composite_Config" doc:name="Salesforce Composite Config" doc:id="51b8656d-dded-4e1b-896f-9c1b2f31071a" >
+		<salesforce-composite:oauth-user-pass-connection consumerKey="3MVG9pRzvMkjMb6nWsel3XfllZht4iSovUGJcnffx.1if78j.b_DMRxibYnrIBT0mxntIkEG2lpEob1HFp7g6" consumerSecret="C31278519CCAC8D48B181F358D94797D88AD33F76FEE90E596B8CF0B043A365A" username="tbommishetty@eniquesolutions.com" password="Btr@1234" securityToken="25plzvETRMJ0oht9NJFgK5XBm" />
+	</salesforce-composite:composite-config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="2b8a4fe9-82fa-4ed3-be45-4e4b9f5e0b03" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="fb12d513-922d-4f88-a0c1-35e8badb9a57" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234" database="emp" />
+	</db:config>
+	<salesforce-composite:composite-config name="Salesforce_Composite_Config1" doc:name="Salesforce Composite Config" doc:id="a5bc6ec5-a43c-43c4-8b24-b20a8598dfdd" >
+		<salesforce-composite:config-with-oauth-connection >
+			<salesforce-composite:oauth-authorization-code consumerKey="3MVG9pRzvMkjMb6nWsel3XfllZht4iSovUGJcnffx.1if78j.b_DMRxibYnrIBT0mxntIkEG2lpEob1HFp7g6" consumerSecret="C31278519CCAC8D48B181F358D94797D88AD33F76FEE90E596B8CF0B043A365A" authorizationUrl="https://eniquesolutions59-dev-ed.my.salesforce.com/services/oauth2/authorize" accessTokenUrl="https://eniquesolutions59-dev-ed.my.salesforce.com/services/oauth2/token" />
+			<salesforce-composite:oauth-callback-config listenerConfig="HTTP_Listener_config" callbackPath="/callback" authorizePath="/authorize" externalCallbackUrl="http://localhost:8081/callback" />
+		</salesforce-composite:config-with-oauth-connection>
+	</salesforce-composite:composite-config>
+	<flow name="execute_Composite_RequestFlow" doc:id="21938346-a710-4eb7-9dae-f97a7c66ed6b" >
+		<http:listener doc:name="Listener" doc:id="42f96125-8230-4c2e-82eb-976ee0219644" config-ref="HTTP_Listener_config" path="/composite" allowedMethods="GET"/>
+		<ee:transform doc:name="Transform Message" doc:id="aade210c-06a8-4075-a6a9-40fbe184db02" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+"allOrNone": true,
+"compositeRequest" : 
+[
+    {
+        "method" : "POST",
+        "url" : "/services/data/v53.0/sobjects/Account",
+        "referenceId" : "refAccount1",
+        "body" : { 
+                        "Name" : "Thiru1",
+                        "Phone": "8790120632" 
+                 }
+    },
+    {
+        "method" : "POST",
+        "url" : "/services/data/v53.0/sobjects/Account",
+        "referenceId" : "refAccount2",
+        "body" : { 
+                        "Name" : "Thiru2",
+                        "Phone": "8790120632" 
+                 }
+    },
+    {
+        "method" : "POST",
+        "url" : "/services/data/v53.0/sobjects/Account",
+        "referenceId" : "refAccount3",
+        "body" : { 
+                        "Name" : "Thiru3",
+                        "Phone": "8790120632" 
+                 }
+    },
+  {
+        "method" : "POST",
+        "url" : "/services/data/v53.0/sobjects/Contact",
+        "referenceId" : "refContact1",
+        "body" : { 
+                        "LastName": "Manu1",
+                        "AccountId" : "@{refAccount1.id}",
+                        "Phone": "8790120632"
+                 }
+   },
+   {
+        "method" : "POST",
+        "url" : "/services/data/v53.0/sobjects/Contact",
+        "referenceId" : "refContact2",
+        "body" : { 
+                        "LastName": "Manu2",
+                        "AccountId" : "@{refAccount2.id}",
+                        "Phone": "8790120632"
+                 }
+   },
+   {
+        "method" : "POST",
+        "url" : "/services/data/v53.0/sobjects/Contact",
+        "referenceId" : "refContact3",
+        "body" : { 
+                        "LastName": "Manu3",
+                        "AccountId" : "@{refAccount3.id}",
+                        "Phone": "8790120632"
+                 }
+   }
+]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce-composite:execute-composite-request doc:name="Execute composite request" doc:id="e0bb7c69-cab1-4e92-948d-ee0da98cd659" config-ref="Salesforce_Composite_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="68fb0113-5a0b-44aa-aceb-aa106686de91">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="sObject_Tree_Create_Flow" doc:id="ecd9f595-f435-47dd-bbd3-4403733e9a7e" >
+		<http:listener doc:name="Listener" doc:id="d2728b1f-7894-43f6-b127-55cc5b461c69" config-ref="HTTP_Listener_config" path="/sObject_Tree"/>
+		<ee:transform doc:name="Transform Message" doc:id="a4896811-ec5b-4f34-bd65-20079012455f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+   "records":[
+      {
+         "attributes":{  "type":"Account", "referenceId":"ref1"},
+         "name":"Manisha1",
+         "phone":"1234567890",
+         "Contacts":{
+            "records":[
+               {
+                  "attributes":{
+                     "type":"Contact",
+                     "referenceId":"ref2"
+                  },
+                  "lastname":"Thirupathi Raj",
+                  "email":"sample3@salesforce.com"
+               },
+               {
+                  "attributes":{
+                     "type":"Contact",
+                     "referenceId":"ref3"
+                  },
+                  "lastname":"Manisha",
+                  "title":"Vice President",
+                  "email":"sample6@salesforce.com"
+               }
+            ]
+         }
+      },
+      {
+         "attributes":{ "type":"Account","referenceId":"ref4" },
+         "name":"Manisha2",
+         "phone":"1234567890",
+         "Contacts":{
+            "records":[
+               {
+                  "attributes":{
+                     "type":"Contact",
+                     "referenceId":"ref5"
+                  },
+                  "lastname":"Thirupathi Raj",
+                  "email":"sample7@salesforce.com"
+               },
+               {
+                  "attributes":{
+                     "type":"Contact",
+                     "referenceId":"ref6"
+                  },
+                  "lastname":"Manisha",
+                  "title":"Vice President",
+                  "email":"sample8@salesforce.com"
+               }
+            ]
+         }
+      }
+   ]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce-composite:create-sobject-tree doc:name="Create sobject tree" doc:id="fc476fbb-5099-4949-8498-05f437b4a557" config-ref="Salesforce_Composite_Config1" type="Account">
+			<salesforce-composite:s-objects ><![CDATA[#[payload.records]]]></salesforce-composite:s-objects>
+		</salesforce-composite:create-sobject-tree>
+		<ee:transform doc:name="Transform Message" doc:id="0b526af7-0a9a-4205-b817-6c789661e701" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="execute_Composite_BatchFlow" doc:id="dc66d2c8-bce2-461d-bab6-ad6680ed7322" >
+		<http:listener doc:name="Listener" doc:id="be3c842d-a9df-49ab-8d71-13ff3da36628" config-ref="HTTP_Listener_config" path="/batch"/>
+		<ee:transform doc:name="Transform Message" doc:id="60140a9d-121b-4ca3-8708-15a28f8e585e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"allOrNone": true,
+"batchRequests" : [
+    {
+    "method" : "PATCH",
+    "url" : "v53.0/sobjects/account/0015j00000E80K9AAJ",
+    "richInput" : {"Name" : "Thiru333"}
+    },{
+    "method" : "GET",
+    "url" : "v53.0/sobjects/account/0015j00000E80K9AAJ?fields=Name,Phone"
+    },
+    {
+    "method" : "GET",
+    "url" : "v53.0/query?q=select Name, Phone from Account"
+    },
+    {
+    "method" : "GET",
+    "url" : "v53.0/queryAll?q=select Name, Phone from Contact"
+    }
+    ]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce-composite:execute-composite-batch doc:name="Execute composite batch" doc:id="751895f3-f1f0-4c36-a5cd-3cea27e27180" config-ref="Salesforce_Composite_Config">
+			<salesforce-composite:sub-requests ><![CDATA[#[payload.batchRequests]]]></salesforce-composite:sub-requests>
+		</salesforce-composite:execute-composite-batch>
+		<ee:transform doc:name="Transform Message" doc:id="ee5e9dd0-f39d-4344-b7bf-0aa4fc582f02" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

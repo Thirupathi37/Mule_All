@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8e42b597-efee-4669-8695-ceef10550a29" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="5f44fab2-8428-425f-9fff-dbdcb393dfee" >
+		<http:request-connection host="localhost" port="8082" >
+			<reconnection failsDeployment="true" >
+				<reconnect-forever frequency="5000" />
+			</reconnection>
+		</http:request-connection>
+	</http:request-config>
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="f750a0ef-7955-48f2-95dd-84d955bfd8bb" >
+		<email:smtp-connection host="smtp.gmail.com" port="587" user="thirupathiraj2018@gmail.com" password="Btr@1233" timeoutUnit="MINUTES">
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="fcb67624-843c-4684-af0f-44e64f54af19" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<http:listener-config name="HTTP_Listener_config3" doc:name="HTTP Listener config" doc:id="2df9edf8-baad-48e1-8949-b27fd518a75a" >
+		<http:listener-connection host="0.0.0.0" port="8084" />
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config4" doc:name="HTTP Listener config" doc:id="d07769d1-2e68-483c-a78f-6c3fe72a93f4" >
+		<http:listener-connection host="0.0.0.0" port="8085" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration2" doc:name="HTTP Request configuration" doc:id="357d7820-fb6b-485f-be65-8d0505be73e2" >
+		<http:request-connection host="localhost" port="8085" />
+	</http:request-config>
+	<flow name="assignmnt_l_procapiFlow" doc:id="ad323a04-276f-489e-8966-0f0cea3a20c3" >
+		<http:listener doc:name="Listener" doc:id="ffa1c4b0-2174-4240-a766-5883a1159158" config-ref="HTTP_Listener_config3" path="/test"/>
+		<logger level="INFO" doc:name="Logger" doc:id="75515426-cfc5-47d8-81bc-9ca85078ab6b" message='"Flow started"'/>
+		<async doc:name="Async" doc:id="6dd47791-198a-4e74-8b24-ea06a4089aed">
+			<flow-ref doc:name="Flow Reference" doc:id="45dbf674-ffab-48f3-ac07-626910bd9971" name="subFlow" />
+		</async>
+		<ee:transform doc:name="Transform Message" doc:id="89214fda-0172-4b58-ba90-9a7caac3f26b">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"success": "Your Request Has been Recieved, and will process",
+	"transactionId": correlationId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<email:send doc:name="Send" doc:id="7956cd2a-f538-4a3c-bb3b-b1ca163e1590" config-ref="Email_SMTP" fromAddress="thirupathiraj2018@gmail.com" subject=" Congratulations ! Account Created Successfully">
+			<email:to-addresses >
+				<email:to-address value="tbommishetty@eniquesolutions.com" />
+			
+</email:to-addresses>
+			<email:body contentType="text/plain">
+				<email:content ><![CDATA[#[payload.success ++ "Your TransactionID is: " ++ payload.transactionId]]]></email:content>
+
+			</email:body>
+		</email:send>
+	</flow>
+	<flow name="systemFlow_1" doc:id="8d6ae028-ab24-4c58-a223-3e6e37b10833" >
+		<http:listener doc:name="Listener" doc:id="45200b11-ee4a-4838-ac59-a29007469dfa" config-ref="HTTP_Listener_config4" path="/8085"/>
+		<logger level="INFO" doc:name="Logger" doc:id="82f16334-3fc5-4f66-a87b-b44cd9d64fe6" message='"rcvd"'/>
+	</flow>
+	<sub-flow name="subFlow" doc:id="ad860426-40fb-4934-a8e8-dcda0d97e46f" >
+		<logger level="INFO" doc:name="Logger" doc:id="744a87fd-799b-4cd9-8e7a-37a7f4f550a4" message='"In subFlow"'/>
+		<try doc:name="Try" doc:id="3b611ff0-d087-42b2-bd6e-330e8491f44e" >
+			<http:request method="GET" doc:name="Request" doc:id="bef6aa5f-23f7-44da-af16-9b75ce15cbc7" config-ref="HTTP_Request_configuration2" path=" /8086" />
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="1df5af13-370d-4b21-84fa-cbcdcab0d285" type="ANY">
+					<jms:publish doc:name="Publish" doc:id="b4ffd21d-8a4b-4cad-aef0-332eecc2a782" config-ref="JMS_Config" destination="Q2"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+	</sub-flow>
+	<flow name="reProcess_Flow" doc:id="1cba5637-cb79-4f0d-9be6-f8bbb39ba0e8" >
+		<scheduler doc:name="Scheduler" doc:id="61e31750-8e7c-415a-93b0-275e550f8bff" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" startDelay="30" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<jms:consume doc:name="Consume" doc:id="22ddb2c2-6a8d-4625-a770-0bf6d51ef36b" config-ref="JMS_Config" destination="Q2" ackMode="MANUAL">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:consume>
+		<set-variable value="#[attributes.ackId]" doc:name="Set Variable" doc:id="b999a042-bf97-4a87-9715-c281ee9a5bb1" variableName="ackId1"/>
+		<http:request method="GET" doc:name="Request" doc:id="32b836b5-f0a7-44ae-8b0b-d9749207b2c4" config-ref="HTTP_Request_configuration2" path="/8085"/>
+		<jms:ack doc:name="Ack" doc:id="c7169ad5-0747-4188-8aeb-5514cbf18c00" ackId="#[vars.ackId1]"/>
+	</flow>
+</mule>

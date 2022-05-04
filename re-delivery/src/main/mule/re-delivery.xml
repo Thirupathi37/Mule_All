@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="2cc8ca95-5101-4953-9b1f-4f3a93be6543" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="5e254695-4f0e-4e25-96a2-8498bdcc3f11" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="79305f92-64be-43ef-812e-ce3e1e50442d" >
+		<http:request-connection host="localhost" port="8082" >
+			<reconnection >
+				<reconnect />
+			</reconnection>
+		</http:request-connection>
+	</http:request-config>
+	<flow name="re-deliveryFlow" doc:id="35261786-6c0f-4372-a5e0-eaa39d93f230" >
+		<http:listener doc:name="Listener" doc:id="2b6bf496-140b-4ccb-a2ed-6e34b08fb6a0" config-ref="HTTP_Listener_config" path="/re">
+			<redelivery-policy />
+		</http:listener>
+		<http:request method="GET" doc:name="Request" doc:id="3477e56a-3486-40a3-83a6-32dbfcfea711" config-ref="HTTP_Request_configuration" path="/re1"/>
+	</flow>
+	<flow name="re-deliveryFlow1" doc:id="0d44232b-8da4-4421-976d-af1d7c404925" initialState="stopped">
+		<http:listener doc:name="Listener" doc:id="552ace4d-b9cc-42d9-a6c1-18e5ca19bdf1" config-ref="HTTP_Listener_config1" path="/re1"/>
+		<logger level="INFO" doc:name="Logger" doc:id="7f76ac5a-b0c8-4703-9505-f46127c88db6" message='"re-1"'/>
+	</flow>
+</mule>

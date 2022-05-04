@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="01bd01dc-7433-4a3c-aadb-2c959e83df9f" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="9908b025-c59a-4142-80e2-a66b48fd4ff0" >
+		<http:request-connection protocol="HTTPS" host="thiru-b.us.auth0.com" />
+	</http:request-config>
+	<flow name="oauth_jwtFlow" doc:id="d90fa05f-c5d3-4250-b173-b70cf3d32df5" >
+		<http:listener doc:name="Listener" doc:id="88477667-5d36-49cf-a5ab-e1e6c6c44b2c" config-ref="HTTP_Listener_config" path="/jwt"/>
+		<logger level="INFO" doc:name="Logger" doc:id="82f779d8-fd07-444a-8b32-5aa3a81d9e65" message="#[payload]"/>
+		<http:request method="POST" doc:name="Request" doc:id="611500db-a2f2-472b-aa4a-9dbfb22340a2" config-ref="HTTP_Request_configuration" path="/oauth/token">
+			<http:body ><![CDATA[#[{
+    "audience": "https://thiru-b.us.auth0.com/api/v2/",
+    "client_id":"88zMgiX3A8IIxzEHWIQyXU3oFjbha9Q8",
+    "client_secret":"4YbzpTaqg7EIgMxLdJ-bsXoFTn8eHBwYNfTapGGUAXo0a8uJl-E_y47AIrFvjBlD",
+    "redirect_uri":"http://localhost:8081/callback",
+    "grant_type":"client_credentials"
+    
+}]]]></http:body>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="89b6a4b9-c695-44fe-866b-f24bcc39c5d8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

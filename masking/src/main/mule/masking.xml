@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:netsuite="http://www.mulesoft.org/schema/mule/netsuite" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/netsuite http://www.mulesoft.org/schema/mule/netsuite/current/mule-netsuite.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="67056f27-5505-4931-a542-236339effa15" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="maskingFlow" doc:id="9a5e1b96-7433-478e-bb3c-ca7828b14909" >
+		<http:listener doc:name="Listener" doc:id="993c279c-7af9-4927-ae8b-ed38f52e9907" config-ref="HTTP_Listener_config" path="/masking"/>
+		<async doc:name="Async" doc:id="30d3aa75-e3c1-4e4b-a010-8de8a2e9e017" >
+			<ee:transform doc:name="Transform Message" doc:id="a310ddd1-2cab-4124-a15f-5b874ee3607d" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	COLUMNAMES: "********",
+	TABLENAME: "&&&&&&&",
+	USERID: "1234"
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="17bc466a-138c-4b48-bdd0-53489ce70585" message="#[payload]"/>
+		</async>
+		<logger level="INFO" doc:name="Logger" doc:id="2c88dbdc-66cd-4d16-864d-374220b58d3b" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="18dad94e-ced6-460f-b8f4-f2ea10d9378f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="maskingFlow1" doc:id="3976f6a3-01d7-4071-b0c5-930dedf20372" >
+		<http:listener doc:name="Listener" doc:id="9b0aa737-1ce5-45b8-8259-f18c405744ff" config-ref="HTTP_Listener_config" path="/123"/>
+		<set-payload value="#[[1,2]]" doc:name="Set Payload" doc:id="5da6472a-da60-4dc9-a6a6-898980e5cfdd" />
+		<foreach doc:name="For Each" doc:id="acd3f837-ebd6-4ac1-8db9-a83eea043a00" collection="#[payload]">
+			<try doc:name="Try" doc:id="8b95bdf7-0f65-4524-8afd-5654bb177959" >
+				<set-variable value='#[(vars.inside default []) + payload]' doc:name="Set Variable" doc:id="d2002f00-5b23-4596-ae78-2f2ced3726ec" variableName="inside" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c36b46a7-37d1-420c-b2e8-ef1d863b5527" >
+						<set-variable value='#[(vars.insideerror default []) + "hello"]' doc:name="Set Variable" doc:id="8a2a8611-8ea3-48d8-8bc7-45da366261a2" variableName="insideerror"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="d8ae261e-8df7-4563-9fc8-684fcbc4bb29" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.inside]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

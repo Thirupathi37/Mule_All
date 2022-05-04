@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="lookup_with_JsonFileFlow" doc:id="f88bf7d8-dc62-4f2e-bdb1-10de02e7035b" >
+		<http:listener doc:name="Listener" doc:id="ecc902d3-ad36-4f15-b729-763ab1f9a78c" config-ref="HTTP_Listener_config" path="/lookup"/>
+		<logger level="INFO" doc:name="Logger" doc:id="6f4d8636-6cc1-4d41-bfc3-0deb1956c6d8" message='"start"'/>
+		<ee:transform doc:name="Transform Message" doc:id="6a9aea51-4696-45f3-9e23-b8b6f4943cfc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+lookup("lookupFlow1", payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="lookupFlow1" doc:id="85efb57f-cb3a-4948-8261-40b17b11393e" >
+		<set-payload value='#[%dw 2.0&#10;output application/json&#10;var accountLookUp= readUrl("classpath://accountCode.json", "application/json")&#10;---&#10;payload map (items, itemsIndex)-&gt;{&#10;	"accountId": items.accountId,&#10;	"accountType": items.accountType,&#10;	"accountHolder": items.accountHolder,&#10;	"accountCode": accountLookUp[upper(items.accountType)]&#10;}]' doc:name="Set Payload" doc:id="df3b31d8-6cb0-465d-846b-f0ee6ca0bd6f" />
+	</flow>
+	<flow name="lookup_with_PropertiesFile_Flow" doc:id="f7e8a36f-bf2c-4d6c-a68b-261f70d531d5" >
+		<http:listener doc:name="Listener" doc:id="89b4d843-bc30-4cf2-9c48-8bc603a4b7c3" config-ref="HTTP_Listener_config" path="/properties"/>
+		<logger level="INFO" doc:name="Logger" doc:id="a7a87c1a-72cf-4ffc-bd08-df1888391eae" message="#[Mule::p('account.saving')]"/>
+		<ee:transform doc:name="Transform Message" doc:id="9454adca-04b4-4770-8a39-e2fc99252e6a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import Mule
+output application/json
+---
+payload map{
+	"accountId": $.accountId,
+	"accountType": $.accountType,
+	"accountHolder": $.accountHolder,
+	"accountCode": Mule::p('account.' ++ lower($.accountType))
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="8c49116e-fa58-4b72-affb-b684394125e9" message="#[payload]"/>
+	</flow>
+</mule>

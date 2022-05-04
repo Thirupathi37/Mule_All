@@ -1,0 +1,53 @@
+id: mule-logging-demo
+name: mule-logging-demo
+description: logging policy
+category: Custom
+type: custom
+resourceLevelSupported: true
+encryptionSupported: false
+standalone: true
+requiredCharacteristics: []
+providedCharacteristics: []
+configuration:
+  - propertyName: requestLogExpression
+    name: Request Log Expression
+    description: Provide Request Expression to log
+    type: keyvalues
+    optional: true
+    sensitive: false
+    
+  - propertyName: responseLogExpression
+    name: Response Log Expression
+    description: Provide Response Expression to log
+    type: keyvalues
+    optional: true
+    sensitive: false
+    
+  - propertyName: requestPayload
+    name: Request Payload
+    description: Request payload
+    type: boolean
+    optional: true
+    sensitive: false
+    
+  - propertyName: resonsePayload
+    name: Response Payload
+    description: Response Payload
+    type: boolean
+    optional: true
+    sensitive: false
+    
+  - propertyName: inboundHeaders
+    name: Inbound Headers
+    description: Request Headers
+    type: keyvalues
+    optional: true
+    sensitive: false
+    
+  - propertyName: outboundHeaders
+    name: Outbound Headers
+    description: Response Headers
+    type: keyvalues
+    optional: true
+    sensitive: false
+    

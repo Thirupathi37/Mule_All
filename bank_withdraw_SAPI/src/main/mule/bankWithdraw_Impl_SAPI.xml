@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:crypto="http://www.mulesoft.org/schema/mule/crypto" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/crypto http://www.mulesoft.org/schema/mule/crypto/current/mule-crypto.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="42e8dcab-e69f-4b6e-92ee-4f2151e64cb9" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234" >
+			<db:connection-properties >
+				<db:connection-property key="useSSL" value="false" />
+			</db:connection-properties>
+		</db:my-sql-connection>
+	</db:config>
+	<flow name="getAccountDetails_Flow" doc:id="e9c3e2a8-625e-4adb-bbee-13b5c6de9f19" >
+		<logger level="INFO" doc:name="Logger" doc:id="4864d0f3-abf5-4d94-9476-140db967cec8" message='#[attributes.uriParams.getAccountDetails]'/>
+		<ee:transform doc:name="Transform Message" doc:id="f3299be7-c928-46c1-8813-23d82b413ee0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/java
+---
+fromBase64(attributes.uriParams.getAccountDetails)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<crypto:jce-decrypt-pbe doc:name="Jce decrypt pbe" doc:id="0c2ac1d1-a634-4ee4-b12a-54e28fef78ea" password="Btr@1234">
+		</crypto:jce-decrypt-pbe>
+		<ee:transform doc:name="Transform Message" doc:id="be47f389-f78f-43d3-93dc-c0495e7768da" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+read(payload, "application/json")]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:select doc:id="80cf34f5-df2a-4ab7-80c6-860395e67272" config-ref="Database_Config">
+			<db:sql><![CDATA[select * from emp.banking where custAccNum= :accountNo]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	"accountNo": payload
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="e4ab7ea0-cb02-47ff-b31f-65dcb257a265" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="22058aa5-f4a6-47d3-8f6a-3d83811dede6" message='"After DB Select"'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="00c32bac-735e-4123-ac4c-f87b959e7661" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="b553ad5f-3bf0-47b7-bdf0-360adf5b78e5" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"error": "Internal Server Error"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="updateWrongPIN_Flow" doc:id="8dbb8386-87e7-424c-8345-369423a50a3e" >
+		<logger level="INFO" doc:name="Logger" doc:id="322c4b18-df1d-42c2-a7f9-c203dfe18f14" message='#["Start Update WrongPIN Flow"]'/>
+		<db:update doc:name="Update" doc:id="3e1fabf6-0763-4ff2-893f-a5477ec5c834" config-ref="Database_Config">
+			<db:sql ><![CDATA[update emp.banking set wrongPin= :wrongPin, accountStatus= :accountStatus where custAccNum= :custAccNum]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"wrongPin": payload.wrongPin,
+	"custAccNum": payload.custAccNum,
+	"accountStatus": payload.accountStatus default "Active"
+	
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Transform Message" doc:id="ec89fbe9-4723-4372-b8dc-f28f756eeb54" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message": "updated Your wrongPIN successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="53b2ebed-38e7-43d0-ad85-258eaa8cc109" message='"End Update WrongPIN Flow"'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4f8a5083-9373-4594-9920-814aecbd16a7" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="7c6a864a-60e5-4276-ba56-c9e2632da874" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"error": "Internal Server Error"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="withdraw-Update_Amount_Flow" doc:id="b311d32b-bc55-4719-a000-211702f93a45" >
+		<logger level="INFO" doc:name="Logger" doc:id="ae81a834-591c-4cca-8409-b919facba8c1" message='"Start withdraw FLow"'/>
+		<db:update doc:name="Update" doc:id="5011c35e-90b0-45cb-be2c-80da7dd303a3" config-ref="Database_Config">
+			<db:sql ><![CDATA[update emp.banking set totalBalance = :balance, wrongPin = :wrongPIN where custAccNum= :accountNo]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+ "balance": payload.amountToBeWithdraw default '',
+ "accountNo": payload.custAccNum default '',
+ "wrongPIN": 0
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Transform Message" doc:id="e1e18464-5c5a-446f-b115-769558cb5f36" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message": "updated Your Balance successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="a23f7a37-8ec8-4039-bc4a-b1ba931bf73a" message='"End withdraw FLow"'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="a33592bd-ce5e-454d-9968-805e44f63e10" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="ccdefee1-f7bc-45dd-99fe-b24f97d8ec1c" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"error": "Internal Server Error"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

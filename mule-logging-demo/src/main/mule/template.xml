@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:http-policy="http://www.mulesoft.org/schema/mule/http-policy"
+      xmlns:http-transform="http://www.mulesoft.org/schema/mule/http-policy-transform"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+               http://www.mulesoft.org/schema/mule/http-policy http://www.mulesoft.org/schema/mule/http-policy/current/mule-http-policy.xsd
+               http://www.mulesoft.org/schema/mule/http-policy-transform http://www.mulesoft.org/schema/mule/http-policy-transform/current/mule-http-policy-transform.xsd">
+
+
+    <http-policy:proxy name="{{{policyId}}}-custom-policy">
+        <http-policy:source>
+         
+         
+         {{#if requestPayload}}
+         <logger level="INFO" doc:name="Logger" doc:id="a0cc1f65-f954-42e7-9069-48228d75cfd3" message="#[payload]"/>
+         {{/if}}
+         
+         {{#each requestLogExpression}}
+         <logger level="INFO" doc:name="Logger" doc:id="86fed398-de8b-4a11-bf6e-c4c0d43e951e" message="{{{this.key}}}:{{{this.value}}}"/>
+         {{/each}}
+         
+          {{#each inboundHeaders}}
+         <logger level="INFO" doc:name="Logger" doc:id="3e385aa4-afe2-4a33-9755-61b498a7328e" message="{{{this.key}}}:{{{this.value}}}"/>
+         {{/each}}
+            <http-policy:execute-next/>
+             {{#if responsePayload}}
+	         <logger level="INFO" doc:name="Logger" doc:id="7acf04f6-db04-4147-85d6-14a5a9784cca" message="#[payload]"/>
+	         {{/if}}
+	         
+	          {{#each responseLogExpression}}
+	         <logger level="INFO" doc:name="Logger" doc:id="93eee731-f3c1-49ab-bfd3-af4cf2111a0d" message="{{{this.key}}}:{{{this.value}}}"/>
+	         {{/each}}
+	           {{#each outboundHeaders}}
+         <logger level="INFO" doc:name="Logger" doc:id="1cec1f1d-7b63-4c92-b35d-82e1623167b1" message="{{{this.key}}}:{{{this.value}}}"/>
+         {{/each}}
+
+        </http-policy:source>
+    </http-policy:proxy>
+</mule>

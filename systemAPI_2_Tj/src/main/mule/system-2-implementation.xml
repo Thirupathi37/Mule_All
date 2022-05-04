@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="7078ff6f-1cc2-4ee1-a77c-be54546e6b97" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234"/>
+	</db:config>
+	<flow name="post-1" doc:id="ead986aa-1ce9-4f4b-9c72-b16943308c49" >
+		<db:insert doc:name="Insert" doc:id="e0a4ff68-0afe-4c8f-8b46-cc7bb4a6fabd" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into emp.post1 (empid, fname, mname, lname, designation, joinDate, emailID)
+values(:empid, :fname, :mname, :lname, :designation, :joinDate, :emailID)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	empid: payload.empid reduce($$+$),
+	fname: payload.fname reduce($$+$),
+	mname: payload.mname reduce($$+$),
+	lname: payload.lname reduce($$+$),
+	designation: payload.designation reduce($$+$),
+	joiningdate: payload.joinDate reduce($$+$),
+	emailID: payload.emailID reduce($$+$)
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="8fb71e6c-bade-4bd6-8d14-7ad98b85f66a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "inserted successfully in post1"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="post-2" doc:id="6f85421c-b568-4ec4-abaf-2aaed98786f2" >
+		<db:insert doc:name="Insert" doc:id="5aec204d-b1c2-4889-b742-a166cce89e1f" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into emp.post2(empid, fname, mname, lname, address)
+values(:empid, :fname, :mname, :lname, :address)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	empid: payload.empid reduce($$+$),
+	fname: payload.fname reduce($$+$),
+	mname: payload.mname reduce($$+$),
+	lname: payload.lname reduce($$+$),
+	address: payload.address reduce($$+$)
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="d4e27c7c-d3f8-4560-ae2e-71a1b6188c07" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "inserted successfully in post2"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="post-3" doc:id="40711d7f-7c79-4a06-bb5c-6f16e7a1b1de" >
+		<db:insert doc:name="Insert" doc:id="2ca4b94d-1e8c-4107-ae5a-61838bef0fc9" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into emp.post3(empid, fname, mname, lname, phno)
+values(:empid, :fname, :mname, :lname, :phno)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	empid: payload.empid reduce($$+$),
+	fname: payload.fname reduce($$+$),
+	mname: payload.mname reduce($$+$),
+	lname: payload.lname reduce($$+$),
+	phno: payload.phno reduce($$+$)
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="266b4571-c6dc-484f-806b-88e7781b5782" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "inserted successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

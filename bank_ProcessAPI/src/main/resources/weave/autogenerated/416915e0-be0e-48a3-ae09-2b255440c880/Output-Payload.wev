@@ -1,0 +1,9 @@
+%dw 2.0
+
+type auto_416915e0_be0e_48a3_ae09_2b255440c880_Output_Payload = {|
+  retries?: Any, 
+  ErrorMessage: Any, 
+  accountStatus?: Any, 
+  Message?: String
+|}
+

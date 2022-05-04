@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_688a6437_bcc8_490f_b764_a8d2c8d1f819_Output_Variables_BlockedMessage = Any
+

@@ -1,0 +1,45 @@
+#%RAML 1.0
+title: Banking
+description: This API is about Bank Customer Details
+
+uses:
+  library: /libraries/library.raml
+
+/customers:
+  description: This Operation is to create a new customer
+  is:
+      - library.transactionId
+  post:
+    body:
+      application/json:
+        example:
+          {
+            "CustomerID": "ABC123",
+            "CustomerFirstName": "Thirupathi",
+            "CustomerMiddleName": "Raj",
+            "CustomerLastName": "B",
+            "Address": "AravindNagar,505327,Telangana,INDIA"
+            }
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              {
+                "success": "Account Created"
+              }
+          
+
+  /{customerID}:
+    is:
+    - library.transactionId
+    get:
+      displayName: Get Customer Details
+      description: This method is to get particular customer
+      responses:
+        200:
+          body:
+            application/json:
+              type: !include /dataTypes/getCustomers_dataType.raml
+              example: !include /examples/getCustomers_example.raml
+                 

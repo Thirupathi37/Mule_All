@@ -1,0 +1,1203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd http://www.mulesoft.org/schema/mule/munit-tools http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd ">
+    <munit:config name="bank_procapi-apikit-test.xml" />
+	<http:request-config name="HTTP_Request_Configuration" basePath="/api">
+        <http:request-connection host="localhost" port="8081" />
+    </http:request-config>
+	<http:request-config name="HTTP_Request_console" doc:name="HTTP Request configuration" doc:id="7acf8aff-e4ab-4de9-abcb-4b66a339715a" basePath="/console" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<munit:test name="createAccount_main_Success_Flow1" doc:id="94da894e-68fa-4f27-b968-df667a300b6c" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\createAccount:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="getAcc_Details" doc:id="ae225e44-330d-4ac5-9379-1d90c45c7cd3" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="dda80c7a-ed76-4af6-a752-cdd5132320f2" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_configuration" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/allAccounts/{AccountNum}" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[ &#10;output application/json&#10;---&#10;[ ]&#10; ]" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="cal_SysAPI" doc:id="a4ce7021-2cdb-4412-a930-fb1be5cce5cc" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="2acd132d-b81d-4bba-afe2-88bdd4aab9e2" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_configuration" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/createAccount" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+					<munit-tools:with-attribute whereValue="application/json" attributeName="outputMimeType" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[
+&#10;output application/json
+&#10;---
+&#10;{
+&#10;      "Success" : "Congratulations ! Your account is created Successfully with Account Number: 1234544442 with ICICI  Bank"
+&#10;}]' mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<http:request config-ref="HTTP_Request_Configuration" method="POST" path="/createAccount" responseTimeout="90000000">
+                <http:body ><![CDATA[#[output application/json
+---
+{
+  "accountNum": "1234555551",
+  "atmPin": "1234",
+  "ifscCode": "123456789",
+  "depositAmount": 1000,
+  "mailId": "thiru2018@gmail.com",
+  "contact": "8790120632"
+}]]]></http:body>
+				<http:headers><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+                <http:query-params><![CDATA[#[{"bank":"HDFC","branchName":"KarimNagar","type":"savings","customerName":"Anirudh"}]]]></http:query-params>
+            </http:request>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert That Status Code is 200" doc:id="7c928225-e86d-4130-a037-ee98ad379e67" message="The HTTP Status code is not correct!" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	
+
+<munit:test name="createAccount_subFlow_raiseError_Flow1" doc:id="03f8a58f-e17c-42e8-9c69-fc6099970a13" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\createAccount:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+        <munit:behavior >
+			<munit-tools:mock-when doc:name="getAcc_Details_error" doc:id="fb9b48a5-c449-400e-ab7c-b924972c32da" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="dda80c7a-ed76-4af6-a752-cdd5132320f2" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_configuration" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/allAccounts/{AccountNum}" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[&#10;output application/json&#10;---&#10;[1]&#10;]" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="aafe2ea3-78cc-40be-9f96-9ecc388777aa" >
+				<http:request method="POST" doc:name="Request" doc:id="806c38ad-03a6-46a7-a2e6-06c3060ebede" config-ref="HTTP_Request_Configuration" path="/createAccount" responseTimeout="90000000" >
+					<http:body ><![CDATA[#[output application/json
+---
+{
+  "accountNum": "1234555551",
+  "atmPin": "1234",
+  "ifscCode": "123456789",
+  "depositAmount": 1000,
+  "mailId": "thiru2018@gmail.com",
+  "contact": "8790120632"
+}]]]></http:body>
+					<http:headers ><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+					<http:query-params ><![CDATA[#[{"bank":"HDFC","branchName":"KarimNagar","type":"savings","customerName":"Anirudh"}]]]></http:query-params>
+				</http:request>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="7dd5be42-9f8d-495a-8fbb-5c946a1c9087" >
+						<logger level="INFO" doc:name="Logger" doc:id="04e262ad-c6a9-427e-a14f-945bb70b2b0d" message='"Success"'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert That" doc:id="5a4c2d30-acb5-4b4c-a92f-930d33676eff" message="The HTTP Status code is not correct!" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+
+
+<munit:test name="createAccount_errorHandler_INTERNAL_ERROR_Flow" doc:id="76885664-95b8-449e-9913-b309595ff2c8" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\createAccount:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="getAcc_Details_error" doc:id="223108de-fde8-42ec-beed-e6f71816faaf" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="dda80c7a-ed76-4af6-a752-cdd5132320f2" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_configuration" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/allAccounts/{AccountNum}" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTPR:INTERNAL_ERROR" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="1b302ff7-f6e0-4189-b80e-f543001bade9" >
+				<http:request method="POST" doc:name="Copy_of_Request" doc:id="4abb8940-d091-4b0a-8979-a66f43d8bfc8" config-ref="HTTP_Request_Configuration" path="/createAccount" responseTimeout="90000000" >
+					<http:body ><![CDATA[#[output application/json
+---
+{
+  "accountNum": "1234555551",
+  "atmPin": "1234",
+  "ifscCode": "123456789",
+  "depositAmount": 1000,
+  "mailId": "thiru2018@gmail.com",
+  "contact": "8790120632"
+}]]]></http:body>
+					<http:headers ><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+					<http:query-params ><![CDATA[#[{"bank":"HDFC","branchName":"KarimNagar","type":"savings","customerName":"Anirudh"}]]]></http:query-params>
+				</http:request>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="1c4e2aa7-a2a6-49ea-a583-52e7b7f8d63a" >
+						<logger level="INFO" doc:name="Logger" doc:id="2849e946-f0b9-4a3b-9faa-cef8e7ead2e0" message='"Success"'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert That" doc:id="61e33d6b-380a-4f8d-b4cf-83741fde4f3a" message="The HTTP Status code is not correct!" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+
+
+<munit:test name="bank_withdrawAmount-test-suite-hint-success1" doc:id="4333dcf4-c82b-4a33-8da3-4617e9871991" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\withDraw:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="bb6abf8c-ea6c-493c-a44d-550038c341ec" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ef91548e-43b0-420d-8452-28dc460fb60c" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_configuration1" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/withDraw/{getAccountDetails}" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[&#10;output application/json&#10;---&#10;[{&#10;    "atmPin": "1234",&#10;    "accountType": "savings",&#10;    "phoneNumber": "8790120632",&#10;    "ifscCode": "123456789",&#10;    "wrongPin": 0,&#10;    "accountStatus": "Active",&#10;    "custAccNum": "1234555551",&#10;    "mailId": "thiru2018@gmail.com",&#10;    "bankName": "ICICI",&#10;    "transactionTimeStamp": "2021-12-16T22:15:14.6398403+05:30",&#10;    "totalBalance": 260,&#10;    "custName": "Raj1",&#10;    "branchName": "KarimNagar"&#10;  }]&#10;]' />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="6f8d4d5f-da48-4573-bf7e-5f285749e6ed" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="c8970ff6-a75e-4602-a78a-804d192ab969" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_configuration1" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/withDraw" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[
+&#10;output application/json
+&#10;---
+&#10;{
+&#10;	"Message": "updated Your Balance successfully"
+&#10;}]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<http:request method="POST" doc:name="Request" doc:id="75ae38f8-0906-4532-ae13-a08ec3bbc7ca" config-ref="HTTP_Request_Configuration" path="/withDraw" responseTimeout="9000000">
+				<http:body ><![CDATA[#[output application/json
+---
+{
+    "accountNum": "1234555551",
+    "atmPin": "1234",
+    "amountToBeWithdraw": 1
+}]]]></http:body>
+				<http:headers ><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params ><![CDATA[#[{"bank":"ICICI","type":"savings"}]]]></http:query-params>
+			</http:request>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="04d0a2f6-0f7b-45f9-b351-eae9c4ba1495" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="bank_withdrawAmount-test-suite-hint-withdrawError-updateWrongPIN1" doc:id="87b9730a-198d-40d7-9daa-512673be011f" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\withDraw:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="getAccDetails_Flow" doc:id="73f0ab06-6cf2-4d1b-8db7-1861b6443f7c" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ef91548e-43b0-420d-8452-28dc460fb60c" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_configuration1" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/withDraw/{getAccountDetails}" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='  #[&#10;&#10;output application/json&#10;&#10;---&#10;&#10;[{&#10;    "atmPin": "1234",&#10;    "accountType": "savings",&#10;    "phoneNumber": "8790120632",&#10;    "ifscCode": "123456789",&#10;    "wrongPin": 0,&#10;    "accountStatus": "Active",&#10;    "custAccNum": "1234555551",&#10;    "mailId": "thiru2018@gmail.com",&#10;    "bankName": "ICICI",&#10;    "transactionTimeStamp": "2021-12-16T22:15:14.6398403+05:30",&#10;    "totalBalance": 260,&#10;    "custName": "Raj1",&#10;    "branchName": "KarimNagar"&#10;  }&#10;]&#10;&#10;]' />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="updateWrongPIN-HR_Flow" doc:id="3f927245-be9d-4df8-8a09-c5deb040da96" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="2ac1b7e0-c97f-4dee-8ccf-3c8bda8ce9c5" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_configuration1" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/updateWrongPin" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[
+&#10;output application/json
+&#10;---
+&#10;
+&#10;{
+&#10;	"Message": "updated Your wrongPIN successfully"
+&#10;}
+&#10;]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<http:request method="POST" doc:name="Request" doc:id="ca561435-0db6-4d71-ba11-76971e1a5e47" config-ref="HTTP_Request_Configuration" path="/withDraw" responseTimeout="9000000">
+				<http:body ><![CDATA[#[output application/json
+---
+{
+
+    "accountNum": "1234555551",
+
+    "atmPin": "1234",
+
+    "amountToBeWithdraw": 777
+
+}]]]></http:body>
+				<http:headers ><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params ><![CDATA[#[{"bank":"ICICI","type":"savings"}]]]></http:query-params>
+			</http:request>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="9ede3c79-c0e8-4450-bbce-8aa915c2e282" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	
+		<munit:test name="bank_withdrawAmount-test-suite-hint-withdrawError-WrongPIN-31" doc:id="5708fe7e-c002-4fb4-bd03-90adcb5e5553" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\withDraw:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="getAccDetails_Flow" doc:id="9f16c818-fdde-43ec-8a8f-ba13e696789f" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ef91548e-43b0-420d-8452-28dc460fb60c" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_configuration1" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/withDraw/{getAccountDetails}" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='  #[&#10;&#10;output application/json&#10;&#10;---&#10;&#10;[{&#10;    "atmPin": "1234",&#10;    "accountType": "savings",&#10;    "phoneNumber": "8790120632",&#10;    "ifscCode": "123456789",&#10;    "wrongPin": 4,&#10;    "accountStatus": "Active",&#10;    "custAccNum": "1234555551",&#10;    "mailId": "thiru2018@gmail.com",&#10;    "bankName": "ICICI",&#10;    "transactionTimeStamp": "2021-12-16T22:15:14.6398403+05:30",&#10;    "totalBalance": 260,&#10;    "custName": "Raj1",&#10;    "branchName": "KarimNagar"&#10;  }&#10;]&#10;&#10;]' />
+				</munit-tools:then-return>
+			
+
+</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="when_WrongPIN-3_Flow" doc:id="03192d0c-4e60-484e-98e7-69726888e3fc" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="2ef3d9b5-7ffa-40cd-a4b6-b99d91923dca" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_configuration1" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/updateWrongPin" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[
+&#10;output application/json
+&#10;---
+&#10;{
+&#10;	"Message": "updated Your wrongPIN successfully"
+&#10;}
+&#10;]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<http:request method="POST" doc:name="Request" doc:id="914a2241-4ff7-49fc-a76c-ef7bf5efcf67" config-ref="HTTP_Request_Configuration" path="/withDraw" responseTimeout="9000000">
+				<http:body ><![CDATA[#[output application/json
+---
+{
+
+    "accountNum": "1234555551",
+
+    "atmPin": "1234",
+
+    "amountToBeWithdraw": 10
+
+}]]]></http:body>
+				<http:headers ><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params ><![CDATA[#[{"bank":"ICICI","type":"savings"}]]]></http:query-params>
+			</http:request>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="b585a4ea-da87-43f8-8711-d697160c7b49" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	
+	
+	<munit:test name="bank_withdrawAmount-test-suite-hint-commonError1" doc:id="486443fc-401d-44df-abd2-7c2e7bf15fa4" description="Test">
+		
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\withDraw:application\json:bank-2-config" />
+        </munit:enable-flow-sources><munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="dc125ecf-1b52-4292-b5d2-efcfcaed5883" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ef91548e-43b0-420d-8452-28dc460fb60c" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_configuration1" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/withDraw/{getAccountDetails}" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='  #[&#10;&#10;output application/json&#10;&#10;---&#10;&#10;[{&#10;  "Error": "Invalid PIN, try with correct PIN",&#10;  "wrongPin": 1,&#10;  "hint": "withdrawError",&#10;  "accountStatus": "InActive",&#10;  "custAccNum": "1234555551"&#10;}]&#10;&#10;]' />
+				</munit-tools:then-return>
+			
+
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<http:request method="POST" doc:name="Request" doc:id="7b8ff85e-f6c1-4fc3-9f57-9b4212bfbd53" config-ref="HTTP_Request_Configuration" path="/withDraw" responseTimeout="9000000">
+				<http:body ><![CDATA[#[output application/json
+---
+{
+
+    "accountNum": "1234555551",
+
+    "atmPin": "1234",
+
+    "amountToBeWithdraw": 70
+
+}]]]></http:body>
+				<http:headers ><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params ><![CDATA[#[{"bank":"ICICI","type":"savings"}]]]></http:query-params>
+			</http:request>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="fd3c3556-6dd4-43a9-b9d1-e9161cfc5162" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	
+	
+	
+	<munit:test name="error_Handler_for-HTTR_Flow1" doc:id="850b8a9d-0fa7-4bb5-8df2-c8edb61d7f43" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\withDraw:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="77849123-eef2-484d-98d9-24825f6c0177" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ef91548e-43b0-420d-8452-28dc460fb60c" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_configuration1" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/withDraw/{getAccountDetails}" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTPR:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="71149b58-e64f-4236-986e-f336b2387ce3" >
+				<http:request method="POST" doc:name="Request" doc:id="7ac7994c-43d3-408d-b74a-de8802564a47" config-ref="HTTP_Request_Configuration" path="/withDraw" responseTimeout="900000">
+					<http:body ><![CDATA[#[output application/json
+---
+{
+    "accountNum": "1234555551",
+    "atmPin": "1234",
+    "amountToBeWithdraw": 70
+}]]]></http:body>
+					<http:headers ><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+					<http:query-params ><![CDATA[#[{"bank":"ICICI","type":"savings"}]]]></http:query-params>
+				</http:request>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="632b45c0-fbf1-4778-bfe9-575971f94e74">
+						<logger level="INFO" doc:name="Logger" doc:id="e9d3141f-9f4e-4c74-be8d-e401a32cab8a" message='"Success"'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="bde62ff0-ad60-4b4e-963a-468174a3063e" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+
+
+<munit:test name="error_Handler_for-ANY_Flow1" doc:id="5194ce4e-a753-4219-a3ae-b28342121f70" description="Test">
+		
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\withDraw:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+        <munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="1f16c5bf-443a-4e20-9d64-cdde76e535e3" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ef91548e-43b0-420d-8452-28dc460fb60c" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_configuration1" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/withDraw/{getAccountDetails}" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="ANY" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="8043c6b4-e767-416c-9961-6d4beb3717a6" >
+				<http:request method="POST" doc:name="Request" doc:id="b6bf290a-f94e-4874-b11d-884f979f75f9" config-ref="HTTP_Request_Configuration" path="/withDraw" responseTimeout="900000">
+					<http:body ><![CDATA[#[output application/json
+---
+{
+
+    "accountNum": "1234555551",
+
+    "atmPin": "1234",
+
+    "amountToBeWithdraw": 70
+
+}]]]></http:body>
+					<http:headers ><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+					<http:query-params ><![CDATA[#[{"bank":"ICICI","type":"savings"}]]]></http:query-params>
+				</http:request>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c2c75859-0a73-4069-b527-e803f4852a58">
+						<logger level="INFO" doc:name="Logger" doc:id="bc35af06-a948-48db-a22d-a010447c242c" message='"Success"'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="1175cbd5-667f-4e87-8ba3-b786993a98ae" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+
+
+
+
+<munit:test name="bank_checkBalance-test-suite-success_FLow" doc:id="466203c4-a512-43b4-9bb9-cc2f3879acd5" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\checkBalance:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="mockAccountDetails" doc:id="90a79a77-3cc2-46be-9d9c-b82bc0140c05" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="9e68eabd-e388-41e6-8351-d6e2746e14c2" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_CheckBlnce" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/checkBalance" attributeName="path" />
+					<munit-tools:with-attribute whereValue="ALWAYS" attributeName="sendCorrelationId" />
+					<munit-tools:with-attribute whereValue="9000000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[
+&#10;output application/json
+&#10;---
+&#10;[
+&#10;  {
+&#10;    "atmPin": "1234",
+&#10;    "accountType": "savings",
+&#10;    "phoneNumber": "8790120632",
+&#10;    "ifscCode": "123456789",
+&#10;    "wrongPin": 0,
+&#10;    "accountStatus": "Active",
+&#10;    "custAccNum": "1234555551",
+&#10;    "mailId": "thiru2018@gmail.com",
+&#10;    "bankName": "ICICI",
+&#10;    "transactionTimeStamp": "2021-12-16T22:15:14.6398403+05:30",
+&#10;    "totalBalance": 129,
+&#10;    "custName": "Raj1",
+&#10;    "branchName": "KarimNagar"
+&#10;  }
+&#10;]
+&#10;
+&#10;]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="17593983-7128-4e5b-bef0-95636dceba53" >
+				<munit:payload value='#[
+&#10;output application/json
+&#10;---
+&#10;{
+&#10;  "accountNum": "1234555551",
+&#10;  "atmPin": "1234"
+&#10;}
+&#10;
+&#10;]' />
+				<munit:attributes value="#[{queryParams:{bank: 'ICICI', &quot;type&quot;: 'savings'}}]" />
+			</munit:set-event>
+			<http:request method="POST" doc:name="Request" doc:id="b731aecc-bc65-45ea-9355-f5fbb4cc73d3" config-ref="HTTP_Request_Configuration" path="/checkBalance" responseTimeout="9000000">
+				<http:body ><![CDATA[#[output application/json
+---
+{
+  "accountNum": "1234555551",
+  "atmPin": "1234"
+}]]]></http:body>
+				<http:headers ><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params ><![CDATA[#[{"bank":"ICICI","type":"savings"}]]]></http:query-params>
+			</http:request>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="50481081-306f-416c-99f9-71e94983face" expression="#[payload]" is='#[MunitTools::notNullValue()]'/>
+		</munit:validation>
+	</munit:test>
+	
+	
+	<munit:test name="bank_checkBalance-test-suite-updateWrongPIN_FLow1" doc:id="927de6b3-d777-4e52-bc37-6b9ad0da2ae1" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\checkBalance:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="getAccountDetails" doc:id="4543886a-725e-48d0-8eba-56dcfa799e44" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="9e68eabd-e388-41e6-8351-d6e2746e14c2" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_CheckBlnce" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/checkBalance" attributeName="path" />
+					<munit-tools:with-attribute whereValue="ALWAYS" attributeName="sendCorrelationId" />
+					<munit-tools:with-attribute whereValue="9000000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[
+&#10;output application/json
+&#10;---
+&#10;[
+&#10;  {
+&#10;    "atmPin": "1234",
+&#10;    "accountType": "savings",
+&#10;    "phoneNumber": "8790120632",
+&#10;    "ifscCode": "123456789",
+&#10;    "wrongPin": 0,
+&#10;    "accountStatus": "Active",
+&#10;    "custAccNum": "1234555551",
+&#10;    "mailId": "thiru2018@gmail.com",
+&#10;    "bankName": "ICICI",
+&#10;    "transactionTimeStamp": "2021-12-16T22:15:14.6398403+05:30",
+&#10;    "totalBalance": 129,
+&#10;    "custName": "Raj1",
+&#10;    "branchName": "KarimNagar"
+&#10;  }
+&#10;]
+&#10;
+&#10;]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="updateWrongPINto3" doc:id="fe3d6acb-6c0d-4ac6-bc5b-bb3f4585103d" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="67647ae1-788e-48b4-abb9-a12eb8547d77" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_CheckBlnce" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/updateWrongPin" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[
+&#10;output application/json
+&#10;---
+&#10;{
+&#10;	"message": "WrongPIN updated Successfully"
+&#10;}]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="b7f902be-8457-49b4-8905-c5295a3a2c71" >
+				<munit:payload value='#[&#10;&#10;output application/json&#10;&#10;---&#10;&#10;{&#10;&#10;  "accountNum": "1234555551",&#10;&#10;  "atmPin": "1233"&#10;&#10;}&#10;&#10;&#10;&#10;]' />
+				<munit:attributes value="#[{queryParams:{bank: 'ICICI', &quot;type&quot;: 'savings'}}]" />
+			
+</munit:set-event>
+			<http:request method="POST" doc:name="Request" doc:id="7b82a560-4c96-4ddc-860d-b96c8a511b86" config-ref="HTTP_Request_Configuration" path="/checkBalance" >
+				<http:body ><![CDATA[#[output application/json
+
+---
+
+{
+
+  "accountNum": "1234555551",
+
+  "atmPin": "1233"
+
+}]]]></http:body>
+				<http:headers ><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params ><![CDATA[#[{"bank":"ICICI","type":"savings"}]]]></http:query-params>
+			</http:request>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="1f2f9089-efde-469e-8d48-a925e6454c83" expression="#[payload]" is='#[MunitTools::notNullValue()]'/>
+		</munit:validation>
+	</munit:test>
+	
+<munit:test name="bank_checkBalance-test-suite-whenWrongPIN-3_FLow1" doc:id="cf673422-aad4-458e-a187-8bf7f733920e" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\checkBalance:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="getAccountDetails" doc:id="85b0af19-e8ad-4fab-bce6-3c3325411cec" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="9e68eabd-e388-41e6-8351-d6e2746e14c2" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_CheckBlnce" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/checkBalance" attributeName="path" />
+					<munit-tools:with-attribute whereValue="ALWAYS" attributeName="sendCorrelationId" />
+					<munit-tools:with-attribute whereValue="9000000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[&#10;&#10;output application/json&#10;&#10;---&#10;&#10;[&#10;&#10;  {&#10;&#10;    "atmPin": "1234",&#10;&#10;    "accountType": "savings",&#10;&#10;    "phoneNumber": "8790120632",&#10;&#10;    "ifscCode": "123456789",&#10;&#10;    "wrongPin": 4,&#10;&#10;    "accountStatus": "Active",&#10;&#10;    "custAccNum": "1234555551",&#10;&#10;    "mailId": "thiru2018@gmail.com",&#10;&#10;    "bankName": "ICICI",&#10;&#10;    "transactionTimeStamp": "2021-12-16T22:15:14.6398403+05:30",&#10;&#10;    "totalBalance": 129,&#10;&#10;    "custName": "Raj1",&#10;&#10;    "branchName": "KarimNagar"&#10;&#10;  }&#10;&#10;]&#10;&#10;&#10;&#10;]' />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="wrongPIN-2_Flow" doc:id="84bf33a5-8be9-44e3-8c68-30b71a4ba764" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="41e21118-280d-4dfb-a00e-024f010d9577" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_CheckBlnce" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/updateWrongPin" attributeName="path" />
+					<munit-tools:with-attribute whereValue="900000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[
+&#10;output application/json
+&#10;---
+&#10;{
+&#10;	"message": "WrongPIN updated Successfully"
+&#10;}]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		
+
+</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="ea8fa842-b9c8-4730-9c9e-9a1328e97445" >
+				<munit:payload value='#[&#10;&#10;output application/json&#10;&#10;---&#10;&#10;{&#10;&#10;  "accountNum": "1234555551",&#10;&#10;  "atmPin": "1233"&#10;&#10;}&#10;&#10;&#10;&#10;]' />
+				<munit:attributes value="#[{queryParams:{bank: 'ICICI', &quot;type&quot;: 'savings'}}]" />
+			
+</munit:set-event>
+			<http:request method="POST" doc:name="Request" doc:id="66e75126-d988-44d7-9254-7bc95a90572e" config-ref="HTTP_Request_Configuration" path="/checkBalance" responseTimeout="9000000">
+				<http:body ><![CDATA[#[output application/json
+
+---
+
+{
+
+  "accountNum": "1234555551",
+
+  "atmPin": "1233"
+
+}]]]></http:body>
+				<http:headers ><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params ><![CDATA[#[{"bank":"ICICI","type":"savings"}]]]></http:query-params>
+			</http:request>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="8680410a-e2aa-4991-b716-0b11e2b806fe" expression="#[payload]" is='#[MunitTools::notNullValue()]'/>
+		</munit:validation>
+	</munit:test>
+
+<munit:test name="bank_checkBalance-test-suite-commonError_Flow1" doc:id="b15a926d-2dac-4efe-b354-d17279ac5466" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\checkBalance:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="getAccountDetails" doc:id="c312d614-d0df-496b-9d57-a71380cab386" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="9e68eabd-e388-41e6-8351-d6e2746e14c2" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_CheckBlnce" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/checkBalance" attributeName="path" />
+					<munit-tools:with-attribute whereValue="ALWAYS" attributeName="sendCorrelationId" />
+					<munit-tools:with-attribute whereValue="9000000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[&#10;&#10;output application/json&#10;&#10;---&#10;&#10;[&#10;&#10;  {&#10;&#10;    "atmPin": "1234",&#10;&#10;    "accountType": "savings",&#10;&#10;    "phoneNumber": "8790120632",&#10;&#10;    "ifscCode": "123456789",&#10;&#10;    "wrongPin": 4,&#10;&#10;    "accountStatus": "Inactive",&#10;&#10;    "custAccNum": "1234555551",&#10;&#10;    "mailId": "thiru2018@gmail.com",&#10;&#10;    "bankName": "ICICI",&#10;&#10;    "transactionTimeStamp": "2021-12-16T22:15:14.6398403+05:30",&#10;&#10;    "totalBalance": 129,&#10;&#10;    "custName": "Raj1",&#10;&#10;    "branchName": "KarimNagar"&#10;&#10;  }&#10;&#10;]&#10;]' />
+				</munit-tools:then-return>
+			
+
+</munit-tools:mock-when>
+		
+
+</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="cab40a57-da58-42b1-904b-e9dd6db1bdbf" >
+				<munit:payload value='#[&#10;&#10;output application/json&#10;&#10;---&#10;&#10;{&#10;&#10;  "accountNum": "1234555551",&#10;&#10;  "atmPin": "1233"&#10;&#10;}&#10;&#10;&#10;&#10;]' />
+				<munit:attributes value="#[{queryParams:{bank: 'ICICI', &quot;type&quot;: 'savings'}}]" />
+			
+</munit:set-event>
+			<http:request method="POST" doc:name="Request" doc:id="36b55564-108e-4749-af51-2a69d5a8f0fe" config-ref="HTTP_Request_Configuration" path="/checkBalance" responseTimeout="90000000">
+				<http:body ><![CDATA[#[output application/json
+
+---
+
+{
+
+  "accountNum": "1234555551",
+
+  "atmPin": "1233"
+
+}]]]></http:body>
+				<http:headers ><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params ><![CDATA[#[{"bank":"ICICI","type":"savings"}]]]></http:query-params>
+			</http:request>
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="4aa4683b-28cf-4d23-a7a1-dc17ceafd9b4" expression="#[payload]" is='#[MunitTools::notNullValue()]'/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="error-Handler_for-HTTR_Flow1" doc:id="10044ba8-a6a9-4f95-8ddb-123e9432a6de" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\checkBalance:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="getAccontDetails_Error" doc:id="a1369cca-60f8-4302-b09b-ba14dad9ea43" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="9e68eabd-e388-41e6-8351-d6e2746e14c2" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_CheckBlnce" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/checkBalance" attributeName="path" />
+					<munit-tools:with-attribute whereValue="ALWAYS" attributeName="sendCorrelationId" />
+					<munit-tools:with-attribute whereValue="9000000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTPR:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="29fd7db4-d0fd-464c-8417-b589cb6eac24">
+				<munit:payload value='#[
+&#10;output application/json
+&#10;---
+&#10;{
+&#10;  "accountNum": "1234555551",
+&#10;  "atmPin": "1234"
+&#10;}
+&#10;
+&#10;]' />
+				<munit:attributes value="#[{queryParams:{bank: 'ICICI', &quot;type&quot;: 'savings'}}]" />
+			</munit:set-event>
+			<try doc:name="Try" doc:id="d74975ed-454b-4b34-8a01-4e9f67310ea2" >
+				<http:request method="POST" doc:name="Request" doc:id="2d1efbe5-caf4-4ddf-abd0-6d0122ab21b4" config-ref="HTTP_Request_Configuration" path="/checkBalance" responseTimeout="90000000">
+					<http:body ><![CDATA[#[output application/json
+
+---
+
+{
+
+  "accountNum": "1234555551",
+
+  "atmPin": "1234"
+
+}]]]></http:body>
+					<http:headers ><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+					<http:query-params ><![CDATA[#[{"bank":"ICICI","type":"savings"}]]]></http:query-params>
+				</http:request>
+				<error-handler>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="0f0c64ae-dbdf-471a-8850-13d7e985e886" >
+						<logger level="INFO" doc:name="Logger" doc:id="2c2c41c7-0443-4793-b9a9-2bb07bbad6e3" message='"success"'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="05b422ab-1295-45f3-b7f2-1bfab2da29a4" is="#[MunitTools::notNullValue()]" expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+
+<munit:test name="error-Handler_for-ANY_Flow1" doc:id="c9fd77d5-098e-4fa0-9121-5f1988fdf1d3" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\checkBalance:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="getAccontDetails_Error" doc:id="ba8628ee-e617-4f12-a7b2-1e9b9e58261f" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="9e68eabd-e388-41e6-8351-d6e2746e14c2" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="HTTP_Request_CheckBlnce" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/checkBalance" attributeName="path" />
+					<munit-tools:with-attribute whereValue="ALWAYS" attributeName="sendCorrelationId" />
+					<munit-tools:with-attribute whereValue="9000000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="ANY" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="28d66483-d59d-4a2a-8ea3-8840cf4f7387">
+				<munit:payload value='#[
+&#10;output application/json
+&#10;---
+&#10;{
+&#10;  "accountNum": "1234555551",
+&#10;  "atmPin": "1234"
+&#10;}
+&#10;
+&#10;]' />
+				<munit:attributes value="#[{queryParams:{bank: 'ICICI', &quot;type&quot;: 'savings'}}]" />
+			</munit:set-event>
+			<try doc:name="Try" doc:id="f55309d2-8923-436a-a87c-0e98ecfdf470" >
+				<http:request method="POST" doc:name="Request" doc:id="40747e52-0c48-4693-a0bc-bcffe7e2239a" config-ref="HTTP_Request_Configuration" path="/checkBalance" responseTimeout="9000000">
+					<http:body ><![CDATA[#[output application/json
+
+---
+
+{
+
+  "accountNum": "1234555551",
+
+  "atmPin": "1234"
+
+}]]]></http:body>
+					<http:headers ><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+					<http:query-params ><![CDATA[#[{"bank":"ICICI","type":"savings"}]]]></http:query-params>
+				</http:request>
+				<error-handler>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="852f23cf-c586-4d8d-9a01-d0c2d52fde57" >
+						<logger level="INFO" doc:name="Logger" doc:id="8a914d41-0fd2-4bcb-879f-2204f3b2a922" message='"success"'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="7b143971-577b-452f-8a19-efa5d99ed113" is="#[MunitTools::notNullValue()]" expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+	
+	
+	
+<munit:test name="globalError_Handler_BAD_REQUEST" doc:id="bc731b30-7ee1-427b-b4e8-eca17eb7bd3b" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\checkBalance:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="186681b6-15e1-4efb-ab68-5e5d05f73ec5" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bank-2-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="282ef8b5-4c7f-42e0-98df-2e6e1797e3c8" >
+				<http:request method="POST" doc:name="Request" doc:id="1a9374e3-64ae-4ffb-903b-6f65788b05f3" config-ref="HTTP_Request_Configuration" path="/checkBalance" responseTimeout="9000000">
+				<http:body><![CDATA[#[output application/json
+---
+{
+  "accountNum": "1234555551",
+  "atmPin": "1234"
+}]]]></http:body>
+				<http:headers><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params><![CDATA[#[{"bank":"ICICI","type":""}]]]></http:query-params>
+			</http:request>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c2230f73-d0d9-40ab-a93e-5d1f64fd1abc">
+						<logger level="INFO" doc:name="Logger" doc:id="8f761715-c761-49a5-877a-947ac4046662" message='#[payload]'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="7f90ee8a-65d1-47b3-8961-d4e16a3e1abe" expression="#[payload]" is='#[MunitTools::notNullValue()]'/>
+		</munit:validation>
+	</munit:test>
+
+<munit:test name="globalError_Handler_NOT_FOUND" doc:id="a35625f0-fd30-4802-955f-afc17b032292" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\checkBalance:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="mockAccountDetails" doc:id="5d42b942-e5b8-4f6c-bd85-4bded49d689e" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bank-2-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="3bce746e-4866-44b8-9012-04db4deda2ed" >
+				<http:request method="DELETE" doc:name="Request" doc:id="9abed022-7628-4127-bfc4-73e1f3c2d338" config-ref="HTTP_Request_Configuration" path="/checkBalance" responseTimeout="9000000">
+				<http:body><![CDATA[#[output application/json
+---
+{
+  "accountNum": "1234555551",
+  "atmPin": "1234"
+}]]]></http:body>
+				<http:headers><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params><![CDATA[#[{"bank":"ICICI","type":""}]]]></http:query-params>
+			</http:request>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="9412a639-765a-4bb4-9a74-8dd6dd9998b9" >
+						<logger level="INFO" doc:name="Logger" doc:id="d535187f-4651-43c7-b4ff-dba0cc8c5f0d" message="#[payload]"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+
+		
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="e176fc63-22f5-473d-a0f7-e95e00743c37" expression="#[payload]" is='#[MunitTools::notNullValue()]'/>
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="globalError_Handler_NOT_ACCEPTABLE" doc:id="7e69f1d6-93c9-43d8-8a54-bcb857cadc47" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\checkBalance:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="mockAccountDetails" doc:id="88c687af-18da-4aed-b3cb-c608342c11d1" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bank-2-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:METHOD_NOT_ALLOWED" />
+				</munit-tools:then-return>
+			
+
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="0a0c316d-08f9-4532-996a-3f7dc4885037" >
+				<http:request method="DELETE" doc:name="Request" doc:id="4f30f63b-3dfa-4fef-a9bc-672e3b13a158" config-ref="HTTP_Request_Configuration" path="/checkBalance" responseTimeout="9000000">
+				<http:body><![CDATA[#[output application/json
+---
+{
+  "accountNum": "1234555551",
+  "atmPin": "1234"
+}]]]></http:body>
+				<http:headers><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params><![CDATA[#[{"bank":"ICICI","type":""}]]]></http:query-params>
+			</http:request>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="ab16b539-5033-4d0a-b76b-2359557109ab" >
+						<logger level="INFO" doc:name="Logger" doc:id="7e92c198-5763-493a-b7da-6f88796c0cac" message="#[payload]"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="5c8f6c84-cd44-4832-9485-a80cec28c77b" expression="#[payload]" is='#[MunitTools::notNullValue()]'/>
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="globalError_Handler_METHOD_NOT_ALLOWED" doc:id="2455f975-0057-43a2-8b49-b051da049e18" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\checkBalance:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="mockAccountDetails" doc:id="d5bb94d0-e9a6-41dc-8286-f36546b2529a" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bank-2-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_ACCEPTABLE" />
+				</munit-tools:then-return>
+		</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="eea87d07-e5c9-47af-9567-ae09b4370a1f" >
+				<http:request method="DELETE" doc:name="Request" doc:id="39964ec6-97d1-4f43-8e13-fe14ee5fbfbb" config-ref="HTTP_Request_Configuration" path="/checkBalance" responseTimeout="9000000">
+				<http:body><![CDATA[#[output application/json
+---
+{
+  "accountNum": "1234555551",
+  "atmPin": "1234"
+}]]]></http:body>
+				<http:headers><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params><![CDATA[#[{"bank":"ICICI","type":""}]]]></http:query-params>
+			</http:request>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="544cf98a-feca-46c6-9254-a26609626a64" >
+						<logger level="INFO" doc:name="Logger" doc:id="76fe4609-3c09-4ff3-aa3c-b565e22b180f" message="#[payload]"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="b10d972c-45d6-4a34-9758-603a9ad6d2fe" expression="#[payload]" is='#[MunitTools::notNullValue()]'/>
+		</munit:validation>
+	</munit:test>
+
+
+<munit:test name="globalError_Handler_NOT_IMPLEMENTED" doc:id="c77ea43a-713b-4c43-8ab4-9342fbae96db" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\checkBalance:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="mockAccountDetails" doc:id="7f653a78-a3c8-42eb-bd94-92d2003d9e94" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bank-2-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_IMPLEMENTED" />
+				</munit-tools:then-return>
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="5e9b81e5-2a7b-4246-86ca-7129db1f001d" >
+				<http:request method="DELETE" doc:name="Request" doc:id="6a3a18cd-a96c-4813-bb9a-94ec7bb22bd5" config-ref="HTTP_Request_Configuration" path="/checkBalance" responseTimeout="9000000">
+				<http:body><![CDATA[#[output application/json
+---
+{
+  "accountNum": "1234555551",
+  "atmPin": "1234"
+}]]]></http:body>
+				<http:headers><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params><![CDATA[#[{"bank":"ICICI","type":""}]]]></http:query-params>
+			</http:request>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="8f21155b-2c60-469c-a6f8-d5ea10f484af" >
+						<logger level="INFO" doc:name="Logger" doc:id="09d799fc-abe3-409d-8fbb-a2b8367e3f71" message="#[payload]"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="5b16e468-744d-4453-a99c-6fbd998b7028" expression="#[payload]" is='#[MunitTools::notNullValue()]'/>
+		</munit:validation>
+	</munit:test>
+	
+<munit:test name="globalError_Handler_UNSUPPORTED_MEDIA_TYPE" doc:id="6648accb-2318-40fd-a9f3-e7de83fef29f" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\checkBalance:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="mockAccountDetails" doc:id="b003c3b7-f952-4cfc-8a81-595a8013003e" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bank-2-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:UNSUPPORTED_MEDIA_TYPE" />
+				</munit-tools:then-return>
+
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="1e04c080-3c40-4521-82d2-edc49bf71aa1" >
+				<http:request method="DELETE" doc:name="Request" doc:id="492760f9-4c63-4b07-abe5-2ce55ce58431" config-ref="HTTP_Request_Configuration" path="/checkBalance" responseTimeout="9000000">
+				<http:body><![CDATA[#[output application/json
+---
+{
+  "accountNum": "1234555551",
+  "atmPin": "1234"
+}]]]></http:body>
+				<http:headers><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params><![CDATA[#[{"bank":"ICICI","type":""}]]]></http:query-params>
+			</http:request>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="ae5c61fc-a894-46f4-9be4-39e264ba7141" >
+						<logger level="INFO" doc:name="Logger" doc:id="5933f886-5ef5-47ed-a43e-d18fd05253d7" message="#[payload]"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="4e11bd48-4cb9-44f7-a581-3d53d8469d88" expression="#[payload]" is='#[MunitTools::notNullValue()]'/>
+		</munit:validation>
+	</munit:test>
+	
+<munit:test name="globalError_Handler_CONSOLE_NOT_FOUND" doc:id="251f1193-f01f-4f51-a8d0-6f4e37688279" description="Test">
+		<munit:enable-flow-sources>
+            <munit:enable-flow-source value="bank-2-main" />
+            <munit:enable-flow-source value="post:\checkBalance:application\json:bank-2-config" />
+        </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="mockAccountDetails" doc:id="97a0ef82-8ddd-408c-aed4-bfa057e02c0b" processor="apikit:console">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bank-2-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+				</munit-tools:then-return>
+
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="ad40a413-1087-474e-9212-14ce01ebd308" >
+				<http:request method="DELETE" doc:name="Request" doc:id="285d1eb5-ca3f-454e-80fc-9908db0298d4" config-ref="HTTP_Request_console" path="/checkBalance" responseTimeout="9000000">
+				<http:body><![CDATA[#[output application/json
+---
+{
+  "accountNum": "1234555551",
+  "atmPin": "1234"
+}]]]></http:body>
+				<http:headers><![CDATA[#[{"Accept":"application/json","Content-Type":"application/json"}]]]></http:headers>
+				<http:query-params><![CDATA[#[{"bank":"ICICI","type":""}]]]></http:query-params>
+			</http:request>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="7c1150c2-0424-46e1-82bc-9ed1add315ff" >
+						<logger level="INFO" doc:name="Logger" doc:id="54d09f5e-5437-4327-89de-133f9fa645aa" message="#[payload]"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="56fbba52-fedf-453a-81c0-5bfc618ddc0d" expression="#[payload]" is='#[MunitTools::notNullValue()]'/>
+		</munit:validation>
+	</munit:test>
+</mule>

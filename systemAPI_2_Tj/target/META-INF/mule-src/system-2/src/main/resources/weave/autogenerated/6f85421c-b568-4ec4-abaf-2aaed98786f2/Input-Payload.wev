@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_6f85421c_b568_4ec4_abaf_2aaed98786f2_Input_Payload = Array<{  empid: Number,   fname: String,   lname: String,   address: String,   mname: String,   _?: Any}>
+

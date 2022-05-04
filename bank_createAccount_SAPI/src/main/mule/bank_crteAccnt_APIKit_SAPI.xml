@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+    <http:listener-config name="banksysapi_crteaccount-httpListenerConfig">
+        <http:listener-connection host="localhost" port="8082" />
+    </http:listener-config>
+    <apikit:config name="banksysapi_crteaccount-config" api="resource::82d9d92f-678c-439b-85f0-8a8fc22a1d46:banksysapi_crteaccount:1.0.1:raml:zip:banksysapi_crteaccount.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <api-gateway:autodiscovery apiId="17561026" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="04fb786c-eeb6-4d65-9f0d-329f168cf15c" flowRef="bankSAPI_crteaccount-main" />
+	<flow name="bankSAPI_crteaccount-main" initialState="started">
+        <http:listener config-ref="banksysapi_crteaccount-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="banksysapi_crteaccount-config" />
+        <error-handler ref="global" />
+    </flow>
+    <flow name="banksysapi_crteaccount-console">
+        <http:listener config-ref="banksysapi_crteaccount-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="banksysapi_crteaccount-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="get:\allAccounts:banksysapi_crteaccount-config">
+        <logger level="INFO" doc:name="Logger" doc:id="74a94478-39ed-43b5-9cd8-896813da1965" message="#[payload]" />
+        <flow-ref doc:name="Flow Reference" doc:id="a5e0dc31-3943-4a36-a652-efa65c3bf18c" name="get_all_Accounts_Flow" />
+    </flow>
+    <flow name="post:\createAccount:application\json:banksysapi_crteaccount-config">
+        <flow-ref doc:name="Flow Reference" doc:id="8eb3105f-25da-4046-9ed1-220ba02557b5" name="createAccount_Flow" />
+    </flow>
+    <flow name="get:\allAccounts\(AccountNum):banksysapi_crteaccount-config" initialState="started">
+        <logger level="INFO" doc:name="Logger" doc:id="00fc2dd9-13b7-4c99-b499-8d149162bbd7" message="#[attributes.uriParams.AccountNum]" />
+        <flow-ref doc:name="Flow Reference" doc:id="8300cdbb-855d-494e-bb24-6e940f2fbbbb" name="get_all_Accounts_Flow" />
+    </flow>
+</mule>

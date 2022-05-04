@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="munit-test-suite.xml" />
+	<munit:test name="subFlow_1_Test_Suit" doc:id="27e1e169-baa5-4918-a2f9-033c647133e4" description="Test">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="c589217e-25f2-41a6-bec5-496399636eaf" >
+				<munit:payload value="#['Thiru']" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to subFlow_1" doc:id="9720e609-f07d-44b5-9fbd-14b231018823" name="subFlow_1"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="57420f0c-4ab4-4b65-bebb-8b5904be35b9" expression="#[payload]" is="#[MunitTools::equalTo('Your Name is Thirupathi')]"/>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="4a9912a7-6e91-4375-a0b8-ea8aa9fad770" processor="mule:flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="#['subFlow_2']" attributeName="name" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="subFlow_1_ChoiceDefult_Test_Suit" doc:id="49f48d94-4c52-40df-a698-45c076247649" description="Test">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="2186e7fe-c1ab-49d0-8f92-ca458dd27a6c" >
+				<munit:payload value="#['Thiruathi']" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to subFlow_1" doc:id="8d61dec3-4200-438f-83c6-264e38048521" name="subFlow_1"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="ac43f174-ec00-438b-b440-cad21761e998" expression="#[payload]" is="#[MunitTools::equalTo('You are Manu')]"/>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="3901fced-ba33-4255-a98e-72f57399612b" processor="set-payload">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue='#["You are Manu"]' attributeName="value" />
+					<munit-tools:with-attribute whereValue="Set Payload" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="c92528de-1c9f-4ffe-ab7f-6120fc917be5" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mainFlow_Success" doc:id="f0d7bbdf-ad74-417e-a34d-7261477a504d" description="Test">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="29f0dba7-f0dc-42f2-9c22-f51809613af8" >
+				<munit:attributes value="#[{queryParams:{name:'Thiru'}}]" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to main_Flow" doc:id="93caf946-5454-46f0-be7c-e03d0b7e70f5" name="main_Flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="951e7f62-6214-4faa-89f2-4cf764d5c53f" expression="#[payload]" is="#[MunitTools::equalTo('Your Name is Thirupathi')]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mainFlow_Fail" doc:id="6b418348-5703-475e-b4be-1b0f6972a548" description="Test">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="92171f6a-1a59-46f4-8d57-83bba5daf8b5" >
+				<munit:attributes value="#[{queryParam:{name:'Manu'}}]" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to main_Flow" doc:id="0036bb5a-c75c-4249-a965-4511042c2692" name="main_Flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="4c09b5cb-3240-4a45-a762-219c30c1fcb5" expression="#[payload]" is="#[MunitTools::equalTo('You are Manu')]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mockFlow_1" doc:id="aa13e507-5f2b-40e2-be94-80340c1102e1" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="203635b1-e3b2-4b61-ba7c-7cb83ffe0f76" processor="set-payload">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="#[attributes.queryParams.name]" attributeName="value" />
+					<munit-tools:with-attribute whereValue="Set Payload" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="0f5ae387-d970-4f01-90da-1bc550dbde86" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#['Thirupathi']" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="ab9e3b4b-8ed5-44f0-95c7-a1c8da488891" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="subFlow_1" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#['Thirupathi']" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to main_Flow" doc:id="9433a073-8c77-4651-ac2e-3b6066bbbaf3" name="main_Flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="8785eb2e-5845-460e-96e1-00efaaab7164" expression="#[payload]" is="#[MunitTools::equalTo('Your Name is Thirupathi')]"/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

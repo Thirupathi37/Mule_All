@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="db3def9c-ab36-460f-9829-14359ecba603" >
+		<http:request-connection host="localhost" port="8082" >
+			<reconnection >
+				<reconnect />
+			</reconnection>
+		</http:request-connection>
+	</http:request-config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="03669aa3-3a02-4866-bdf2-c679e9739991" >
+		<http:listener-connection host="0.0.0.0" port="8083" />
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config2" doc:name="HTTP Listener config" doc:id="2c4afc67-857e-40a5-bdda-86ddd5281bc8" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="assignment_L_procapi_1Flow" doc:id="7ec6231a-4f85-419d-b65f-dde57005dcc7" >
+		<http:listener doc:name="Listener" doc:id="764ce898-bd1d-4fc9-9714-040ca2befa40" config-ref="HTTP_Listener_config2" path="/jms"/>
+		<logger level="INFO" doc:name="Logger" doc:id="2af2f3eb-bb8b-4ad5-919f-eaaecf55c40e" message='"Flow Started"'/>
+		<jms:publish doc:name="Publish" doc:id="27d02ef9-edf9-4713-b8a0-c525de54093e" config-ref="JMS_Config" destination="Q1" persistentDelivery="true" sendCorrelationId="ALWAYS"/>
+		<ee:transform doc:name="Transform Message" doc:id="75c2ece8-935c-4fcd-a554-5e7d13ecb027" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"req_Recvd": "Hello! Your Request Has Been Recieved Successfully",
+	"transactionId": correlationId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<email:send doc:name="Send" doc:id="8dda09fd-e810-4c19-9e07-70bf7510f1fe" config-ref="Email_SMTP" fromAddress="thirupathiraj2018@gmail.com" subject="Hello! Request Received Successfully">
+			<email:to-addresses >
+				<email:to-address value="tbommishetty@eniquesolutions.com" />
+			</email:to-addresses>
+			<email:body >
+				<email:content ><![CDATA[#[payload.req_Recvd ++ " Your TransactionId is: " ++ payload.transactionId]]]></email:content>
+			</email:body>
+		</email:send>
+	</flow>
+	<flow name="assignment_L_procapi_1Flow1" doc:id="90d17585-bf8c-44b4-8f67-b17585f292d7" >
+		<jms:listener doc:name="On New Message" doc:id="6740d17c-5953-4644-980d-4b5295b79876" config-ref="JMS_Config" destination="Q1" inboundContentType="application/json" ackMode="MANUAL">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+			<jms:response sendCorrelationId="ALWAYS" persistentDelivery="false"/>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="9f9d02d1-fa5b-4968-b514-291b975a3e90" message='#[correlationId]'/>
+		<set-variable value="#[attributes.ackId]" doc:name="Set Variable" doc:id="bf512a66-0454-4998-a029-7af2e92c620f" variableName="ackId1"/>
+		<try doc:name="Try" doc:id="7e914c22-4bd6-407d-919f-f31889493520" >
+			<http:request method="POST" doc:name="Request" doc:id="65affb89-4391-4d26-b53d-594a79b72c1c" config-ref="HTTP_Request_configuration" path="/reprocess" responseTimeout="9000000" />
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="73039469-d5c6-46ff-ade2-7b26f956b233" message="#[correlationId]"/>
+		<ee:transform doc:name="Transform Message" doc:id="ed498ea7-e623-448d-a592-28ca75b34685" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<jms:ack doc:name="Ack" doc:id="ef258dd3-3d40-4b5b-84cf-3e1338f6413a" ackId="#[vars.ackId1]"/>
+	</flow>
+	<flow name="assignment_L_using_jmsFlow" doc:id="bccf9c96-032c-4869-8193-effd028821cb" >
+		<scheduler doc:name="Scheduler" doc:id="fd653f66-72ba-4cc7-8bbb-2b6b015d9d3c" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" startDelay="30" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<jms:consume doc:name="Consume" doc:id="fb79214a-9939-402c-8f3f-bed6a8d56231" config-ref="JMS_Config" destination="Qdfgfgfg" ackMode="MANUAL">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:consume>
+		<set-variable value="#[attributes.ackId]" doc:name="Set Variable" doc:id="730af3eb-6397-4c6b-ac2d-808d943ff2d3" variableName="ackId2"/>
+		<http:request method="GET" doc:name="Request" doc:id="785d23bc-e936-4c52-b1d6-4f8dfc8160b6" config-ref="HTTP_Request_configuration" path="/reprocess" responseTimeout="9000000"/>
+		<jms:ack doc:name="Ack" doc:id="c4dc0620-90e2-40d1-ac00-ec06318e05f4" ackId="#[vars.ackId2]"/>
+	</flow>
+	<flow name="assignment_L_procapi_1Flow2" doc:id="6d73f0a7-bb2d-488b-a68a-6635b1ab4601" >
+		<http:listener doc:name="Listener" doc:id="6f279a93-065a-4ea3-b29f-b9d7e1906f28" path="/reprocess" config-ref="HTTP_Listener_config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="b6c8089b-746a-48c7-8e54-b978283e4e6b" message="#[correlationId]"/>
+		<ee:transform doc:name="Transform Message" doc:id="0ab828ff-c3e4-419f-9681-cfc91ab90d15" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

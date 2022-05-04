@@ -1,0 +1,26 @@
+#%RAML 1.0
+title: Sales Order EXP API
+version: v0
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/248a6730-6f0b-497b-8ca3-87d6fb76b9a5
+protocols:
+  - HTTPS
+
+uses:
+  traitLib: exchange_modules/72b1fe1f-e899-48a9-b51d-85e2fc18983f/enique-sol-api-traits/0.0.1/enique-sol-api-traits.raml
+
+/create:
+  post:
+    description: To Create Sales in the ERP System.
+    is: [traitLib.common-headers, traitLib.client-credentials]
+    body:
+      application/json:
+        type: !include exchange_modules/72b1fe1f-e899-48a9-b51d-85e2fc18983f/salesorderrequestschema/0.0.3/salesorderrequestschema.raml
+        example: !include exchange_modules/72b1fe1f-e899-48a9-b51d-85e2fc18983f/salesorderrequestexample/0.0.3/salesorderrequestexample.raml
+          
+
+    responses:
+      200:
+        body:
+          application/json:
+            type: !include exchange_modules/72b1fe1f-e899-48a9-b51d-85e2fc18983f/salesorderresponseschema/0.0.1/salesorderresponseschema.raml
+            example: !include exchange_modules/72b1fe1f-e899-48a9-b51d-85e2fc18983f/salesorderresponseexample/0.0.2/salesorderresponseexample.raml

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="6f127a8b-6d97-4b36-8fc8-24a0e97551a8" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234" database="emp" />
+	</db:config>
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="9b2fde68-951d-4c23-ada5-92158c41dce9" >
+		<email:smtp-connection host="smtp.gmail.com" user="thirupathiraj2018@gmail.com" password="Btr@1233" connectionTimeout="3" readTimeout="3" writeTimeout="3" timeoutUnit="MINUTES" port="587">
+			<email:properties > 
+				<email:property key="mail.smtp.starttls.enable" value="true" /> 
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<flow name="get_all_Accounts_Flow" doc:id="cb96eb41-7cdd-42d3-be91-7f3fb33d9b15" >
+		<logger level="INFO" doc:name="Logger" doc:id="4c1d89a3-462f-46a8-adad-9dae1b07ebd4" message='#["Before DB"]'/>
+		<db:select doc:name="Select" doc:id="8e7451be-62bd-4a86-b80c-bc0b0b773657" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from banking where custAccNum= :custAccNum]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	custAccNum: attributes.uriParams.AccountNum
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="2c9f2953-173a-405a-be9b-434749b8e688" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="1e87f0db-2208-4a73-bd36-c5e0f3e54e81" message='#["After DB"]'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="a4b14bd1-a9bb-4a45-9ea8-e3af7bac691b" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="798ac69a-845e-44fc-a037-a0fad249ea73" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"ErrorMessage": "Internal Server Error"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="createAccount_Flow" doc:id="5c3c6185-bf99-4273-8474-c67c617ff3f2" >
+		<logger level="INFO" doc:name="Logger" doc:id="1adcebb7-cc1a-4322-aafa-396b1c3bd720" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="0788ee4b-5f60-4887-b83a-c650e452e73e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	atmPin: payload.atmPin,
+	totalBalance: payload.totalBalance as Number,
+	custAccNum: payload.accountNum,
+	phoneNumber: payload.contact,
+	mailId: payload.mailId,
+	ifscCode: payload.ifscCode,
+	custName: payload.custName,
+	bankName: payload.bankName,
+	accountType: payload.accountType,
+	branchName: payload.branchName,
+	transactionTimeStamp: now(),
+	accountStatus: "Active",
+	wrongPin: 0
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="accountNo" ><![CDATA[payload.accountNum]]></ee:set-variable>
+				<ee:set-variable variableName="bank" ><![CDATA[payload.bankName]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:insert doc:name="Insert" doc:id="13c2616e-0622-4076-ba26-156e5c0c3e12" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO emp.banking(custName,custAccNum,atmPin,bankName,accountType,ifscCode,branchName,totalBalance,transactionTimeStamp,accountStatus,wrongPin,mailId,phoneNumber) 
+values( :custName, :custAccNum, :atmPin, :bankName, :accountType, :ifscCode, :branchName, :totalBalance, :transactionTimeStamp, :accountStatus, :wrongPin, :mailId, :phoneNumber)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[payload]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="67d831b1-ab6e-4c11-9b7b-31144a9b72b4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+---
+{
+       "accountCreated" : "Congratulations ! Your account is created Successfully with Below Details",
+       "account_Number": vars.accountNo,
+       "bank": vars.bank
+              
+  }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<email:send doc:name="Send" doc:id="d6cb9cd2-6dd1-4a9e-b889-3992d059ba0b" config-ref="Email_SMTP" fromAddress="thirupathiraj2018@gmail.com" subject=" Congratulations ! Account created">
+			<email:to-addresses >
+				<email:to-address value="tbommishetty@eniquesolutions.com" />
+			</email:to-addresses>
+			<email:body contentType="text/plain">
+				<email:content ><![CDATA[#[{
+       "accountCreated" : "Congratulations ! Your account is created Successfully with Below Details",
+       "account_Number": vars.accountNo,
+       "bank": vars.bank
+  }]]]></email:content>
+			</email:body>
+		</email:send>
+		<logger level="INFO" doc:name="Logger" doc:id="449528dd-2c8e-4a0d-969b-3b7aa312e3ed" message='#[payload]'/>
+		<error-handler ref="global">
+		</error-handler>
+				</flow>
+</mule>

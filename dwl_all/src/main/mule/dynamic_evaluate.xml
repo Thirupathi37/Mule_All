@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="dynamic_evaluateFlow" doc:id="40c03e7b-c91b-47fd-b5de-872eb4acfccb" >
+		<http:listener doc:name="Listener" doc:id="6d5ddb3e-fa1c-4749-b9b8-ad08061a12c8" config-ref="HTTP_Listener_config" path="/dynamic"/>
+		<set-variable value="#[attributes.queryParams.customer]" doc:name="Set Variable" doc:id="6df46187-9abf-44c7-93ef-6fe28c8ca64b" variableName="vCustomer"/>
+		<logger level="INFO" doc:name="Logger" doc:id="c66b58ad-1058-4298-91fe-af5f32868ee0" message="#[vars.vCustomer]"/>
+		<ee:transform doc:name="Transform Message" doc:id="a2e41a71-4bff-40fb-82fe-723f02d52e6f" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="vDWLFile" ><![CDATA[%dw 2.0
+output application/java
+var filename= vars.vCustomer ++ ".dwl"
+---
+readUrl("classpath://dwl/" ++ filename, "text/plain")]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="57662655-a7d3-411e-9b8d-36eb065f63cb" message="#[vars.vDWLFile]"/>
+		<ee:dynamic-evaluate doc:name="Dynamic Evaluate" doc:id="a5ffd901-0639-4937-9aa1-670704129c8a" expression="#[vars.vDWLFile]"/>
+	</flow>
+</mule>

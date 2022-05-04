@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="47e388b4-945b-400f-afeb-019641009d16" >
+		<http:request-connection host="localhost" port="8082">
+		</http:request-connection>
+	</http:request-config>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="35c601f8-2a61-486e-8410-cd2d39c8e12d" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="0fc417c3-b3b0-41c7-9ad6-eb606e6da3e3" />
+	<flow name="sendReqToSysLayerOverHTTP_Flow" doc:id="dd8926f9-c956-4afe-8a5a-b6b92dcfc6b1" >
+		<logger level="INFO" doc:name="Logger" doc:id="6389f0ba-a2c9-40cd-a2c1-71a6793186cd" message='"hello"'/>
+		<http:request method="GET" doc:name="Request" doc:id="c910483b-95f4-4289-b685-c44941dcad2b" config-ref="HTTP_Request_configuration" path="/api/emp" responseTimeout="900000">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Key" : attributes.authorization.bearer
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/json
+---
+{
+	"UserID1" : attributes.queryParams.UserID1 default " ",
+	"UserID2" : attributes.queryParams.UserID2 default " ",
+	"UserID3" : attributes.queryParams.UserID3 default " "
+}]]]></http:query-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="18bf1085-eb68-408e-ba66-047ba055c980" message='"END Flow"'/>
+		
+</flow>
+	<flow name="sendJMS_Req_Asyn1_Flow" doc:id="411cb984-d92f-40c6-a203-1c896a5c54e5" initialState="started" tracking:enable-default-events="true">
+		<set-variable value='#[output application/json&#10;&#10;---&#10;&#10;{&#10;&#10;	"UserID1" : attributes.queryParams.UserID1 default " ",&#10;&#10;	"UserID2" : attributes.queryParams.UserID2 default " ",&#10;&#10;	"UserID3" : attributes.queryParams.UserID3 default " "&#10;&#10;}]' doc:name="Set Variable" doc:id="6d32d20e-9013-4bad-a9ad-b16451d453ab" variableName="ID"/>
+		<set-variable value="#[correlationId]" doc:name="Set Variable" doc:id="571de4d5-2c66-4be9-b8cf-0886db9e19d6" variableName="corrId"/>
+		<set-payload value="#[vars.ID]" doc:name="Set Payload" doc:id="2641989e-b13d-45da-a629-d545346f3154" />
+		<os:store doc:name="Store" doc:id="21f7dced-a4b0-456d-b887-729797a10589" key="#[vars.corrId]" objectStore="Object_store">
+			<os:value ><![CDATA[#[correlationId]]]></os:value>
+		</os:store>
+		<jms:publish doc:name="Publish" doc:id="3c4fae3d-3134-487a-876c-2135a8589d0f" config-ref="JMS_Config" destination="Asyn1" sendCorrelationId="ALWAYS"/>
+		<logger level="INFO" doc:name="Logger" doc:id="16038db3-a05a-414f-a41e-a73ccfcf19f7" message='"Published to System Layer"'/>
+		<jms:publish doc:name="Publish" doc:id="229b01b1-1930-436d-bebc-429025f3fdb0" config-ref="JMS_Config" destination="ObjStore">
+			<jms:message >
+				<jms:body ><![CDATA[#[vars.corrId]]]></jms:body>
+			</jms:message>
+		</jms:publish>
+		<ee:transform doc:name="Transform Message" doc:id="0a26b66b-e7d7-4a0c-bb18-8b5be19f051f" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="Id" ><![CDATA[correlationId]]></ee:set-variable>
+				<ee:set-variable variableName="Key" ><![CDATA[%dw 2.0
+output application/java
+---
+correlationId]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="d644c985-5188-49ec-841b-095164ffa25b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message": "Your Request Has Been Received",
+	"ID": vars.Id
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="5b5bd8b6-eea7-4594-a8f9-58ab5b8ec3c5" message="#[payload]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="ff94a42c-4b1a-43bf-b207-ac1f548b1004" message='#["END"]' />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="376fccc8-2083-49aa-ae57-cb070566e7e8" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="19edcc2e-fc2d-4467-a23f-f29822f11544" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"error": error.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="rcvJMS_Resp_Asyn2_Q_Flow" doc:id="df182c0e-fbc5-4a47-90e5-7a98168c22a5" >
+		<jms:listener doc:name="On New Message" doc:id="fd7aaead-e56f-4b6b-a4bc-b1180f777040" config-ref="JMS_Config" destination="Asyn2" ackMode="MANUAL">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="f4e55162-0766-4143-8aae-0e560582e88a" message="#[payload]"/>
+		<jms:consume doc:name="Consume" doc:id="c17145fc-0498-40d1-8f0f-4fa35a292eb0" config-ref="JMS_Config" destination="ObjStore" target="key" maximumWait="2" maximumWaitUnit="SECONDS" ackMode="IMMEDIATE">
+			<reconnect />
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:consume>
+		<os:retrieve doc:name="Retrieve" doc:id="29bb8583-707c-48ef-9e66-4494688bee92" target="RtrvdValue" key="#[vars.key]" objectStore="Object_store">
+		</os:retrieve>
+		<logger level="INFO" doc:name="Logger" doc:id="58cee9a4-dc64-4776-ba47-787c5ace31fc" message="#[vars.RtrvdValue]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="9e7b1720-ca6f-4a71-afdc-afc5efacbde5" message="#[correlationId]"/>
+		<choice doc:name="Choice" doc:id="973f8b17-9fab-441a-9d8d-b709bd3b54a8" >
+			<when expression="#[vars.RtrvdValue == correlationId]">
+				<logger level="INFO" doc:name="Logger" doc:id="d96cf15a-9008-40ad-ba34-228452a8f1d2" message='#["SUCCESS"]'/>
+				<file:write doc:name="Write" doc:id="170a19e0-a74f-41bc-af7f-9360619b6803" path="D:\WorkSpace\AnypointStudio\Practice_Files\Users_Resp.txt"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="3bcf6577-df96-4e43-98d8-6372c5b91a09" message='"No Res"'/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="3da62b46-2697-4c7a-8ba4-0eae968ea74a" message="#[payload]"/>
+		<jms:ack doc:name="Ack" doc:id="19194995-f1d2-46a6-be9b-6e9602410d10" ackId="#[attributes.ackId]" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ae059104-8985-4313-a602-c1f95bf2546d" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="b1b4337e-1d88-40aa-880e-e1e5360c2015" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Error": error.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="sendJMS_Req_Syn_Flow" doc:id="9884cc05-958f-4738-9f9e-3b3e554c64ef" >
+		<set-variable value='#[output application/json&#10;&#10;---&#10;&#10;{&#10;&#10;	"UserID1" : attributes.queryParams.UserID1 default " ",&#10;&#10;	"UserID2" : attributes.queryParams.UserID2 default " ",&#10;&#10;	"UserID3" : attributes.queryParams.UserID3 default " "&#10;&#10;}]' doc:name="Set Variable" doc:id="912899b7-59b8-47c0-8264-db1ae2041cb4" variableName="ID"/>
+		<set-payload value="#[vars.ID]" doc:name="Set Payload" doc:id="5c42fc34-b5bf-4fe9-8df6-7ab63b4af277" />
+		<logger level="INFO" doc:name="Logger" doc:id="1766ad13-10df-41a7-a347-efbebf8d784e" message="#[payload]"/>
+		<jms:publish-consume doc:name="Publish consume" doc:id="7197863e-f416-4fb2-9a63-725131aaa63b" config-ref="JMS_Config" destination="Syn" sendCorrelationId="ALWAYS">
+			<jms:publish-configuration deliveryDelayUnit="DAYS" timeToLive="2" timeToLiveUnit="MINUTES"/>
+			<jms:consume-configuration ackMode="IMMEDIATE" maximumWait="2" maximumWaitUnit="MINUTES"/>
+		</jms:publish-consume>
+		<logger level="INFO" doc:name="Logger" doc:id="5ff68729-5970-4a82-90c7-7200fa4ee95c" message="#[payload]"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="295f049b-d19d-4774-96e5-404c1f909f15" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="9ab4fcc2-a163-472f-b288-0c63d4023ce2" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Error": error.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

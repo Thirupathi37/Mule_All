@@ -1,0 +1,29 @@
+#APIKit HTTP_Listener_checkBlnce_SAPI
+HTTP_Listener:
+  host: "localhost"
+  port: "8084"
+  path: "api"
+  
+#Auto Discovery
+Auto_discovery:
+  api_Id: "17561027"
+  flow_name: "bank_checkBlnce_SAPI-main"
+  
+#Database_MySql
+MySql:
+  host: "localhost"
+  port: "3306"
+  username: "root"
+  password: "Btr@1234"
+  
+#Email_SMTP
+email:
+  host: "smtp.gmail.com"
+  port: "587"
+  username: "thirupathiraj2018@gmail.com"
+  password: "Btr@1233"
+  
+  
+  
+  
+  

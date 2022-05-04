@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="36c81f8a-6415-409f-afd4-b61b18598df5" >
+		<salesforce:basic-connection username="lakshman@eniquesolutions.com" password="9347359767l" securityToken="qK7nUyRRrLwGzTOYexeBJF1i" />
+	</salesforce:sfdc-config>
+	<flow name="createEmpIMPL_Flow" doc:id="8da4178c-8e36-4c03-bb97-d974d494f6f1" >
+		<http:listener doc:name="Listener" doc:id="72915f0f-72ca-4e79-a515-d2628be2b093" config-ref="hrms-httpListenerConfig" path="/dynamic"/>
+		<logger level="INFO" doc:name="Logger" doc:id="88264afa-61ed-4add-8142-85752672f09f" message='"creae Emp Flow Start"'/>
+		<ee:transform doc:name="Transform Message" doc:id="76411352-a378-48af-905a-fa2c0e3c1a42" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"query": "SELECT applicantType__c,collegeName__c,contactNumber__c,currentLocation__c FROM Applicant__c where " ++ attributes.queryParams as String
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:query doc:name="Query" doc:id="9fd0de90-3140-434d-ad9c-f81e023f6e6e" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[#[payload.query]]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="f3a5a595-138a-469b-8735-f1fbbcbe680b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

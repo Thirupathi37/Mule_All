@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="ccc80431-3a11-4fd7-8327-f6a7b036dad3" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="main_Flow" doc:id="e9a2630e-4ab9-4841-ad9b-fd4e9096db41" >
+		<http:listener doc:name="Listener" doc:id="bee45481-b6d1-47aa-88ce-05aa9582f2dc" config-ref="HTTP_Listener_config" path="/munit"/>
+		<set-payload value="#[attributes.queryParams.name]" doc:name="Set Payload" doc:id="0f5ae387-d970-4f01-90da-1bc550dbde86" />
+		<flow-ref doc:name="Flow Reference" doc:id="e2372d2c-a11a-41aa-86f2-941014ca56da" name="subFlow_1"/>
+		<choice doc:name="Choice" doc:id="7a7cdb45-47ad-4f06-be2c-65163e01e3e1" >
+			<when expression='#[payload == "Your Name is Thirupathi"]'>
+				<set-payload value="#[payload]" doc:name="Set Payload" doc:id="4472106c-61bd-45c4-bc8a-c30db17254e9" />
+			</when>
+			<otherwise >
+				<set-payload value="#[payload]" doc:name="Set Payload" doc:id="b0779c6b-fcd1-4c6d-ada5-5161a137b897" />
+			</otherwise>
+		</choice>
+	</flow>
+	<sub-flow name="subFlow_1" doc:id="9d9a9b3c-6f1f-493c-aa68-62958157398d" >
+		<choice doc:name="Choice" doc:id="5aeabd6c-6e83-4c57-95db-77eb37699d71" >
+			<when expression='#[payload == "Thiru"]'>
+				<flow-ref doc:name="Flow Reference" doc:id="c5db1e69-3760-4f88-9def-6658d6ac503b" name="subFlow_2"/>
+			</when>
+			<otherwise >
+				<flow-ref doc:name="Flow Reference" doc:id="97626492-4781-4164-a9f5-c2002491a156" name="subFlow_3"/>
+			</otherwise>
+		</choice>
+	</sub-flow>
+	<sub-flow name="subFlow_2" doc:id="5f0afd9e-ae7d-4162-9f93-7d7441c811a7" >
+		<set-payload value='#["Your Name is Thirupathi"]' doc:name="Set Payload" doc:id="b655ad9e-dd1d-4a8b-b698-a118246a67d2" />
+	</sub-flow>
+	<sub-flow name="subFlow_3" doc:id="47f3b34e-937b-49cb-a79f-338a97641c2f" >
+		<set-payload value='#["You are Manu"]' doc:name="Set Payload" doc:id="c92528de-1c9f-4ffe-ab7f-6120fc917be5" />
+	</sub-flow>
+</mule>

@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="create" format="json">
+      <types:shape format="weave" example="examples/createsales-1.json"><![CDATA[%dw 2.0
+
+type create = Array<{|  name: String,   salary: String,   email: String|}> {"example": "[{\\\"name\\\":\\\"ram6\\\",\\\"salary\\\":\\\"123000\\\",\\\"email\\\":\\\"thiru@gmail.com\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="createEmpToSales" format="json">
+      <types:shape format="weave" example="examples/createEmployee.json"><![CDATA[%dw 2.0
+
+type createEmpToSales = Array<{|  id: String,   applicantName: String,   dateOfApplication: String,   jobId: String,   applicantType: String,   locationPreference1: String,   locationPreference2: String,   locationPreference3: String,   contactNumber: String,   emailId: String,   currentLocation: String,   qualification: String,   collegeName: String,   passOutYear: String,   programmingSkills: String,   experience: String,   noticePeriod: String,   openForRelocation: String,   currentSalary: String,   expectedSalary: String|}> {"example": "[{\\\"id\\\":\\\"4\\\",\\\"applicantName\\\":\\\"lakshman\\\",\\\"dateOfApplication\\\":\\\"10-12-2021\\\",\\\"jobId\\\":\\\"4\\\",\\\"applicantType\\\":\\\"experience\\\",\\\"locationPreference1\\\":\\\"hyderabad\\\",\\\"locationPreference2\\\":\\\"chennai\\\",\\\"locationPreference3\\\":\\\"bengaluru\\\",\\\"contactNumber\\\":\\\"9896003210\\\",\\\"emailId\\\":\\\"lakshman@gmail.com\\\",\\\"currentLocation\\\":\\\"hyderabad\\\",\\\"qualification\\\":\\\"B-tech\\\",\\\"collegeName\\\":\\\"SCREC\\\",\\\"passOutYear\\\":\\\"2019\\\",\\\"programmingSkills\\\":\\\"java,python\\\",\\\"experience\\\":\\\"2\\\",\\\"noticePeriod\\\":\\\"3months\\\",\\\"openForRelocation\\\":\\\"yes\\\",\\\"currentSalary\\\":\\\"80000\\\",\\\"expectedSalary\\\":\\\"100000\\\"},{\\\"id\\\":\\\"4\\\",\\\"applicantName\\\":\\\"lakshman\\\",\\\"dateOfApplication\\\":\\\"10-12-2021\\\",\\\"jobId\\\":\\\"4\\\",\\\"applicantType\\\":\\\"fresher\\\",\\\"locationPreference1\\\":\\\"hyderabad\\\",\\\"locationPreference2\\\":\\\"chennai\\\",\\\"locationPreference3\\\":\\\"bengaluru\\\",\\\"contactNumber\\\":\\\"9896003210\\\",\\\"emailId\\\":\\\"lakshman@gmail.com\\\",\\\"currentLocation\\\":\\\"hyderabad\\\",\\\"qualification\\\":\\\"B-tech\\\",\\\"collegeName\\\":\\\"SCREC\\\",\\\"passOutYear\\\":\\\"2019\\\",\\\"programmingSkills\\\":\\\"java,python\\\",\\\"openForRelocation\\\":\\\"yes\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#f236bde4-2ab2-47a2-bc66-96a383a1aec0">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="create"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#d02a44b3-d728-45fd-83d4-2441cc89991e">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="createEmpToSales"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="createEmpToSales"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

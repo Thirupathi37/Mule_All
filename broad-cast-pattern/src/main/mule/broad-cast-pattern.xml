@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="a1408c6c-ba49-4cd0-b67d-c9f6f0e499f7" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234" database="emp" >
+			<db:connection-properties >
+				<db:connection-property key="useSSL" value="false" />
+			</db:connection-properties>
+		</db:my-sql-connection>
+	</db:config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="70f2f37b-4a3a-4b19-8bdf-b8f81a7206a4" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="54746cca-1f67-4c3a-88b5-f07ea26e9414" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<flow name="broad-cast-patternFlow" doc:id="46c40387-9a90-47f0-9ab2-9619bf4bcf80" initialState="started">
+		<db:listener table="products" doc:name="On Table Row" doc:id="47c1fe93-9fd5-4023-8ebb-6235a61cb0fb" config-ref="Database_Config" watermarkColumn="ID">
+			<redelivery-policy />
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</db:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="ad733d0d-01fc-453c-b992-dc08c2f30c9c" message="#[payload]"/>
+		<jms:publish doc:name="Publish" doc:id="6189f9aa-a315-44ac-a2ad-510696107f91" config-ref="JMS_Config" destination="BroadCast" destinationType="TOPIC"/>
+		<logger level="INFO" doc:name="Logger" doc:id="d7751c8a-ac57-4c3f-ad9b-5449eb34a268" message='"End"'/>
+	</flow>
+	<flow name="broad-cast-patternFlow1" doc:id="e8d6ca29-dfc0-4c47-8aa6-dfe412a87382" initialState="started">
+		<jms:listener doc:name="On New Message" doc:id="0fbc76e3-758f-470a-a46c-2188ff3c6284" config-ref="JMS_Config" destination="BroadCast" numberOfConsumers="1">
+			<jms:consumer-type >
+				<jms:topic-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="21c7897e-5b90-4f55-9bb3-4eabbbdd7ffa" message='#["Hello"]'/>
+		<db:insert doc:name="Insert" doc:id="aac5f10b-e392-4f68-8992-fd6a945a7774" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into product_sfdc(ID, SKU, NAME) values(:ID, :SKU, :NAME)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	ID: payload.ID,
+	SKU: payload.SKU,
+	NAME: payload.NAME
+}]]]></db:input-parameters>
+		</db:insert>
+	</flow>
+	<flow name="e-commerce" doc:id="54d35c03-9c91-433d-b046-b58b701d53f3" initialState="started">
+		<jms:listener doc:name="On New Message" doc:id="4a1f8f43-dafe-4072-a0a7-1706721585fb" config-ref="JMS_Config" destination="BroadCast" numberOfConsumers="1">
+			<jms:consumer-type >
+				<jms:topic-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="98266ca6-e5f8-4a44-8342-6e6315dd89b2" />
+		<db:insert doc:name="Insert" doc:id="b19ff8fb-cff8-40ca-8240-ad09a6b65471" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into product_ecommerce(ID, SKU, NAME) values(:ID, :SKU, :NAME)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	ID: payload.ID,
+	SKU: payload.SKU,
+	NAME: payload.NAME
+}]]]></db:input-parameters>
+		</db:insert>
+	</flow>
+	<flow name="fulfilment" doc:id="2d02292e-90ad-4fe0-ad46-cc4830adb1a6" initialState="started">
+		<jms:listener doc:name="On New Message" doc:id="aa8676e6-9130-4547-b356-34956942c159" config-ref="JMS_Config" destination="BroadCast" numberOfConsumers="1">
+			<jms:consumer-type >
+				<jms:topic-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="fde7e064-7ff1-46b1-9930-f81747d0fca9" />
+		<db:insert doc:name="Insert" doc:id="45b35833-ce06-47d7-8e68-c24da4fbdf12" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into product_fulfilment(ID, SKU, NAME) values(:ID, :SKU, :NAME)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	ID: payload.ID,
+	SKU: payload.SKU,
+	NAME: payload.NAME
+}]]]></db:input-parameters>
+		</db:insert>
+	</flow>
+</mule>

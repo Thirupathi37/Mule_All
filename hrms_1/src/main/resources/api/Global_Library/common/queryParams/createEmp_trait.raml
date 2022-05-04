@@ -1,0 +1,34 @@
+#%RAML 1.0 Trait
+queryParameters:
+  applicantType:
+    enum: ['Fresher', 'Experienced']
+    required: true
+    example: "Fresher"
+  locationPreference1:
+    enum: ["Hyderabad", "Bangalore", "Pune"]
+    required: true
+    example: "Hyderabad"
+  locationPreference2:
+    enum: ["Hyderabad", "Bangalore", "Pune"]
+    required: true
+    example: "Bangalore"
+  locationPreference3:
+    enum: ["Hyderabad", "Bangalore", "Pune"]
+    required: true
+    example: "Pune"
+  passoutYear:
+    enum: ["2022", "2021", "2020", "2019"]
+    required: true
+    example: "2019"
+  experienceInYears:
+    enum: ["0", "1", "2", "3"]
+    required: true
+    example: "2"
+  noticePeriodInMonths:
+    enum: ["0", "1", "2", "3"]
+    required: true
+    example: "2"
+  openForRelocation:
+    enum: ['Yes', 'No']
+    required: true
+    example: "Yes"

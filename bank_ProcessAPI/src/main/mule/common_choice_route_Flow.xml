@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<http:request-config name="HTTP_Request_withdraw1" doc:name="HTTP Request configuration" doc:id="5d5f3281-fd56-402a-a01f-1aa342cc4ac7" basePath="/api" >
+		<http:request-connection host="localhost" port="8083" />
+	</http:request-config>
+	<http:request-config name="HTTP_Request_checkBalance" doc:name="HTTP Request configuration" doc:id="a858c01c-6519-4a2e-95f6-01efb09d7397" basePath="/api" >
+		<http:request-connection host="localhost" port="8084" />
+	</http:request-config>
+	<sub-flow name="common_cond_route_Flow" doc:id="9b16a72d-bd10-4a05-a119-c255456cdbb4" >
+	
+	
+		<logger level="INFO" doc:name="Logger" doc:id="66e5e8cf-e90f-4e50-a96a-177eef587b8c" message="#[payload]"/>
+		<choice doc:name="Choice" doc:id="fc5d8196-ea6c-4de4-8bc7-c56d2bb68a9b" >
+			<when expression='#[payload.hint == "Success"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="70117559-c49b-4ad9-abf1-dd48600fa016" message="#[payload]"/>
+				<ee:transform doc:name="Transform Message" doc:id="097ea158-1c45-4e0b-80f2-b95963046e2f">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"custAccNum": payload.custAccNum default '',
+	"amountToBeWithdraw": payload.remainingBlnce
+}]]></ee:set-payload>
+			</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="remainingBlnce1" ><![CDATA[payload.remainingBlnce]]></ee:set-variable>
+					
+</ee:variables>
+		</ee:transform>
+				<until-successful maxRetries="5" doc:name="Until Successful" doc:id="b8c060b1-5965-4a8a-b6d0-274450693a93" millisBetweenRetries="5000">
+					<http:request method="POST" doc:name="Request" doc:id="c8970ff6-a75e-4602-a78a-804d192ab969" config-ref="HTTP_Request_withdraw1" path="/withDraw" responseTimeout="900000">
+					</http:request>
+				</until-successful>
+				<ee:transform doc:name="Transform Message" doc:id="33c24991-2756-4378-b32a-0755cb41adca">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var dbtdAmount= vars.withdrawedAmount
+var totalBlnce= vars.remainingBlnce1
+//var dbtdAmountString=  "Collect Your Cash- "
+//var totalBlnce1String= ["Remaining Total Balance is: "]
+---
+{
+	"Collect_Your_Cash": dbtdAmount ,
+	"Remaining_Balance": totalBlnce ++ ".00 Repees Only",
+	"Notification": "The Details about your Transaction will be sent through SMS/Email soon"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="cefab515-3c8f-453a-b64d-ff56dfbcd5a8" message="#[vars.totalBalance1]"/>
+			</when>
+			<when expression='#[payload.hint == "commonError"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="6198d6cf-030e-4677-bf07-05c35ebd736a" message="#[payload]" />
+				<ee:transform doc:name="Transform Message" doc:id="d2359fe5-b1ba-4cbe-bad4-affa6c7ca693" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"ErrorMessage": payload.Error
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<when expression='#[payload.hint == "withdrawError"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="e6a0247f-f075-49a9-9e1f-07716124ab38" />
+				<ee:transform doc:name="Transform Message" doc:id="c1ed03f5-b091-442a-902a-dc5d9d92b593">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+//var a= vars.a.accountNum
+---
+{
+	"ErrorMessage": payload.Error,
+    "custAccNum": payload.custAccNum,
+    "wrongPin": payload.wrongPin,
+    "accountStatus": payload.accountStatus
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="044c67b6-02ab-4d1c-84d9-c05613fe2078" message="#[payload]" />
+				<flow-ref doc:name="Flow Reference" doc:id="678cbab4-8ce1-48bd-95cf-7dd8317d91ec" name="withDraw_updateWrongPIN_Flow" />
+					<ee:transform doc:name="Transform Message" doc:id="f5cf032c-a667-455a-b52a-e07be0691ebb" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+			
+
+</when>
+
+<when expression='#[payload.hint == "checkBlnceError"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="8040b808-eca3-42c9-922b-5c9d0afc5ac7" />
+				<ee:transform doc:name="Transform Message" doc:id="afe9f656-f505-4085-8337-fff16731e555">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+//var a= vars.a.accountNum
+---
+{
+	"ErrorMessage": payload.Error,
+    "custAccNum": payload.custAccNum,
+    "wrongPin": payload.wrongPin,
+    "accountStatus": payload.accountStatus
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="a4812a71-f846-406a-aaf7-cc67fdf4e249" message="#[payload]" />
+				<flow-ref doc:name="Flow Reference" doc:id="7e4806f2-8f97-4d93-98e3-d758bdf76081" name="checkBlnce_updateWrongPIN_Flow" />
+					<ee:transform doc:name="Transform Message" doc:id="98305f6d-680a-4b81-98f7-7b4724428d71" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+			
+
+</when>
+
+
+			<when expression='#[payload.hint == "balance"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="3090a657-d6f3-4d18-ac60-da59c73b35c3" message="#[payload]" />
+				<ee:transform doc:name="Transform Message" doc:id="9d07a614-7003-451a-b4db-8cc233b23e80">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Total_Balance is: ": payload.Total_Balance
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+		
+</choice>
+		<ee:transform doc:name="Transform Message" doc:id="ce201d59-380e-4cdb-af58-d670760e73d9">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	
+	
+</sub-flow>
+	
+	<sub-flow name="withDraw_updateWrongPIN_Flow" doc:id="d6cfd28d-70fa-48d7-9b62-36d3ef6df6d3" >
+		<logger level="INFO" doc:name="Logger" doc:id="03666a90-1d6e-4c9e-a6fb-00c2eb965712" message="#[vars.patthSetting]"/>
+		<choice doc:name="Choice" doc:id="7b036aa7-65b5-4769-a48b-516b87f1f823" >
+			<when expression="#[payload.wrongPin &gt; 3]">
+				<ee:transform doc:name="Transform Message" doc:id="c7291c6b-9b0e-4552-a858-77d05e04c978">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"custAccNum": payload.custAccNum,
+	"accountStatus": "Inactive",
+	"ErrorMessage": payload.ErrorMessage,
+	"wrongPin": 0
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				<set-variable value="#[payload]" doc:name="Set Variable" doc:id="aaacc49e-c9ec-41ac-9ebb-dcda25922d1b" variableName="BlockedMessage"/>
+				<until-successful maxRetries="5" doc:name="Until Successful" doc:id="ecf42ec0-ae25-4b49-9b7a-d86fdd41fcbd" millisBetweenRetries="5000">
+					<http:request method="POST" doc:name="Request" doc:id="2ef3d9b5-7ffa-40cd-a4b6-b99d91923dca" config-ref="HTTP_Request_withdraw1" path="/updateWrongPin" responseTimeout="900000" />
+				</until-successful>
+				<ee:transform doc:name="Transform Message" doc:id="a7020911-f942-4e8a-93db-3a3d53ab99c9" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"ErrorMessage": vars.BlockedMessage.ErrorMessage,
+	"accountStatus": vars.BlockedMessage.accountStatus,
+	"Message": "Your Account is Temporarely Blocked, Please reach nearest Branch"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="d6b10197-c78c-48af-95d7-5c992db16c29">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"custAccNum": payload.custAccNum,
+	"ErrorMessage": payload.ErrorMessage,
+	"wrongPin": payload.wrongPin
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<set-variable value="#[payload]" doc:name="Set Variable" doc:id="439e3cda-60db-413e-a7f5-4c0919e8231b" variableName="wrongPinUpdateMsg"/>
+				<until-successful maxRetries="5" doc:name="Until Successful" doc:id="86325177-215e-450c-ace0-12b08b15695d" millisBetweenRetries="5000">
+					<http:request method="PUT" doc:name="Request" doc:id="2ac1b7e0-c97f-4dee-8ccf-3c8bda8ce9c5" config-ref="HTTP_Request_withdraw1" path="/updateWrongPin" responseTimeout="900000" />
+				</until-successful>
+				<ee:transform doc:name="Transform Message" doc:id="b35979c6-2c78-403a-8e51-3d8a1bd6aa15" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var finalRetries= (3) - (vars.wrongPinUpdateMsg.wrongPin)
+---
+{
+	"ErrorMessage": vars.wrongPinUpdateMsg.ErrorMessage,
+	"retries": "Your Remaining Retries Are: " ++ finalRetries
+	
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="c440f145-0a70-4b8d-8b5f-3fdb6401d583" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+
+
+
+<sub-flow name="checkBlnce_updateWrongPIN_Flow" doc:id="416915e0-be0e-48a3-ae09-2b255440c880" >
+		<logger level="INFO" doc:name="Logger" doc:id="c979811c-c7d4-47b5-81d1-73543d054919" message="#[vars.patthSetting]"/>
+		<choice doc:name="Choice" doc:id="94e1c60c-3995-4aab-b369-b9888cfbf876" >
+			<when expression="#[payload.wrongPin &gt; 3]">
+				<ee:transform doc:name="Transform Message" doc:id="2a9c5810-97db-4c45-9b7f-fd5ac20998c1">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"custAccNum": payload.custAccNum,
+	"accountStatus": "Inactive",
+	"ErrorMessage": payload.ErrorMessage,
+	"wrongPin": 0
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				<set-variable value="#[payload]" doc:name="Set Variable" doc:id="9cc790be-5721-4b7b-b1f4-46484547f8c7" variableName="BlockedMessage"/>
+				<until-successful maxRetries="5" doc:name="Until Successful" doc:id="7fe28e5b-610b-40e9-853b-865596913ad3" millisBetweenRetries="5000">
+					<http:request method="POST" doc:name="Request" doc:id="41e21118-280d-4dfb-a00e-024f010d9577" config-ref="HTTP_Request_checkBalance" path="/updateWrongPin" responseTimeout="900000" />
+				</until-successful>
+				<ee:transform doc:name="Transform Message" doc:id="1d38269d-f786-4779-b473-c2b4c77a1677" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"ErrorMessage": vars.BlockedMessage.ErrorMessage,
+	"accountStatus": vars.BlockedMessage.accountStatus,
+	"Message": "Your Account is Temporarely Blocked, Please reach nearest Branch"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="5c512967-8b48-45fd-9e7b-e18502c8b257">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"custAccNum": payload.custAccNum,
+	"ErrorMessage": payload.ErrorMessage,
+	"wrongPin": payload.wrongPin
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<set-variable value="#[payload]" doc:name="Set Variable" doc:id="83b5538d-e07c-4804-8a95-54ee84ccf972" variableName="wrongPinUpdateMsg"/>
+				<until-successful maxRetries="5" doc:name="Until Successful" doc:id="3f4efe78-52d0-46d2-b6f0-67fcc4819201" millisBetweenRetries="5000">
+					<http:request method="POST" doc:name="Request" doc:id="67647ae1-788e-48b4-abb9-a12eb8547d77" config-ref="HTTP_Request_checkBalance" path="/updateWrongPin" responseTimeout="900000" />
+				</until-successful>
+				<ee:transform doc:name="Transform Message" doc:id="3cef644c-5cbc-4abc-8a14-a6aa77600db9" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var finalRetries= (3) - (vars.wrongPinUpdateMsg.wrongPin)
+---
+{
+	"ErrorMessage": vars.wrongPinUpdateMsg.ErrorMessage,
+	"retries": "Your Remaining Retries Are: " ++ finalRetries
+	
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="5f50bd2d-f8ba-4b11-a25b-25caadee59db" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+
+
+
+</mule>
+
+	
+	

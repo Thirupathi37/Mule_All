@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:crypto="http://www.mulesoft.org/schema/mule/crypto"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/crypto http://www.mulesoft.org/schema/mule/crypto/current/mule-crypto.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<crypto:jce-config name="Crypto_Jce-key-based" doc:name="Crypto Jce" doc:id="d2a29af3-7019-486e-afee-3c36dfaac57b" keystore="keysencKeystore.jceks" type="JCEKS" password="mulesoft" >
+		<crypto:jce-key-infos >
+			<crypto:jce-symmetric-key-info keyId="jce-key-based" alias="encKey" password="mulesoft" />
+		</crypto:jce-key-infos>
+	</crypto:jce-config>
+	<flow name="jce_enc_decr_passwordBased" doc:id="7ac52d97-f712-4c65-b3fa-b5d826555e40" >
+		<http:listener doc:name="Listener" doc:id="0be0a46e-b22c-4293-82d1-33474ecfb3d5" config-ref="HTTP_Listener_config" path="/jce"/>
+		<crypto:jce-encrypt-pbe doc:name="Jce encrypt pbe" doc:id="4edea991-76b3-44c0-b305-f0e602f07e47" password="mulesoft"/>
+		<logger level="INFO" doc:name="Logger" doc:id="0241d6c0-f4e1-4c2f-bbd2-6fc687e84e9f" message="#[payload]"/>
+		<ee:transform doc:name="toBase64()" doc:id="4f766cc7-c8a4-423e-9c62-15700930a25b">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/java
+---
+toBase64(payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log Encrypted data" doc:id="25ed991a-c492-409a-a221-e81cf458284f" message='#["Encrypted data: " ++ payload]'/>
+		<ee:transform doc:name="fromBase64()" doc:id="0f498474-a527-4acc-b613-f13fd460135f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/java
+---
+fromBase64(payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="0d9aa38f-7d6c-4f42-a330-16a75cc712f3" message="#[payload]"/>
+		<crypto:jce-decrypt-pbe doc:name="Jce decrypt pbe" doc:id="ad180cd3-bfb6-49c5-9c0d-eebd4d9773db" password="mulesoft"/>
+		<logger level="INFO" doc:name="Logger" doc:id="1939c9ad-ff2b-4179-9d36-26d7a621b934" message='#["decrypted data: " ++ payload]'/>
+		<crypto:jce-sign-pbe doc:name="Jce sign pbe" doc:id="89bf63fb-e49e-4230-8c4d-983892ad9102" password="mulesoft" target="signed"/>
+		<logger level="INFO" doc:name="Logger" doc:id="b83b4760-d8a7-4fc2-8d1e-1a6e339e20c3" message="#[vars.signed]"/>
+		<crypto:jce-validate-pbe doc:name="Jce validate pbe" doc:id="29dd5d03-ef57-46cf-926a-9dfc8a863275" password="mulesoft" expected="#[vars.signed]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="0f99d1c9-8de0-4426-a865-2184c3e6f0fc" message="#[payload]"/>
+	</flow>
+	<flow name="jce_enc_decr_keyBased" doc:id="13f6c9b1-4ca3-4996-9154-aa81959ae7e1" >
+		<http:listener doc:name="Listener" doc:id="9a523743-05cc-49ee-a1ac-ea96d1cd7567" config-ref="HTTP_Listener_config" path="/jce-key"/>
+		<logger level="INFO" doc:name="Logger" doc:id="c4dbd570-a534-44fa-b032-1298aec2e54b" message="#[payload]"/>
+		<crypto:jce-encrypt doc:name="Jce encrypt" doc:id="cef83b34-804b-4c15-8e04-3e2f522dad6a" config-ref="Crypto_Jce-key-based" algorithm="Blowfish" keyId="jce-key-based"/>
+		<logger level="INFO" doc:name="Logger" doc:id="5bc75ee4-7e07-40c3-938d-ef15132642ff" message="#[payload]"/>
+		<ee:transform doc:name="toBase64()" doc:id="a8dfb508-c323-443d-9345-a1d2360ab649" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/java
+---
+toBase64(payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="fromBase64()" doc:id="4320f081-edc4-4a2b-8aac-829326340304" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/java
+---
+fromBase64(payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<crypto:jce-decrypt doc:name="Jce decrypt" doc:id="0c0d4e3d-b419-4360-9ba5-c2ac2df04e63" config-ref="Crypto_Jce-key-based" algorithm="Blowfish" keyId="jce-key-based"/>
+		<logger level="INFO" doc:name="Logger" doc:id="40bb07aa-1edd-413b-9270-629c4bfd7168" message="#[payload]"/>
+		<crypto:jce-sign doc:name="Jce sign" doc:id="da6cf95a-56fd-40d5-b37b-eb1a29a5d5cb" config-ref="Crypto_Jce-key-based" keyId="jce-key-based" target="signed"/>
+		<logger level="INFO" doc:name="Logger" doc:id="2d64c264-2bba-463f-9dd2-61f5c09bd568" message="#[vars.signed]"/>
+		<crypto:jce-validate doc:name="Jce validate" doc:id="9a24b43c-7fb0-490b-970e-063afff18ec7" config-ref="Crypto_Jce-key-based" expected="#[vars.signed]" keyId="jce-key-based"/>
+		<logger level="INFO" doc:name="Logger" doc:id="8aa81b4e-892f-4027-b63f-6f5f5b7e81e0" message="#[payload]"/>
+	</flow>
+</mule>

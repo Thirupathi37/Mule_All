@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:crypto="http://www.mulesoft.org/schema/mule/crypto" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/crypto http://www.mulesoft.org/schema/mule/crypto/current/mule-crypto.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="ea993490-ddf5-413c-86e8-d59f1cb1da03" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<crypto:jce-config name="Crypto_Jce" doc:name="Crypto Jce" doc:id="dcb5eb90-22d6-458c-a475-ccd55adb9127" keystore="aeskeystore.jck" type="JCEKS" password="mulesoft" >
+		<crypto:jce-key-infos >
+			<crypto:jce-symmetric-key-info keyId="aes128" alias="aeskey" password="mulesoft" />
+		</crypto:jce-key-infos>
+	</crypto:jce-config>
+	<flow name="cryptoFlow" doc:id="e74cd288-48bc-4ce9-b38c-faa0adc624d8" >
+		<http:listener doc:name="Listener" doc:id="61c634b6-52d1-4d95-9b9b-6e415260ff3d" config-ref="HTTP_Listener_config" path="/encrypt"/>
+		<logger level="INFO" doc:name="Logger" doc:id="ccf89f8c-838a-41d2-b962-31c3a0a946d0" message="#[payload]"/>
+		<crypto:xml-encrypt doc:name="Xml encrypt" doc:id="57927a82-d176-4bc3-8a7e-ed50d8ddde31" config-ref="Crypto_Jce" keyId="aes128" elementPath="/server/id">
+		</crypto:xml-encrypt>
+	</flow>
+	<flow name="cryptoFlow1" doc:id="82e2a011-23f3-437b-89f7-b26a6a3e7f56" >
+		<http:listener doc:name="Listener" doc:id="f330b84b-982c-40fd-9df1-82bc949c3a32" config-ref="HTTP_Listener_config" path="/decrypt"/>
+		<crypto:xml-decrypt doc:name="Xml decrypt" doc:id="4fa7d1b9-abf9-49cf-adee-ade3cc253e69" config-ref="Crypto_Jce" keyId="aes128"/>
+	</flow>
+</mule>

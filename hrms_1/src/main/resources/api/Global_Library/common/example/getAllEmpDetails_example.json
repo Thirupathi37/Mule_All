@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "applicantName": "ram",
+    "dateOfApplication": "10-12-2021",
+    "jobId": 12,
+    "applicantType": "Fresher",
+    "applicationStatus": "Active",
+    "onlineTestStatus": "pass",
+    "onlineTestEvaluation": "pass",
+    "score": 150,
+    "locationPreference1": "Hyderabad",
+    "locationPreference2": "Pune",
+    "locationPreference3": "Bangalore",
+    "contactNumber": "9896543210",
+    "emailId": "abc@gmail.com",
+    "currentLocation": "Hyderabad",
+    "qualification": "B-tech",
+    "collegeName": "xyz",
+    "passoutYear": "2019",
+    "programmingSkills": "java,python",
+    "experienceInYears": "2",
+    "designation": "senior consultant",
+    "expInCC": "senior",
+    "noticePeriodInMonths": "3",
+    "openForRelocation": "Yes",
+    "currentSalary": "80000",
+    "expectedSalary": "100000",
+    "statusOfApplication": "active",
+    "interviewPanelist": "H.R",
+    "comments": "good performance"
+   }
+   ]
+  

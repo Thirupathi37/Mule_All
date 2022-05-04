@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<db:config name="Database_MySql" doc:name="Database Config" doc:id="eeefac39-0f14-4dda-a6e4-b4c130838dc5" >
+		<db:my-sql-connection host="${MySql.host}" port="${MySql.port}" user="${MySql.username}" password="${MySql.password}" >
+		</db:my-sql-connection>
+	</db:config>
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="00583723-aba5-4935-88fd-e88fa0540d61" >
+		<email:smtp-connection host="${email.host}" port="${email.port}" user="${email.username}" password="${email.password}">
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<flow name="get_Account_Details" doc:id="580aacf9-a135-4d12-a3a0-092b6d19d471" >
+		<logger level="INFO" doc:name="Logger" doc:id="88d16e9c-a23a-4be0-8a22-3c3f5625bf7e" message="#[payload]"/>
+		<db:select doc:name="Select" doc:id="0218315b-2ed2-4809-9156-be8b0ec7a759" config-ref="Database_MySql">
+			<db:sql ><![CDATA[select * from emp.banking where custAccNum= :custAccNum]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"custAccNum": payload.accountNum
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="542dea8d-7dab-4926-a406-9ed438905bf2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="4460a6d9-c959-4f88-98de-178fa2d00e2b" message="#[payload]"/>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4f23012c-dc8d-416d-9b36-9b8c03bcce24" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="901a5216-c534-4168-8c3c-ad2e1ac5a53d" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Internal Server Error"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<email:send doc:name="Send" doc:id="5adcbd1c-ef73-4657-8b9d-39ab8cdef072" config-ref="Email_SMTP" fromAddress="thirupathiraj2018@gmail.com" subject="ALERT NOTIFICATION !">
+					<email:to-addresses >
+						<email:to-address value="tbommishetty@eniquesolutions.com" />
+					</email:to-addresses>
+					<email:body contentType="text/plain">
+						<email:content ><![CDATA[#["Unable to Connect to Database"]]]></email:content>
+					</email:body>
+				</email:send>
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<flow name="update_WrongPIN_Flow" doc:id="bbcaf96f-f96e-44a4-8d39-c776edc0d6ce" >
+		<logger level="INFO" doc:name="Logger" doc:id="e3ba99bf-656b-4cd9-b367-5529e57bb4fd" message="#[payload]"/>
+		<db:update doc:name="Update" doc:id="20a29ce5-0471-4330-908c-e53c8d098407" config-ref="Database_MySql">
+			<db:sql ><![CDATA[update emp.banking set wrongPin= :wrongPin, accountStatus= :accountStatus where custAccNum= :custAccNum]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"wrongPin": payload.wrongPin ,
+	"custAccNum": payload.custAccNum,
+	"accountStatus": payload.accountStatus default "Active"
+	
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Transform Message" doc:id="53b464ca-8733-40f2-809a-141d84c7872f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "WrongPIN updated Successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="8a31fe40-68a4-48d8-8e2f-b349183328f1" message="#[payload]"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3f2a38e9-66ab-4fb4-b034-61bfc539575b" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="72a825a3-ae51-4d56-8a91-f69ec786e3e5" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Internal Server Error"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<email:send doc:name="Send" doc:id="62a6a426-27f2-4d6d-ada4-1f73b43f72c2" config-ref="Email_SMTP" fromAddress="thirupathiraj2018@gmail.com" subject="ALERT !">
+					<email:to-addresses >
+						<email:to-address value="tbommishetty@eniquesolutions.com" />
+					</email:to-addresses>
+					<email:body >
+						<email:content ><![CDATA[#["Unable to Connect to Database"]]]></email:content>
+					</email:body>
+				</email:send>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

@@ -1,0 +1,17 @@
+#%RAML 1.0 Library
+usage: traits
+
+traits:
+  common-headers:
+    headers:
+      transaction-id:
+        type: string
+        required: true
+  client-credentials:
+    headers:
+      client-id:
+        type: string
+        required: true
+      client-secret:
+        type: string
+        required: true

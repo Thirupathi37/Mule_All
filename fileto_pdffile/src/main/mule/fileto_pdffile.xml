@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3a701c2a-2692-4947-88f3-3226f44c4e61" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="fileto_pdffileFlow" doc:id="0ea00cd3-ca78-4c37-bb85-5e42a1e3dcd8" >
+		<http:listener doc:name="Listener" doc:id="4d64ec88-8796-4e1a-a8da-ded9084b2c4d" config-ref="HTTP_Listener_config" path="/pdf" allowedMethods="POST"/>
+		<logger level="INFO" doc:name="Logger" doc:id="2404a4e0-5aa3-41c4-afeb-05b068d3b5ad" message="#[payload..content]"/>
+		<ee:transform doc:name="Transform Message" doc:id="92b85638-b709-4179-a441-f2557500932e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var a= payload pluck($)
+---
+a[0] pluck($)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="9774443c-7907-4327-bec0-10e477bf7adf" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="4ceaaf75-4a0b-4a62-b3bc-8ae609b03397" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var a= payload.content
+---
+a
+
+
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="705a8266-af4a-4716-8589-8f6793b9615e" >
+			<ee:transform doc:name="Transform Message" doc:id="725a5bfd-0390-4f80-906c-bccc58d1982c" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/java
+---
+toBase64(payload)]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<ee:transform doc:name="Transform Message" doc:id="4f841b1e-f78d-46fd-acfa-60aeb5ba0f77" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output multipart/form-data
+---
+{
+	parts:
+	{ test:
+		{
+			headers:
+			{
+				"Content-Type": "application/pdf"
+			},
+			content: fromBase64(payload)
+		},
+		
+	}
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-payload value="#[payload.parts.test.content]" doc:name="Set Payload" doc:id="b183a557-4780-42d9-82c3-495786a79490" mimeType="application/pdf"/>
+			<logger level="INFO" doc:name="Logger" doc:id="975c0a4d-10a6-466c-ba55-d17bbc6194e3" message="#[payload]"/>
+			<file:write doc:name="Write" doc:id="263973c5-bead-4665-8383-a76c04f68d37" path='#["Desktop\\test.pdf"]'>
+				<file:content ><![CDATA[#[payload as String]]]></file:content>
+			</file:write>
+			<ee:transform doc:name="Transform Message" doc:id="3448ae14-2af3-4353-8561-4bd6c6b81a5a" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+import java!com::pdf::JsonToPDF
+output application/java
+---
+{
+	"pdf":  JsonToPDF::jsontopdf("C:\\test.pdf", payload)
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</foreach>
+	</flow>
+</mule>

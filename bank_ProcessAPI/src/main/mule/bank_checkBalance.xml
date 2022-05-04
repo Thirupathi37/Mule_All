@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_CheckBlnce" doc:name="HTTP Request configuration" doc:id="c93d7210-43b1-4999-971f-acc8a070388d" >
+		<http:request-connection host="localhost" port="8084" >
+		</http:request-connection>
+	</http:request-config>
+	<flow name="bank_checkBalanceFlow" doc:id="11f10ba3-5631-4906-9e15-eddeb2840978" initialState="started">
+		<logger level="INFO" doc:name="Logger" doc:id="22b57b4f-268d-472a-b681-3f55d04c7d44" message="#[payload]"/>
+		<set-variable value='#[output application/json&#10;---&#10;(payload) ++ {"bank": attributes.queryParams.bank, "type": attributes.queryParams."type"}&#10;//(payload) ++ {"bank": attributes.queryParams.bank, "type": attributes.queryParams."type"}]' doc:name="saving_Req_Pdayload" doc:id="c791a23b-3a3d-4350-b7df-7743f491e8e9" variableName="a" mimeType="application/json"/>
+		<flow-ref doc:name="get_Account_Details" doc:id="8ea217c6-e35f-4173-b4af-16a09801b5dd" name="get_AccountDetails_Flow"/>
+		<ee:transform doc:name="payload_as_Obj" doc:id="dd8a4b92-3ad4-4944-81a2-5c7ce462840a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload reduce($$++$)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="validate_ReqData_with_AccntData" doc:id="3c40091e-6b8c-405f-b02b-35fc4af01026" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var a=vars.a
+
+---
+(if(payload != null)
+{
+        (if(payload.bankName == a.bank and payload.accountType == a."type")
+            {
+                (if(payload.accountStatus == "Active")
+                {
+                    (if(payload.wrongPin <= 3)
+                    {
+                        (if(a.atmPin == payload.atmPin)
+                        {
+                            "Total_Balance": payload.totalBalance,
+                            "hint": "balance"
+                        }
+                        else 
+                            {
+                                "Error": "Invalid PIN, try with correct PIN",
+                                "wrongPin": payload.wrongPin + 1,
+                                "hint": "checkBlnceError",
+                                "accountStatus": "InActive",
+                                "custAccNum": payload.custAccNum
+                            })
+                    }
+                    else { 
+                        "Error": "Retry Exausted",
+                        "accountStatus": "InActive",
+                        "hint": "checkBlnceError",
+                        "wrongPin": payload.wrongPin
+                    })
+
+                }
+                else{ 
+                    "Error": "Your Account is Temporarely Blocked",
+                    "hint": "commonError"
+                })
+            }
+            else{
+                "Error": "Incorrect Bank Name or Bank Type",
+                "hint": "commonError"
+            })
+}
+else {
+		"Error": "There is No Account Founded",
+        "hint": "commonError"
+	})]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<flow-ref doc:name="condition_check_Flow" doc:id="c6222d81-13a7-4e14-a129-f7baafa0b7d2" name="common_cond_route_Flow"/>
+		<ee:transform doc:name="output" doc:id="5efd398e-8d8e-4ded-b5bb-11485ed1af65" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler ref="global_ErrorHandler" />
+				</flow>
+	<sub-flow name="get_AccountDetails_Flow" doc:id="292f964e-a660-46bc-be05-91ef7f8c63bf" >
+		<http:request method="POST" doc:name="Request" doc:id="9e68eabd-e388-41e6-8351-d6e2746e14c2" config-ref="HTTP_Request_CheckBlnce" path="/api/checkBalance" sendCorrelationId="ALWAYS" responseTimeout="9000000">
+			<error-mapping targetType="HTTPR:CONNECTIVITY" />
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"bank" : attributes.queryParams.bank,
+	"type" : attributes.queryParams."type"
+}]]]></http:query-params>
+		</http:request>
+	</sub-flow>
+</mule>

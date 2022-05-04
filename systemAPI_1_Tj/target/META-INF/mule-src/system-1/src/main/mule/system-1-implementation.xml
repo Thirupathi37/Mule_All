@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="4b3a3a8a-5c44-4b0c-bc0c-343cf63fe37e" >
+		<db:my-sql-connection host="${secure::database.sys1_db_host}" port="${secure::database.sys1_db_port}" user="${secure::database.sys1_db_username}" password="Btr@1234" />
+	</db:config>
+	<flow name="all-employee-details" doc:id="951a5800-f682-47a6-b9fe-a459aa88c342" >
+		<db:select doc:name="Select" doc:id="ef4f6566-6744-4a09-963e-119d67fc37e7" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from emp.empdetails;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="6ded7969-7cd4-41a0-92b4-7ef06e11dc43" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getEmployee-details" doc:id="59e8142d-3fd2-43f6-8f2e-18c9a39d9c03" >
+		<db:select doc:name="Select" doc:id="13a6e307-cb6c-4785-9c97-8677fd22ed4b" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from emp.empdetails where empid= :empid]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	empid: attributes.uriParams.empid
+	}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="769e3bf9-fb62-4fd0-8223-a3cb767661ff" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="all-department-details" doc:id="a306437d-fc5f-428d-b8ff-8ec83ab6024b" >
+		<logger level="INFO" doc:name="Logger" doc:id="721a8a26-ac08-4792-8c22-00941d0d0891" message='"started"'/>
+		<db:select doc:name="Select" doc:id="8fafe2df-574f-424e-9166-5a314a366e35" config-ref="Database_Config">
+			<db:sql><![CDATA[SELECT deptId,deptname FROM emp.deptdetails;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="833ccd76-3353-40a2-ad3d-191a1fdc555b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="status-update" doc:id="5d955539-4853-4cca-a4f4-a70b703f4f69" initialState="stopped">
+		<db:update doc:name="Update" doc:id="3487622c-f719-4ef0-a5c3-ece96896e4bb" config-ref="Database_Config">
+			<db:sql ><![CDATA[UPDATE emp.emp1]]></db:sql>
+			<db:input-parameters ><![CDATA[#[status: attributes.queryParams.status]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Transform Message" doc:id="80386c04-a5ac-4232-be1b-81c4d84ce184" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"actual message": payload,
+	"message": "status updated"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

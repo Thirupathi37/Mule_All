@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:google-sheets="http://www.mulesoft.org/schema/mule/google-sheets"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/google-sheets http://www.mulesoft.org/schema/mule/google-sheets/current/mule-google-sheets.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+	<http:listener-config name="HTTP_Listener_GSheet" doc:name="HTTP Listener config" doc:id="f8ba3975-d4d3-4c74-9eb1-2e3f542de664" >
+		<http:listener-connection host="localhost" port="8083" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="52f597eb-be70-4186-82f1-892ed5123de0" basePath="/v4/spreadsheets/" >
+		<http:request-connection protocol="HTTPS" host="sheets.googleapis.com" />
+	</http:request-config>
+	<google-sheets:config name="Google_Sheets_Config" doc:name="Google Sheets Config" doc:id="984d9417-a937-4334-ba16-5e5bc9c4efda" >
+		<google-sheets:oauth-2-0-connection >
+			<google-sheets:oauth-authorization-code consumerKey="610626051369-dc8erefo1a5bmk2g94iolnus250codtf.apps.googleusercontent.com" consumerSecret="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" />
+			<google-sheets:oauth-callback-config listenerConfig="HTTP_Listener_GSheet" callbackPath="/callback" authorizePath="/login" />
+		</google-sheets:oauth-2-0-connection>
+	</google-sheets:config>
+	<flow name="google-sheet-demoFlow" doc:id="9d598ec3-6ba9-4493-966d-995ccd0d780d" initialState="started">
+		<http:listener doc:name="Listener" doc:id="26ab1cf2-6874-4d4b-ac7f-51b7349d724a" config-ref="HTTP_Listener_GSheet" path="/gsheet"/>
+		<idempotent-message-validator doc:name="Idempotent Message Validator" doc:id="5574a0cb-57a3-4e53-bf70-8e044c5542e3"/>
+		<ee:transform doc:name="Transform Message" doc:id="d02a44b3-d728-45fd-83d4-2441cc89991e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[
+%dw 2.0
+output application/json
+---
+{
+"range":"Sheet1",
+"majorDimension":"ROWS",
+"values" : [
+	[
+		payload map ( payload01 , indexOfPayload01 ) -> {
+		id: payload01.id,
+		applicantName: payload01.applicantName,
+		dateOfApplication: payload01.dateOfApplication,
+		jobId: payload01.jobId,
+		applicantType: payload01.applicantType,
+		locationPreference1: payload01.locationPreference1,
+		locationPreference2: payload01.locationPreference2,
+		locationPreference3: payload01.locationPreference3,
+		contactNumber: payload01.contactNumber,
+		emailId: payload01.emailId,
+		currentLocation: payload01.currentLocation,
+		qualification: payload01.qualification,
+		collegeName: payload01.collegeName,
+		passOutYear: payload01.passOutYear,
+		programmingSkills: payload01.programmingSkills,
+		experience: payload01.experience,
+		noticePeriod: payload01.noticePeriod,
+		openForRelocation: payload01.openForRelocation,
+		currentSalary: payload01.currentSalary,
+		expectedSalary: payload01.expectedSalary
+}
+	]		
+ ]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="cc1f31ad-35f8-422e-bcb6-22a6f88a530a" message="#[payload]"/>
+		<http:request method="POST" doc:name="Request" doc:id="e22255aa-4840-453a-b2ec-e065cdc53e7e" config-ref="HTTP_Request_configuration" path="1toa6OHk5K8IV2StK1T-FkZrZHsT5wgyS5KFQijrYWOA/values/Sheet1:append?valueInputOption=RAW">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Bearer ya29.A0ARrdaM8kIPswvNa8Wl7aFHK7K0ErGtthINp5QMEb6zMMFGECYk2N5EcskCKI45ttNklfbMMAyHaH5n4LUsV0uHJDoGyJoV5VDCTI9_lqWshtDq1hLH8UuVcg76_ygpcw4VBdDatchArKZcJ3YvrQG_OOeic_"
+}]]]></http:headers>
+		</http:request>
+		<sftp:move doc:name="Move" doc:id="c625b18d-d071-4392-9063-9df892dd7e44" />
+	
+</flow>
+	<flow name="googleSheetsFlow" doc:id="617fe5a2-33f4-487a-9edc-a74a4289cb54" >
+		<http:listener doc:name="Listener" doc:id="94ce2bf4-9b33-4182-af6e-303e9d1eced4" config-ref="HTTP_Listener_GSheet" path="/sheet"/>
+		<google-sheets:get-spreadsheets-by-spreadsheet-id doc:name="Get Spreadsheet Properties" doc:id="aae02d7e-2b26-4d2c-93ae-82900ba9d53e" config-ref="Google_Sheets_Config" spreadsheetId="1toa6OHk5K8IV2StK1T-FkZrZHsT5wgyS5KFQijrYWOA"/>
+		<google-sheets:get-spreadsheets-values-by-spreadsheet-id-range doc:name="Get Spreadsheets Values" doc:id="8eff675c-63f8-4d92-82cf-745c83baa400" config-ref="Google_Sheets_Config" spreadsheetId="1toa6OHk5K8IV2StK1T-FkZrZHsT5wgyS5KFQijrYWOA" range="Sheet1"/>
+		<ee:transform doc:name="Transform Message" doc:id="b2312f8d-7fc0-4279-ae18-428f32db7341" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.values]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+
+</mule>

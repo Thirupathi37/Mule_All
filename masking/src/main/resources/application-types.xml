@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="sampleJson" format="json">
+      <types:shape format="weave" example="examples/sample.json"><![CDATA[%dw 2.0
+
+type sampleJson = Array<{|  COLUMNAMES: String,   TABLENAME: String,   USERID: String|}> {"example": "[{\\\"COLUMNAMES\\\":\\\"DEPTID,DESIGNATION,DATEOFJOINING,SALARY\\\",\\\"TABLENAME\\\":\\\"departmentdetails\\\",\\\"USERID\\\":\\\"11\\\"},{\\\"COLUMNAMES\\\":\\\"FIRSTNAME,MIDDLENAME,LASTNAME,ADDRESS1,PHONE\\\",\\\"TABLENAME\\\":\\\"personaldetails\\\",\\\"USERID\\\":\\\"11\\\"},{\\\"COLUMNAMES\\\":\\\"FIRSTNAME,MIDDLENAME,LASTNAME,ADDRESS2,PHONE\\\",\\\"TABLENAME\\\":\\\"personaldetails\\\",\\\"USERID\\\":\\\"12\\\"},{\\\"COLUMNAMES\\\":\\\"DEPTID,DESIGNATION,SALARY\\\",\\\"TABLENAME\\\":\\\"departmentdetails\\\",\\\"USERID\\\":\\\"12\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#993c279c-7af9-4927-ae8b-ed38f52e9907">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="sampleJson"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#a310ddd1-2cab-4124-a15f-5b874ee3607d">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="sampleJson"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

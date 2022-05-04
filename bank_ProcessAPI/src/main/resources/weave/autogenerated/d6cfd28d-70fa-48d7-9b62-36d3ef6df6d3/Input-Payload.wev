@@ -1,0 +1,10 @@
+%dw 2.0
+
+type auto_d6cfd28d_70fa_48d7_9b62_36d3ef6df6d3_Input_Payload = {|
+  ErrorMessage: String, 
+  custAccNum: Null, 
+  wrongPin: Any, 
+  accountStatus: String | Null, 
+  path: Null
+|}
+

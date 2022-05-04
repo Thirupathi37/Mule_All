@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="67aa4196-4bc3-4bc0-99d2-5e94414be4ab" >
+		<salesforce:basic-connection username="thirupathiraj2018@gmail.com" password="Btr@1223" securityToken="nCWMJV48dZ40fwYfPAckUF7m" />
+	</salesforce:sfdc-config>
+	<flow name="foreach-1Flow" doc:id="65ba9610-85dd-444f-9eee-03d135b774d0" >
+		<http:listener doc:name="Listener" doc:id="ffc8b1ae-adf1-4dff-8e25-b3842bd67e39" config-ref="HTTP_Listener_config" path="/salesforceInsert"/>
+		<ee:transform doc:name="Transform Message" doc:id="5cf7a136-b190-4d1c-a723-cd07f9118edb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="b0d74fb9-4ef9-4114-9174-0141f52109cf" >
+			<try doc:name="Try" doc:id="50c0df66-e785-4380-9c41-e30065219e34" >
+				<ee:transform doc:name="Transform Message" doc:id="37bf712b-50d7-43bf-8cc8-c199865e502a" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+[payload]]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<salesforce:create doc:name="Create" doc:id="9aab3995-622c-4d66-a1e0-04007944a006" config-ref="Salesforce_Config" type="Account"/>
+				<set-variable value="#[(vars.accounts default []) + payload]" doc:name="Set Variable" doc:id="7e90f4b4-bae1-4285-8466-57121099a01e" variableName="accounts"/>
+			</try>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="049b89c2-53cc-43a5-bcb7-be91953299e5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	
+</mule>

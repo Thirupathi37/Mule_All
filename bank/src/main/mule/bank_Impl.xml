@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="createAccount_Flow" doc:id="5baf8dda-4022-46ab-8739-21f12d49f72a" >
+		<logger level="INFO" doc:name="Logger" doc:id="cdacd388-9bd2-4320-b241-26576bbffc3c" message='#[payload.accountNum]'/>
+		<ee:transform doc:name="Transform Message" doc:id="70820070-13b0-4ed3-b516-8f141f1fefa2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"success": "Account created"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="c1668ce7-60b4-4bd2-9280-13a9ecd6159f" message='"End Flow"'/>
+	</flow>
+	<flow name="get_Balance_Flow" doc:id="f3155913-c0bb-4ad4-8636-dc4e3d2f995b" >
+		<logger level="INFO" doc:name="Logger" doc:id="5bc2880e-c66b-49d5-bd27-a723fffe2b06" message='"Start Flow"'/>
+		<logger level="INFO" doc:name="Logger" doc:id="3ca86266-65b2-41d4-b525-8d85b5bedd8a" message='"End Flow"'/>
+	</flow>
+</mule>

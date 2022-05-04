@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="d84e421b-a9ad-4137-ab0e-6c82c5c69585" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234" />
+	</db:config>
+	<http:request-config name="HTTP_Request_createAccount" doc:name="HTTP Request configuration" doc:id="cfa4638c-12fe-4072-95cf-35fe6d91d723" >
+		<http:request-connection host="localhost" port="8082" >
+			<http:authentication >
+				<http:basic-authentication username="TLM3" password="Btr@1234" />
+			</http:authentication>
+		</http:request-connection>
+	</http:request-config>
+	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="06e3a063-3eb7-4981-a542-307faf6b1c7b" />
+	<flow name="createAccount_Flow" doc:id="e5de1698-37b1-4b7d-9c94-ea01cf501eca" >
+		<logger level="INFO" doc:name="Logger" doc:id="d689aca1-4b39-4917-ad93-80b6bba2df23" message='#[payload]'/>
+		<flow-ref doc:name="Flow Reference" doc:id="eda07ac9-0688-405d-af86-b5c119be3558" name="getAllAccounts_Flow" target="getAccounts"/>
+		<ee:transform doc:name="Transform Message" doc:id="79349af9-e934-406b-85ff-90c64d829bdb">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	atmPin: payload.atmPin,
+	totalBalance: payload.depositAmount as Number,
+	accountNum: payload.accountNum,
+	contact: payload.contact,
+	mailId: payload.mailId,
+	ifscCode: payload.ifscCode,
+	custName: attributes.queryParams.customerName,
+	bankName: attributes.queryParams.bank,
+	accountType: attributes.queryParams."type",
+	branchName: attributes.queryParams.branchName
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<until-successful maxRetries="3" doc:name="Until Successful" doc:id="2052df96-dd3d-463a-b26a-a482fff0ebca" millisBetweenRetries="6000">
+			<http:request method="POST" doc:name="Request" doc:id="2acd132d-b81d-4bba-afe2-88bdd4aab9e2" config-ref="HTTP_Request_createAccount" path="/api/createAccount" responseTimeout="900000" outputMimeType="application/json">
+			<error-mapping targetType="HTTPR:INTERNAL_ERROR" />
+				</http:request>
+		</until-successful>
+		<ee:transform doc:name="Transform Message" doc:id="a80ed186-4c23-48f7-90d6-a852394d5f04" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="df70a3ad-7624-45a9-b586-18f077ed9f52" message="#[payload]"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ad39d650-98b6-4fd0-98fc-0207f11d628f" type="HTTPR:INTERNAL_ERROR">
+				<ee:transform doc:name="Transform Message" doc:id="5998458b-9f58-448b-9d4a-e7b5c555d06d" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+error.muleMessage.typedValue default "Internal Server Error"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="067d0de1-f1bd-4801-aa85-52253ed13cb7" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="39af904a-8a63-48e3-b0b2-48e09a889b9f">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+error.muleMessage.typedValue default error.description]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<sub-flow name="getAllAccounts_Flow" doc:id="35409c80-e53c-49d1-b5f3-71b59d069ef5" >
+		<set-payload value="#[payload.accountNum]" doc:name="Set Payload" doc:id="582df266-a026-4c93-a6fe-6522cf3ca110" />
+		<logger level="INFO" doc:name="Logger" doc:id="a7584b6c-eb10-4d7b-bf59-981b1b89dc14" message="#[payload]" />
+		
+			<until-successful maxRetries="3" doc:name="Until Successful" doc:id="92e35dec-efd3-45c5-b304-ad74b34b7d83" millisBetweenRetries="6000">
+			<http:request method="GET" doc:name="Request" doc:id="dda80c7a-ed76-4af6-a752-cdd5132320f2" config-ref="HTTP_Request_createAccount" path="/api/allAccounts/{AccountNum}" responseTimeout="900000">
+			<error-mapping targetType="HTTPR:INTERNAL_ERROR" />
+				<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"AccountNum" : payload
+}]]]></http:uri-params>
+		</http:request>
+		</until-successful>
+		
+		<choice doc:name="Choice" doc:id="1a35b813-3a69-47ea-89e9-09933f4ebcfb" >
+			<when expression="#[sizeOf(payload) == 0]">
+				<ee:transform doc:name="Transform Message" doc:id="de26e45e-75cb-45dd-99bc-bf66cc6ec5b3">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<raise-error doc:name="Raise error" doc:id="a9497172-0b8d-48b8-88d8-42e631371508" type="ACCOUNT:EXIST" description='"AccountNumber Already Exists, Please Try with Different Account Number"'/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="a3844f85-40e6-4bb3-b0bb-b9705cc07fd9" message="#[payload]"/>
+	</sub-flow>
+				
+</mule>

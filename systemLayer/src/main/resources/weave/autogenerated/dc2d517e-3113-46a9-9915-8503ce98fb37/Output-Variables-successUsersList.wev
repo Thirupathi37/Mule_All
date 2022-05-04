@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_dc2d517e_3113_46a9_9915_8503ce98fb37_Output_Variables_successUsersList = Array<Nothing>
+

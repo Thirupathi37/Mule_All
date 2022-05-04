@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="json_logger-test-suite.xml" />
+	<munit:test name="notNullValue()" doc:id="7db1be71-d08e-42ab-9a27-fe8330ae9015" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="906f5c72-c98f-4cde-b898-d83dd8e3453b" name="json_logger-test-Event"/>
+			<flow-ref doc:name="Flow-ref to json_loggerFlow" doc:id="06f548e9-4358-4372-b421-216f9d3553a9" name="json_loggerFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="00eb2a89-fab1-4c72-bb68-f2336ae829c7" expression="#[payload]" is="#[MunitTools::notNullValue()]" message="Payload is null"/>
+		</munit:validation>
+	</munit:test>
+	<flow name="json_logger-test-Event" doc:id="25897541-3606-4268-a2d9-8410aaa4cfa6" >
+		<munit:set-event doc:name="Set Event" doc:id="8c2727df-4454-4d9f-83fa-a7cec488a838">
+				<munit:attributes value="#[{ uriParams:&#10; { region :  'Asia', city : 'Kolkata'}}]" />
+			</munit:set-event>
+	</flow>
+	<munit:test name="withMediaType()" doc:id="fa523951-9d00-4f93-8ee1-6da7533eb6df" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="7d275d06-17da-46af-a0c1-c0adb4a507b5" name="json_logger-test-Event"/>
+			<flow-ref doc:name="Flow-ref to json_loggerFlow" doc:id="22197374-75d9-4825-aa65-ad98849d1c93" name="json_loggerFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="066c17bc-1e87-4b08-8f2b-e7f6aea20af9" expression="#[payload.dst]" is="#[MunitTools::withMediaType('application/json')]" message="The Output type is not correct"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="equalTo()" doc:id="4eedc385-1581-4478-add1-07933cc71b11" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="5549fd34-958c-4b8a-bd69-7d3b5d56b8b6" name="json_logger-test-Event"/>
+			<flow-ref doc:name="Flow-ref to json_loggerFlow" doc:id="d151120c-ac47-40cc-92ce-3f6f90646e09" name="json_loggerFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="5f377f11-5aae-4b21-aa9d-acec3e3076e8" expression="#[payload.abbreviation]" is="#[MunitTools::equalTo('IST')]" message="abbreviation value is not correct"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="both_fun" doc:id="cb6dc228-becb-4173-99e4-a9e5d6e7baf1" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="2125c8b3-0c84-43cd-bb6f-58e159b66d8c" name="json_logger-test-Event"/>
+			<flow-ref doc:name="Flow-ref to json_loggerFlow" doc:id="866e2fb0-df4b-4bac-bdf6-60349c0c0e69" name="json_loggerFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="10ce730e-220e-438c-8bbe-bfcc93352b44" expression="#[payload]" is="#[MunitTools::both(MunitTools::notNullValue(), MunitTools::withMediaType('application/json'))]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="either_fun" doc:id="506de110-f11e-4e6b-a18b-97634cbcfc6e" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="9680ae43-f07a-40a7-96a8-ea64d8b6e747" name="json_logger-test-Event"/>
+			<flow-ref doc:name="Flow-ref to json_loggerFlow" doc:id="74cca5bf-29b4-4104-aa29-174adda2a39f" name="json_loggerFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="27bdb791-6bd9-4ad1-b806-4e8938ee112f" expression="#[payload]" is="#[MunitTools::either(MunitTools::notNullValue(), MunitTools::withMediaType('application/xml'))]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="allOf" doc:id="2dddfb83-f779-4f0d-b683-3df970f41819" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="6e122371-3f8c-4405-b5b8-f6d113ae1d6c" name="json_logger-test-Event"/>
+			<flow-ref doc:name="Flow-ref to json_loggerFlow" doc:id="248315ad-b03a-48bc-bb7f-6dc06b15d4f9" name="json_loggerFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="536ff714-74ec-44da-a98f-d9513cfe69aa" expression="#[payload]" is="#[MunitTools::allOf([MunitTools::notNullValue(), MunitTools::withMediaType('application/xml'),  MunitTools::withEncoding('UTF-8')])]" message="#[error.errorMessage]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="anyOf" doc:id="16a6e8dc-6f85-4ca8-8484-8341bf79455a" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="53d564c8-339e-4642-89be-0086e47faeb5" name="json_logger-test-Event"/>
+			<flow-ref doc:name="Flow-ref to json_loggerFlow" doc:id="8f77a194-5e75-4a00-a344-4061b2ff1a46" name="json_loggerFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="9b7b23dd-1c61-44d2-a41c-df940c530605" expression="#[payload]" is="#[MunitTools::anyOf([MunitTools::notNullValue(), MunitTools::withMediaType('application/json'), MunitTools::withEncoding('UTF-8')])]"/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

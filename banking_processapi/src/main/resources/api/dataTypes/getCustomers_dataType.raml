@@ -1,0 +1,29 @@
+#%RAML 1.0 DataType
+
+properties:
+  CustomerID:
+    type: string
+    required: true
+  CustomerFirstName:
+    type: string
+    required: true
+  CustomerMiddleName:
+    type: string
+    required: true
+  CustomerLastName:
+    type: string
+    required: true
+  Address:
+    properties:
+      StreetName:
+        type: string
+        required: true
+      Zipcode:
+        type: string
+        required: true
+      State:
+        type: string
+        required: true
+      Country:
+        type: string
+        required: true

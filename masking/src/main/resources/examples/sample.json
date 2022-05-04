@@ -1,0 +1,22 @@
+[
+  {
+    "COLUMNAMES": "DEPTID,DESIGNATION,DATEOFJOINING,SALARY",
+    "TABLENAME": "departmentdetails",
+    "USERID": "11"
+  },
+  {
+    "COLUMNAMES": "FIRSTNAME,MIDDLENAME,LASTNAME,ADDRESS1,PHONE",
+    "TABLENAME": "personaldetails",
+    "USERID": "11"
+  },
+  {
+    "COLUMNAMES": "FIRSTNAME,MIDDLENAME,LASTNAME,ADDRESS2,PHONE",
+    "TABLENAME": "personaldetails",
+    "USERID": "12"
+  },
+  {
+    "COLUMNAMES": "DEPTID,DESIGNATION,SALARY",
+    "TABLENAME": "departmentdetails",
+    "USERID": "12"
+  }
+]

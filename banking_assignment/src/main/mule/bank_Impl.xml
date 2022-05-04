@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="a02f6ace-4547-405d-9f08-74601d5c070c" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234" database="emp" />
+	</db:config>
+	<flow name="bank_ImplFlow" doc:id="97d62db8-5b2d-4546-abbd-b4ede3e46701" >
+		<logger level="INFO" doc:name="Logger" doc:id="dd7662d2-c51b-4763-a222-69038ef29606" message='"post flow start"'/>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="c7df7ba0-8f49-4406-9a43-844bc453eeb1" variableName="Vpayload"/>
+		<logger level="INFO" doc:name="Logger" doc:id="92c0253d-f2b4-4c86-97e8-6a6f06b4c3c2" message="#[correlationId]"/>
+		<ee:transform doc:name="Transform Message" doc:id="05e6660d-7404-400e-8af4-ab994fe1e15f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Strings
+import * from dw::Runtime
+output application/json skipNullOn="everywhere"
+var a=  (payload.Address) contains " "
+---
+{
+    "CustomerID": replaceAll(payload.CustomerID, " ", ""),
+    "CustomerFirstName": replaceAll(payload.CustomerFirstName, " ", ""),
+    "CustomerMiddleName": replaceAll(payload.CustomerMiddleName, " ", ""),
+    "CustomerLastName": replaceAll(payload.CustomerLastName, " ", ""),
+    "address": if(a == true) fail("Spaces not acceptable for Address") else payload.Address
+
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<try doc:name="Try" doc:id="1e056b34-7c89-4711-be0f-1b3327b2a450" transactionalAction="ALWAYS_BEGIN">
+			<db:insert doc:name="Insert" doc:id="bde3d9d4-f328-4976-9bf0-608a94e26802" config-ref="Database_Config" target="insertedToDetails" transactionalAction="ALWAYS_JOIN">
+			<db:sql><![CDATA[insert into customerdetails(CustomerID, CustomerFirstName, CustomerMiddleName, CustomerLastName, Address) values(:CustomerID, :CustomerFirstName, :CustomerMiddleName, :CustomerLastName, :Address)]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	"CustomerID": payload.CustomerID,
+	"CustomerFirstName": payload.CustomerFirstName,
+	"CustomerMiddleName": payload.CustomerMiddleName,
+	"CustomerLastName": payload.CustomerLastName,
+	"Address": payload.address
+}]]]></db:input-parameters>
+		</db:insert>
+			<ee:transform doc:name="Transform Message" doc:id="a6a08c63-ef58-4f73-93ae-bbb85d896bef">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var a=vars.Vpayload.Address splitBy ","
+---
+{
+    "StreetName": a[0],
+    "Zipcode": a[1],
+    "State": a[2],
+    "Country": a[3]
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			<db:insert doc:name="Insert" doc:id="7df6f189-d178-464e-b64a-3be3849927a1" config-ref="Database_Config" transactionalAction="ALWAYS_JOIN">
+			<db:sql><![CDATA[insert into customeraddress(StreetName, Zipcode, State, Country) values(:StreetName, :Zipcode, :State, :Country)]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	"StreetName": payload.StreetName,
+	"Zipcode": payload.Zipcode,
+	"State": payload.State,
+	"Country": payload.Country
+}]]]></db:input-parameters>
+		</db:insert>
+		</try>
+		<ee:transform doc:name="Transform Message" doc:id="4bc5f5b0-04ba-47e7-8407-0604e0b085c5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "Your Account Created Successfully",
+	"transactionId": correlationId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="67fc1b51-0103-4194-9d8d-502cf9e5f125" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="fd343fd2-ee71-4875-a82c-bfc2b5d5d6c1" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"error": error.errorType,
+	"error_details": error.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

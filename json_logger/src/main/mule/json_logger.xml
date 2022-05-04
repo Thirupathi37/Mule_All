@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+	<import doc:name="Import" doc:id="7b6809c1-dfad-4864-aa04-0adb58be20d0" file="error-handling-framework.xml" />
+	<configuration doc:name="Configuration" doc:id="9afc2746-9fce-421c-8292-3f40a4ec7c1e" defaultErrorHandler-ref="error-handling-frameworkError_Handler" />
+	<configuration-properties doc:name="Configuration properties" doc:id="da631ec5-c51e-41fd-903e-1203be20817b" file="file.properties" />
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="5dc9815d-835f-4e65-a75f-514e95fd2ccd" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<json-logger:config name="JSON_Logger_Config" doc:name="JSON Logger Config" doc:id="9ac88f0b-d554-4e77-9645-c4f02d2f4c02" environment="${mule.env}" />
+	<flow name="json_loggerFlow" doc:id="51397015-2ad4-43b9-b1d9-dceff15e1cee" >
+		<http:listener doc:name="Listener" doc:id="c1f16df2-681d-4ecf-82ca-9d356cfa4de4" path="/jsonlogger/{region}/{city}" config-ref="HTTP_Listener_config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="e77aaad7-6e53-4047-acb9-8f388c360297" message="#[payload]"/>
+		<http:request method="GET" doc:name="Request" doc:id="fbbeb265-a326-4d42-a358-8b109362f36e" url="http://worldtimeapi.org/api/timezone/{region}/{city}">
+			<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"region" : attributes.uriParams.region,
+	"city" : attributes.uriParams.city
+}]]]></http:uri-params>
+		</http:request>
+		<json-logger:logger doc:name="Logger" doc:id="a9c1dc74-7992-41c6-be35-097e2a76457e" config-ref="JSON_Logger_Config" message='"first"'/>
+		<error-handler ref="error-handling-frameworkError_Handler" />
+	</flow>
+</mule>

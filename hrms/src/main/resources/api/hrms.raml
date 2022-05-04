@@ -1,0 +1,59 @@
+#%RAML 1.0
+title: HRMS
+
+types:
+  applicant: !include datatypes/dataType.raml
+
+/applicant:
+  get:
+    queryParameters:
+      soqlWhereClause:
+        required: false
+    responses:
+      200:
+        body:
+          application/json:
+            type: applicant[]
+            examples:
+              output: !include example/example.raml
+  post:
+    body:
+      application/json:
+        type: applicant[]
+        example: !include example/example.raml
+    responses:
+      201:
+        body:
+          application/json:
+            example: {"message": "inserted successfully"}            
+  /{id}:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              type: applicant
+              example: !include getsingleid/exampleee.raml        
+    put:
+      body:
+        application/json:
+          type: applicant
+          example: !include getsingleid/exampleee.raml
+      responses:
+        200:
+          body:
+            application/json:
+              example: { "message": "updated successfully"}
+    delete:
+      responses:
+        200:
+          body:
+            application/json:
+              example: 
+                {"message": "Deleted Successfully"}
+                
+            
+                
+            
+        
+                              

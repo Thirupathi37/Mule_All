@@ -1,0 +1,17 @@
+#%RAML 1.0 Trait
+queryParameters:
+      customerName:
+        required: true
+        maxLength: 45
+        minLength: 4
+      bank:
+        required: true
+        enum: [ICICI , AXIS , HDFC]
+      type:
+        required: true
+        enum: [savings, current]
+      branchName:
+        required: true
+        minLength: 4
+        maxLength: 10
+  

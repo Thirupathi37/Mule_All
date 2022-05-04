@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:crypto="http://www.mulesoft.org/schema/mule/crypto" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/crypto http://www.mulesoft.org/schema/mule/crypto/current/mule-crypto.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="512fdb2d-b81d-41d9-8df7-6b501bd4dc75" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234" />
+	</db:config>
+	<flow name="getAll_Emps_Flow" doc:id="76dbe8cd-316f-46e1-95ba-ee0f81b2397d" >
+		<logger level="INFO" doc:name="Logger" doc:id="efa2bf7b-f4e0-4a73-8246-aca44a911b50" message="#[payload]"/>
+		<db:select doc:name="Select" doc:id="56582d77-6bb4-4a9d-b687-ba30036e173a" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from emp.emp1 where empNo= :Id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	Id: attributes.uriParams.Id
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="70e9cc60-2eea-4a86-9c27-7aabc59703ac" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="postEmp_Flow" doc:id="2bd4eb39-bd51-4e7b-b825-453868636fcf" >
+		<logger level="INFO" doc:name="Logger" doc:id="cf961600-d555-44bf-9440-c96c67d8f31a" />
+		<ee:transform doc:name="Transform Message" doc:id="1ee8c783-1f2d-409a-a5b1-8f2cfd552aa6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import fromBase64 from dw::core::Binaries
+output application/octet-stream
+---
+fromBase64(payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="12db9b94-fa10-4b4e-bad7-3572ff400d36" message="#[payload]"/>
+		<crypto:jce-decrypt-pbe doc:name="Jce decrypt pbe" doc:id="e9667856-9a94-403c-8de7-f2acfbaa4ed1" password="Btr@1234"/>
+		<ee:transform doc:name="Transform Message" doc:id="56175b7e-d5b6-45df-b96b-4dd997811e59" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+read(payload, "application/json")]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="3af1d97d-d83a-46bd-8ff6-325dea1ffbe9" message="#[payload]"/>
+		<db:insert doc:name="Insert" doc:id="f8b81b27-cd11-4ab4-b672-7a50b3f08290" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into emp.emp1(empNo, empName, empDesign, empSal) values(:empNo, :empName, :empDesign, :empSal)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	empNo: payload.empNo,
+	empName: payload.empName,
+	empDesign: payload.empDesign,
+	empSal: payload.empSal
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="78520be2-4a4e-4c8d-a287-c59637d1e202" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message": "Records Inserted Successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="28d4cef0-d18b-4ccf-ba7f-2a14068a15db" message="#[payload]"/>
+	</flow>
+</mule>

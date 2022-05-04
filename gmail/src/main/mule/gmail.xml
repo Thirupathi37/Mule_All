@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="046e20c8-3d90-429d-aebb-b3ec81e46cdb" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="55aaf375-a988-48ea-b291-4b9c562b3a61" >
+		<email:smtp-connection host="smtp.gmail.com" port="587" user="thirupathiraj2018@gmail.com" password="Btr@1111" >
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<email:imap-config name="Email_IMAP" doc:name="Email IMAP" doc:id="26437653-b787-453d-a913-f859f0717e2b" >
+		<email:imaps-connection host="imap.gmail.com" user="thirupathiraj2018@gmail.com" password="Btr@1111" >
+			<tls:context >
+				<tls:trust-store insecure="true" />
+			</tls:context>
+		</email:imaps-connection>
+	</email:imap-config>
+	<flow name="gmailFlow" doc:id="cb2d12d6-401e-42a0-b529-a98d22ca7ec8" initialState="stopped">
+		<http:listener doc:name="Listener" doc:id="e4094338-2ad0-4d5d-b8db-36f49243cc0f" config-ref="HTTP_Listener_config" path="/sendmail"/>
+		<logger level="INFO" doc:name="Logger" doc:id="92d105ba-7c3d-4a1e-bcab-80076f3b72f3" message="Ready to send mail"/>
+		<choice doc:name="Choice" doc:id="c2ccfee0-61f0-41bc-bd36-18e7b208e2fb" >
+			<when expression='#[attributes.queryParams.attachment == "Y"]'>
+				<email:send doc:name="Send" doc:id="5a0095f8-5b03-4218-a3ef-8c9a564be8fc" config-ref="Email_SMTP" fromAddress="thirupathiraj2018@gmail.com" subject='#["Hello Mule"]'>
+					<email:to-addresses >
+						<email:to-address value="tbommishetty@eniquesolutions.com" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" encoding="UTF-8" >
+						<email:content ><![CDATA[#[{
+	"msg": payload.message
+	
+	}]]]></email:content>
+					</email:body>
+					<email:attachments ><![CDATA[#[{
+	"textMsg.json": payload
+}]]]></email:attachments>
+				</email:send>
+				<ee:transform doc:name="Transform Message" doc:id="c23cd820-999f-47b2-8355-3d662f5e5617" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<email:send doc:name="Send" doc:id="ecb9a6b8-db7d-4b07-ac4f-021cdafb25a7" config-ref="Email_SMTP" fromAddress="thirupathiraj2018@gmail.com" subject="Hello Mule">
+					<email:to-addresses >
+						<email:to-address value="tbommishetty@eniquesolutions.com" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" encoding="UTF-8" >
+						<email:content ><![CDATA[#[payload.message]]]></email:content>
+					</email:body>
+				</email:send>
+				<ee:transform doc:name="Transform Message" doc:id="1457ef03-6995-4ad8-aa8b-93c33980fd88" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="51b3cb0e-f599-4f22-a519-f7f67fe6c1cc" message="sent successfully"/>
+	</flow>
+	<flow name="gmailFlow1" doc:id="15521132-bebe-4867-8e9b-5de19c882274" initialState="stopped">
+		<email:listener-imap doc:name="On New Email - IMAP" doc:id="5fd379ea-844b-4b59-ab14-74d6a334a7ba" config-ref="Email_IMAP" folder="[Gmail]/Drafts">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</email:listener-imap>
+		<logger level="INFO" doc:name="Logger" doc:id="0593ac70-c054-4201-89a9-f07a85cf1066" message="start"/>
+		<set-variable value="#[attributes.number]" doc:name="Set Variable" doc:id="85a12f4d-53df-488a-95ae-12e2fbb022b4" variableName="mailID"/>
+		<email:mark-as-read emailId="#[attributes.id]" doc:name="Mark as read" doc:id="98f717ba-57e2-40a4-b6fb-002171327e04" config-ref="Email_IMAP" mailboxFolder="[Gmail]/Drafts"/>
+	</flow>
+	<flow name="gmailFlow2" doc:id="e3f7ec47-dc3e-4254-87a5-7bf4e877b536" >
+		<http:listener doc:name="Listener" doc:id="99c23065-6f38-40d8-bfa5-24fbe004495d" config-ref="HTTP_Listener_config" path="/deletemail"/>
+		<logger level="INFO" doc:name="Logger" doc:id="89a294a1-4ed1-482d-8b7e-612be1bc2b80" message='"started"'/>
+		<email:list-imap doc:name="List - IMAP" doc:id="523883fe-1de9-489d-87b4-220427cd9242" config-ref="Email_IMAP" mailboxFolder="[Gmail]/Drafts"/>
+		<ee:transform doc:name="Transform Message" doc:id="b12c23b0-b299-4858-ba4c-6d4d093fa893" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<email:delete emailId="#[payload.attributes.number[0]]" doc:name="Delete" doc:id="c62c2b84-5a06-4ee2-a1f9-9509086c6885" config-ref="Email_IMAP" mailboxFolder="[Gmail]/Drafts"/>
+		<logger level="INFO" doc:name="Logger" doc:id="1ca6644d-dfdd-4b20-8b3c-c7307281cfd3" message='"end"'/>
+	</flow>
+</mule>

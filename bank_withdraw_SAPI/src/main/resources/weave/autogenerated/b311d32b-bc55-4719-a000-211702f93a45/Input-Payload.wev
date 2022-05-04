@@ -1,0 +1,7 @@
+%dw 2.0
+
+type auto_b311d32b_bc55_4719_a000_211702f93a45_Input_Payload = {
+  status: String, 
+  _?: Any
+}
+

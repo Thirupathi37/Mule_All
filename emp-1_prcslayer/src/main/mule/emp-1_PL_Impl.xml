@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:crypto="http://www.mulesoft.org/schema/mule/crypto" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/crypto http://www.mulesoft.org/schema/mule/crypto/current/mule-crypto.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="a2eb0ab5-5150-4804-95d7-e60539b7e71b" >
+		<http:request-connection host="localhost" port="8082" />
+	</http:request-config>
+	<ee:object-store-caching-strategy name="Caching_Strategy" doc:name="Caching Strategy" doc:id="4f33cf46-ce04-49a4-b105-245a2c5f6210" keyGenerationExpression="#[attributes.uriParams.Id]" />
+	<flow name="getEmps_Flow" doc:id="fb6e1f66-1e23-4db2-a843-f76306f8a784" >
+		<logger level="INFO" doc:name="Logger" doc:id="ea2c9ccf-0b4a-4504-bf4c-89ddc7176f80" message='"Flow Started"'/>
+		<ee:cache doc:name="Cache" doc:id="2d5d30af-37bb-4d79-a606-90663c12414f" cachingStrategy-ref="Caching_Strategy">
+			<http:request method="GET" doc:name="Request" doc:id="346f360f-1089-4cc4-98e3-93523b499317" config-ref="HTTP_Request_configuration" path="/api/emp/{Id}" responseTimeout="90000">
+			<http:uri-params><![CDATA[#[output application/java
+---
+{
+	Id : attributes.uriParams.Id
+}]]]></http:uri-params>
+		</http:request>
+		</ee:cache>
+		<ee:transform doc:name="Transform Message" doc:id="7fff2ff7-3a55-4e4a-8768-7b4e37ecb97f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.statusCode as String]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+	</flow>
+	<flow name="postEmps_Flow" doc:id="000df06f-dd8c-4ffd-9295-66f4bcb2f9d8" >
+		<logger level="INFO" doc:name="Logger" doc:id="b32c5ca5-bd04-4181-a9e6-15a87d023fc5" message='"Flow Started"'/>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="9664840b-b671-4f36-9fa1-7c0cf6ee2681" variableName="origPayload"/>
+		<http:request method="GET" doc:name="Request" doc:id="6e0e687b-66ed-4ab8-b3d3-37028de1a2d3" config-ref="HTTP_Request_configuration" path="/api/emp/{Id}" responseTimeout="90000">
+			<http:body ><![CDATA[#[" "]]]></http:body>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	Id : vars.origPayload.empNo
+}]]]></http:uri-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="304efa12-61f9-4802-bc80-f64c58b0676b" message="#[payload]"/>
+		<choice doc:name="Choice" doc:id="c046ec65-3017-4e47-8b9c-25527d7cd69d" >
+			<when expression="#[sizeOf(payload) == 0]">
+				<logger level="INFO" doc:name="Logger" doc:id="5a29cb82-f810-4caa-ba8d-2208f075277e" message="#[payload]"/>
+				<set-payload value="#[vars.origPayload]" doc:name="Set Payload" doc:id="8de64e98-2d57-4097-88c0-3e02f13cc4c4" />
+				<crypto:jce-encrypt-pbe doc:name="Jce encrypt pbe" doc:id="2576cac4-9066-4961-84a6-449c34411de4" password="Btr@1234"/>
+				<ee:transform doc:name="Transform Message" doc:id="7b5a25d0-6a1d-437b-9a9c-41e8af39f76d">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+import dw::Crypto
+import toBase64 from dw::core::Binaries
+output application/json
+---
+toBase64(payload)]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="2c29a8d2-cd38-4feb-b249-01ed953d017c" message="#[payload]"/>
+				<http:request method="POST" doc:name="Request" doc:id="5ef25474-46c9-448b-a4c1-c15abebe549d" config-ref="HTTP_Request_configuration" path="/api/emp" responseTimeout="90000">
+				</http:request>
+				<logger level="INFO" doc:name="Logger" doc:id="ff49ae31-d4ed-4211-96b8-a2bd87c098ef" message="#[payload]"/>
+				<ee:transform doc:name="Transform Message" doc:id="0ff8c1c3-36ba-4818-baab-9fd6a5a7cbab" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="ad9ac3ee-dab1-41aa-b8d4-e14d59ba73fe" message='"The empNo Already Exists please try with another empNo"'/>
+				<raise-error doc:name="Raise error" doc:id="789a582d-cb4d-484c-99f0-706c050a1655" type="INVALID:EMP_NO" description='"The empNo Already Exists please try with another empNo"'/>
+			</otherwise>
+		</choice>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4d97467c-da7e-4b56-9334-9dc27a5dd547" type="INVALID:EMP_NO">
+				<ee:transform doc:name="Transform Message" doc:id="2f22c2e1-9ee8-4329-9a12-a32ee1405d31">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"ErrorMsg": error.muleMessage.typedValue default error.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="697c9335-95f1-474b-b2c6-83356dfbc7dd" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="70be1107-2d69-4524-899c-710e0a3a8988" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"error": error.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

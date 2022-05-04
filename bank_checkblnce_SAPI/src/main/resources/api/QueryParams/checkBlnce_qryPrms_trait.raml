@@ -1,0 +1,10 @@
+#%RAML 1.0 Trait
+queryParameters:
+      bank:
+        type: string
+        required: true
+        enum: [ICICI , AXIS , HDFC]
+      type:
+        type: string
+        required: true
+        enum: [savings , current]

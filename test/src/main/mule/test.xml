@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:oauth2-provider="http://www.mulesoft.org/schema/mule/oauth2-provider"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:oauth="http://www.mulesoft.org/schema/mule/oauth" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/oauth http://www.mulesoft.org/schema/mule/oauth/current/mule-oauth.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/oauth2-provider http://www.mulesoft.org/schema/mule/oauth2-provider/current/mule-oauth2-provider.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="f318f25e-4f0f-46d7-ad11-d417e2a6c58d" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<db:config name="Database_Config1" doc:name="Database Config" doc:id="27df9d8d-0966-4329-9544-895ca97c5502" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234" />
+	</db:config>
+	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="e18202cf-7891-4bcb-b106-741c4a64cc91" />
+	<flow name="testFlow" doc:id="e94593a5-6998-49f0-ad74-16b36f1d777d" >
+		<http:listener doc:name="Listener" doc:id="1354c105-c2dc-4386-8def-f2fb084361c7" config-ref="HTTP_Listener_config1" path="/test"/>
+		<set-payload value='#[1234533333]' doc:name="Set Payload" doc:id="6f596056-0a90-4469-b66d-6f1db762ae0b" />
+		<logger level="INFO" doc:name="Logger" doc:id="ca49921d-5bf3-43b3-908c-0dabd1308dc0" message="#[payload]"/>
+		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="2a55cada-976e-4e50-a93e-67fd454ee714" millisBetweenRetries="5000">
+			<db:select doc:name="Select" doc:id="84255729-26b5-4e6d-8171-053aeb44d8e4" config-ref="Database_Config1">
+			<db:sql><![CDATA[select * from emp.banking where custAccNum= :custAccNum]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	"custAccNum": payload
+}]]]></db:input-parameters>
+		</db:select>
+			<logger level="INFO" doc:name="Logger" doc:id="36fb5105-289b-4c8a-8f0f-eaef75312cee" message="#[sizeOf(payload)]"/>
+			<ee:transform doc:name="Transform Message" doc:id="11e66e00-f713-49d2-8d5c-c1b0579921bd" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::Runtime
+output application/json
+---
+payload
+//if(sizeOf(payload) == 0)
+//{
+//	"fail": fail()
+//} 
+//else payload
+]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</until-successful>
+		<ee:transform doc:name="Transform Message" doc:id="3c0efc1a-5f97-4f14-ad4d-a8c000ae1e72" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="testFlow1" doc:id="25b134a1-6a4d-4813-806d-0fdf92675983" initialState="stopped">
+		<http:listener doc:name="Listener" doc:id="c55481d2-e4b6-4d9d-a0fe-91fb3fe36142" config-ref="HTTP_Listener_config1" path="/test1"/>
+		<set-payload value="#[1234563333]" doc:name="Set Payload" doc:id="08e17319-f5a3-43ed-9409-109fee6072fd" />
+		<until-successful maxRetries="3" doc:name="Until Successful" doc:id="cda7ac32-2b13-4d2b-a1c5-f7105977e96d" millisBetweenRetries="3000">
+			<db:select doc:name="Select" doc:id="d00c819b-78f0-44de-8e6c-beb81d4ea104" config-ref="Database_Config1">
+				<db:sql ><![CDATA[select * from emp.banking where custAccNum= :custAccNum]]></db:sql>
+				<db:input-parameters ><![CDATA[#[{
+	"custAccNum": payload
+}]]]></db:input-parameters>
+			</db:select>
+			<validation:is-not-empty-collection doc:name="Is not empty collection" doc:id="6069f6aa-a043-4a89-a473-d75d6a15b92c" config-ref="Validation_Config"/>
+		</until-successful>
+		<ee:transform doc:name="Transform Message" doc:id="b3ffc996-8301-4967-a1a2-6376e923ef35" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	
+	
+	
+</mule>

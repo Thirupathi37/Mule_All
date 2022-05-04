@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:oauth2-provider="http://www.mulesoft.org/schema/mule/oauth2-provider" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:oauth="http://www.mulesoft.org/schema/mule/oauth" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/oauth http://www.mulesoft.org/schema/mule/oauth/current/mule-oauth.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/oauth2-provider http://www.mulesoft.org/schema/mule/oauth2-provider/current/mule-oauth2-provider.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="fd41a8a3-6e54-4da7-a8d8-9bc6b7a85cfb" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<os:object-store name="client_OS" doc:name="Object store" doc:id="3340c424-be19-4bb4-ac2e-8ea7e87b263b" />
+	<os:object-store name="token_OS" doc:name="Object store" doc:id="ecf2ba66-59a8-4fce-903e-9476b6b01dca" />
+	<oauth2-provider:config name="OAuth2_Provider_Config" doc:name="OAuth2 Provider Config" doc:id="5c1e7180-9cdb-4ec3-a787-88467addd556" listenerConfig="HTTP_Listener_config" clientStore="client_OS" supportedGrantTypes="CLIENT_CREDENTIALS" >
+		<oauth2-provider:token-config tokenStore="token_OS" tokenTtl="1" tokenTtlTimeUnit="MINUTES"/>
+	</oauth2-provider:config>
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="2ee4e285-789f-4f01-ab80-20cded92ea7e" />
+	<flow name="oauthFlow" doc:id="da3ea4c4-b2f7-43db-9011-4e7a89cf0f82" >
+		<http:listener doc:name="Listener" doc:id="991ff5db-d528-49b5-9e05-9e632c129a93" config-ref="HTTP_Listener_config" path="/oauth"/>
+		<oauth2-provider:create-client doc:name="Create client" doc:id="58fa8a36-3c1e-4f07-ae55-4ad8f3cad79b" config-ref="OAuth2_Provider_Config" clientId="#[attributes.headers.client_id]" secret="#[attributes.headers.client_secret]" clientName="#[attributes.headers.client_name]" description='#[""]' principal='#[""]' redirectUris='#[["abc.com"]]' authorizedGrantTypes='#[["CLIENT_CREDENTIALS"]]' failIfPresent="true" type="CONFIDENTIAL"/>
+		<set-payload value='#["Client created"]' doc:name="Set Payload" doc:id="0a4f7741-c01a-4ddd-aa76-34062fa72a34" />
+	</flow>
+	<flow name="oauthFlow1" doc:id="b7d2da58-d2c2-4900-be94-e98f8bd3a5ff" >
+		<http:listener doc:name="Listener" doc:id="c9293e78-eebb-476d-be54-34ba0df0edc8" config-ref="HTTP_Listener_config" path="/validate"/>
+		<oauth2-provider:validate-token doc:name="Validate token" doc:id="05f652a9-7413-4e70-a6ea-67b102079488" config-ref="OAuth2_Provider_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="63ed369d-06f7-4021-988b-ca6599e68b50" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="f2edd46b-409a-4871-9554-4f03f46b281e" >
+			<when expression="#[payload.expires_in == 0]">
+				<ee:transform doc:name="Transform Message" doc:id="7dd4d3e3-bb4b-4624-83af-0389dc73ef39" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"token_Expired": "Your Token has been expired"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="ce2d07ea-6b6e-43ab-a51a-c2ff6ef33ae3" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

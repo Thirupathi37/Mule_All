@@ -1,0 +1,35 @@
+#%RAML 1.0
+title: Emp
+description: This API is about Employee Information
+
+usage:
+traits:
+    getUser: !include /Common/getUser_queryParams.raml
+
+types:
+  usertypes: !include /Datatypes/getUser_dataType.raml
+
+/emp:
+  get:
+    is: 
+      - getUser
+      
+
+    responses:
+      200:
+       body:
+        application/json:
+          type: usertypes
+          example: !include /examples/getUser_example.raml
+      404:
+        body:
+          application/json:
+              example:
+                {
+                  "ErrorMessage": "User Not found"
+                }
+                          
+                                       
+
+
+          

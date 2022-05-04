@@ -1,0 +1,20 @@
+#%RAML 1.0 DataType
+properties:
+  orderNumber:
+    type: string
+    required: true
+  lineItems:
+    type: array
+    required: true
+    items:
+      properties:
+        itemId:
+          type: string
+          required: true
+        orderQuantity:
+          type: integer
+          required: true
+        shippedQuantity:
+          type: integer
+          required: true
+          

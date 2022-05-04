@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="22e80e4d-998c-44e9-acbc-edc2c47159a6" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234" />
+	</db:config>
+	<flow name="demo_1Flow" doc:id="4938373a-db15-4142-a4de-894572d60c33" >
+		<http:listener doc:name="Listener" doc:id="ca56f88e-78be-402f-ad80-45b2b9d470cf" path="/personalDetails" config-ref="HTTP_Listener_config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="d4716906-4393-4ef3-8924-7a5bbd17a0cb" message="#[payload]" />
+		<file:read doc:name="Read" doc:id="eaada4e0-d637-4a02-8605-9e129a852164" path="C:\Users\admin\Desktop\PersonaDetails.csv" outputMimeType="application/csv"/>
+		<ee:transform doc:name="Transform Message" doc:id="682a1c10-5828-4e4d-8d96-0c82fed099b9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="demo_1Batch_Job" doc:id="26420cc8-8385-464f-b369-0518e373fb12" maxFailedRecords="-1">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="0fe4bc7f-fbfe-4c23-b9ba-a24aa63900f0" acceptExpression="#[sizeOf(payload.PHONE) ==10]">
+					<logger level="INFO" doc:name="Logger" doc:id="cd245133-a4b2-4dfa-8e6b-1c0f47d8ab61" message="#[payload]"/>
+					<db:insert doc:name="Insert" doc:id="2a7743d5-0852-4723-a996-ff98acb1af4b" config-ref="Database_Config">
+							<db:sql><![CDATA[insert into emp.PersonalDetails(USERID,FIRSTNAME, MIDDLENAME, LASTNAME, ADDRESS1, ADDRESS2, PHONE) values (:USERID, :FIRSTNAME, :MIDDLENAME, :LASTNAME, :ADDRESS1, :ADDRESS2, :PHONE)]]></db:sql>
+							<db:input-parameters><![CDATA[#[{
+	USERID: payload.USERID,
+	FIRSTNAME: payload.FIRSTNAME,
+	MIDDLENAME: payload.MIDDLENAME,
+	LASTNAME: payload.LASTNAME,
+	ADDRESS1: payload.ADDRESS1,
+	ADDRESS2: payload.ADDRESS2,
+	PHONE: payload.PHONE
+	
+}]]]></db:input-parameters>
+						</db:insert>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete>
+				<ee:transform doc:name="Transform Message" doc:id="2836d097-afb2-44fe-87ca-e426267ff8e1" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</batch:on-complete>
+		</batch:job>
+		<ee:transform doc:name="Transform Message" doc:id="8a91a00c-5fc1-4402-8700-afecc88fb4a6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="demo_1Flow1" doc:id="32c20b55-b849-446c-819c-e6d4543ca806" >
+		<http:listener doc:name="Listener" doc:id="de5732c6-b251-4d6b-bb95-315095db0fb5" path="/departmentDetails" config-ref="HTTP_Listener_config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="368049bf-0354-4318-b3d3-5a777f5250fd" message='"Dept flo started"'/>
+		<file:read doc:name="Read" doc:id="5d3d54d0-9a0a-4412-8849-fb4e77fbc3fa" path="C:\Users\admin\Desktop\DepartmentDetails.csv"/>
+		<ee:transform doc:name="Transform Message" doc:id="e3065935-8d78-4fc9-8f84-ff26771ea06a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	USERID: payload01.USERID,
+	FIRSTNAME: payload01.FIRSTNAME,
+	DateTime: now() as String {format: dd:MM:yyyy}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="demo_1Batch_Job1" doc:id="ca51d77b-2d35-4ecf-aa88-89f893d82693" maxFailedRecords="-1">
+			<batch:process-records >
+				<batch:step name="Batch_Step1" doc:id="02817eeb-699d-4812-b295-a0c095c1f199" acceptExpression='#[(payload.DEPTID) contains "DEPTID"]'>
+					<db:insert doc:name="Insert" doc:id="322c3582-0fc7-4be1-ab80-6ad49f3b698c" config-ref="Database_Config">
+						<db:sql ><![CDATA[insert into emp.DepartmentDetails(USERID,DEPTID , DESIGNATION, DATEOFJOINING, SALARY, PREVIOUSEMPLOYER) values (:USERID, :DEPTID , :DESIGNATION, :DATEOFJOINING, :SALARY, :PREVIOUSEMPLOYER)]]></db:sql>
+						<db:input-parameters ><![CDATA[#[{
+	USERID: payload.USERID,
+	DEPTID: payload.DEPTID,
+	DESIGNATION: payload.DESIGNATION,
+	DATEOFJOINING: payload.DATEOFJOINING,
+	SALARY: payload.SALARY,
+	PREVIOUSEMPLOYER: payload.PREVIOUSEMPLOYER
+}]]]></db:input-parameters>
+					</db:insert>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="2575d763-5fd3-4c10-b4f5-769a43828e93" message="#[payload]"/>
+			</batch:on-complete>
+		</batch:job>
+		<ee:transform doc:name="Transform Message" doc:id="c810f118-bf45-4013-9e9d-9cd24b177da1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

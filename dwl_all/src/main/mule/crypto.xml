@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="cryptoFlow" doc:id="464185d6-40da-43e3-bece-bc2e553a87c4" >
+		<ee:transform doc:name="Transform Message" doc:id="ce4e3e0d-7228-467b-b2ef-5bec5c1b3f71" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import dw::Crypto
+output application/json
+---
+{
+	//HmacBinary-Algorithm
+	"HmacBinary": dw::Crypto::HMACBinary("tttttt" as Binary, "Hello" as Binary),
+	
+	//HmacWith(SHA256&SHA512)
+	"HmacWith_SHA256": dw::Crypto::HMACWith("tttttt" as Binary, "Hello" as Binary, "HmacSHA256"),
+	"HmacWith_SHA512": dw::Crypto::HMACWith("tttttt" as Binary, "Hello" as Binary, "HmacSHA512"),
+	
+	//MD5-Algorithm
+	"MD5": dw::Crypto::MD5("Thiru" as Binary),
+	
+	//SHA1-Algorithm
+	"SHA1": dw::Crypto::SHA1("Thiru" as Binary),
+	
+	//hashWith-Algorithm
+	"hashWith_MD2": dw::Crypto::hashWith("Thiru" as Binary, "MD2"),
+	"hashWith_MD5": dw::Crypto::hashWith("Thiru" as Binary, "MD5"),
+	"hashWith_SHA-1": dw::Crypto::hashWith("Thiru" as Binary, "SHA-1"),
+	"hashWith_SHA-256": dw::Crypto::hashWith("Thiru" as Binary, "SHA-256"),
+	"hashWith_SHA-384": dw::Crypto::hashWith("Thiru" as Binary, "SHA-384"),
+	"hashWith_SHA-512": dw::Crypto::hashWith("Thiru" as Binary, "SHA-512")
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

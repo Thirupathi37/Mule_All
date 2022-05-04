@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="5c377d03-4626-4e7c-b585-1636cb3c6eb9" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="52661d1b-8fbb-49f2-a3eb-83b783a61fd5" />
+	<flow name="clustering-app1Flow" doc:id="e76d597c-e69f-4578-8f77-16352bae15e6" >
+		<http:listener doc:name="Listener" doc:id="f52dc03e-66ad-4b7b-9942-56f2e1417dcd" config-ref="HTTP_Listener_config" path="/cluster1"/>
+		<os:store doc:name="Store" doc:id="522357aa-ed0d-4d3d-89c3-fc68c01219ae" key="#[attributes.queryParams.key]" objectStore="Object_store">
+			<os:value ><![CDATA[#[attributes.queryParams.value]]]></os:value>
+		</os:store>
+	</flow>
+	<flow name="clustering-app1Flow1" doc:id="29a2bf48-ba31-46e5-aaa5-454c51d987e7" >
+		<http:listener doc:name="Listener" doc:id="17024d85-fe90-46e4-b148-5f400bc04fd4" config-ref="HTTP_Listener_config" path="/monitor"/>
+		<ee:transform doc:name="Transform Message" doc:id="e1da5695-dbaf-46f1-920f-501f431117c3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"msg": "Hello Monitoring"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

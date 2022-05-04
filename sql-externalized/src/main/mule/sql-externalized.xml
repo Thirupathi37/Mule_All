@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="a74da6b8-6773-4580-b4ce-c8848f63f96c" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234" />
+	</db:config>
+	<configuration-properties doc:name="Configuration properties" doc:id="f0c7c92d-549b-4cef-842f-eab1e2fe4bbf" file="test.properties" />
+	<flow name="sql-externalizedFlow" doc:id="eafe6602-fa15-4959-9344-f69fe0a39f5c" >
+		<scheduler doc:name="Scheduler" doc:id="65dbaa08-5ece-4f5b-9245-12a78faf74af" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<set-variable value="11" doc:name="Set Variable" doc:id="788c351c-a2fc-4b18-8c17-2468aca19f30" variableName="UserID"/>
+		<db:select doc:name="Select" doc:id="3316676f-0554-4280-86d9-0d5567679af5" config-ref="Database_Config" doc:description="Created a folder(Sql) and created a .sql file and written a sql query in the file&#10;Injucted the file as placeholder in Select Query">
+			<db:sql ><![CDATA[${file::sql/test-query.sql}]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	UserID: vars.UserID
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="d13a58f8-1645-4d50-b90e-7009f2dd20d5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="23926164-907b-485e-a4bc-2461444e7b64" message="#[payload]"/>
+		<db:select doc:name="Select" doc:id="dd6bebdc-8ea6-4cbe-ace7-11e10895f60e" config-ref="Database_Config" doc:description="created a property file(test.properties) for sql query and injuct the placeholder in SQL statement line in Database Selector connector">
+			<db:sql><![CDATA[${sql.query}]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	UserID: vars.UserID
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="a65eba0d-91a6-4b66-a32b-b28df279faa5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="257e15cc-be51-4abb-be12-f3ee6f7352be" message='"2nd DB :" #[payload]' />
+	</flow>
+</mule>

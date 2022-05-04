@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="ed25f3fd-c785-454a-b1f8-22e6fac9e929" >
+		<http:request-connection host="${secure::httpRequest.host1}" port="${secure::httpRequest.port1}" />
+	</http:request-config>
+	<http:request-config name="HTTP_Request_System-2" doc:name="HTTP Request configuration" doc:id="bc834f2e-462d-408f-8179-6bd094eb19d5" >
+		<http:request-connection host="localhost" port="8083" />
+	</http:request-config>
+	<sub-flow name="all-details" doc:id="247f2b1e-e9ff-4c30-8011-86369a28f835" >
+		<logger level="INFO" doc:name="Logger" doc:id="e2cd893c-edf5-4c16-a1e8-62ce82c7471e" message='"get All emplys flow started"'/>
+		<http:request method="GET" doc:name="Request" doc:id="a628332b-a11a-410c-877d-6eda53a9e241" config-ref="HTTP_Request_configuration" path="/api/alldetails" responseTimeout="9000000"/>
+		<ee:transform doc:name="Transform Message" doc:id="6d4f68c4-1913-43a4-b726-1a7c38537fb4">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+//var aa = payload filter($.title == "mulesoft")
+---
+payload filter($.title == "Mule") map ((item, index) -> {
+	"empid": item.empid,
+	"status": item.status
+})
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="cd81ba97-5bb1-4a0b-b1c3-5608ab737db1" message='"end: " #[payload]'/>
+	</sub-flow>
+	<flow name="single-emplolyee-details" doc:id="f46765c6-f335-4403-93aa-aecf75545dc8" >
+		<flow-ref doc:name="Flow Reference" doc:id="e3eabd71-34b3-42ff-b8d3-651c4672051a" name="all-details"/>
+		<foreach doc:name="For Each" doc:id="a37bc993-88ee-4381-905c-021d871f4afa" collection="#[payload]">
+			<http:request method="GET" doc:name="Request" doc:id="537f711d-ef4c-43f9-94b9-865ad082a614" config-ref="HTTP_Request_configuration" path="/api/alldetails/{empid}" responseTimeout="900000" target="a">
+				<http:uri-params><![CDATA[#[empid: payload.empid]]]></http:uri-params>
+			</http:request>
+			<logger level="INFO" doc:name="Logger" doc:id="b18e68c4-39ba-4903-9120-578c691eb2fb" message="#[vars.a]"/>
+			<flow-ref doc:name="Dept-details" doc:id="ffe271fa-44dc-4743-9ef8-f00f2c87a1e1" name="dept-details-subflow"/>
+			<ee:transform doc:name="Transform Message" doc:id="5914a967-fb1a-4bc6-ba2f-74b902a675ba" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+				<ee:variables >
+				</ee:variables>
+			</ee:transform>
+			<set-payload value="#[payload]" doc:name="EmpDeptData" doc:id="27c91d6f-c2ac-444b-8cf1-60d01c684da7" />
+			<logger level="INFO" doc:name="Logger" doc:id="96dd76a9-c57a-4d0b-a138-3524b95a1661" />
+			<flow-ref doc:name="Post1" doc:id="c792adc0-dfbd-463d-bc7d-449c46776a2b" name="post1-table-subflow" target="P1"/>
+			<logger level="INFO" doc:name="Logger" doc:id="64c5cb4f-2118-4288-9211-c50227b74187" message="#[vars.P1]"/>
+			<flow-ref doc:name="Post2" doc:id="cb886e5c-74d1-4f73-940d-8bed6ba5134d" name="post2-table-subflow" target="P2"/>
+			<logger level="INFO" doc:name="Logger" doc:id="6a3b2c5e-a7b4-49a6-9a2f-1e4b1ba80413" message="#[vars.P2]"/>
+			<flow-ref doc:name="Post3" doc:id="0b4c2d0e-da1d-4281-99c8-e93076d265c1" name="post3-table-subflow" target="P3"/>
+		</foreach>		<ee:transform doc:name="Transform Message" doc:id="065ebbe3-70c4-4dd7-97c2-fcc10625aac1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message": "Success"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<sub-flow name="post1-table-subflow" doc:id="4047baf6-e22b-4972-9431-8c217b1d610f" >
+		<logger level="INFO" doc:name="Logger" doc:id="5fcfb107-cf71-4295-9749-45943b67423d" message='"Insert Post"'/>
+		<set-variable value='"post1"' doc:name="Set Variable" doc:id="552e00cf-2ba2-40b7-83bf-63c7cbe3380e" variableName="P1Variable"/>
+		<ee:transform doc:name="Transform Message" doc:id="ad006a5c-432b-4730-937a-4278bb05d739" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( item, indexOfItem ) -> {
+	"empid": item.empid,
+	"fname": item.fname,
+	"mname": item.mname,
+	"lname": item.lname,
+	"designation": item.designation,
+	"joinDate": item.joinDate,
+	"emailID": item.emailID
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request" doc:id="93463914-8bcd-4e57-af0b-597b8cda3946" config-ref="HTTP_Request_System-2" path="/api/post1" responseTimeout="900000">
+			<http:headers ><![CDATA[#[vars.P1Variable]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="b5000710-0671-4cc3-9202-d8144ad6f440" message="#[payload]"/>
+	</sub-flow>
+	<sub-flow name="post2-table-subflow" doc:id="5c98995e-5ab7-41a8-8381-73eb61b60245" >
+		<logger level="INFO" doc:name="Logger" doc:id="dc711ac3-ffe5-4c0f-a5e3-dade6f9c89bb" message='"started"'/>
+		<set-variable value='"post2"' doc:name="Set Variable" doc:id="37c44ecc-e908-40a5-9479-037c3421b8dc" variableName="P2Variable"/>
+		<ee:transform doc:name="Transform Message" doc:id="f46df1e5-5755-4559-b5bd-0934e79e424c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( item, indexOfItem ) -> {
+	"empid": item.empid,
+	"fname": item.fname,
+	"mname": item.mname,
+	"lname": item.lname,
+	"address": item.address
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request" doc:id="8ccb7206-b68b-48c3-9221-132580fe0b1f" config-ref="HTTP_Request_System-2" path="/api/post2" responseTimeout="900000">
+			<http:headers ><![CDATA[#[vars.P2Variable]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="54827eb7-db23-4ae9-b19c-bbfe118ff6dc" message="#[payload]"/>
+	</sub-flow>
+	<sub-flow name="post3-table-subflow" doc:id="9752c3b2-83e6-4c79-82e2-e6f47ad60a35" >
+		<logger level="INFO" doc:name="Logger" doc:id="9adb4566-f908-4004-979e-2bcecdf143c2" message='"started"'/>
+		<set-variable value='"post3"' doc:name="Set Variable" doc:id="ae4f4b16-2877-47a7-84d1-de94b06f2925" variableName="P3Variable"/>
+		<ee:transform doc:name="Transform Message" doc:id="a51018ad-8cb8-48f7-b9e5-d462aa325631" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( item, indexOfItem ) -> {
+	"empid": item.empid,
+	"fname": item.fname,
+	"mname": item.mname,
+	"lname": item.lname,
+	"phno": item.phno
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request" doc:id="76986a08-dcbe-4306-9262-fb58e12db78f" config-ref="HTTP_Request_System-2" path="/api/post3" responseTimeout="900000">
+			<http:headers ><![CDATA[#[vars.P3Variable]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="a3dc8da0-781b-4ad2-8091-9220a6e48808" message="#[payload]"/>
+	</sub-flow>
+	<sub-flow name="dept-details-subflow" doc:id="e9b8b254-69b9-4b56-9363-48aab70b626f" >
+		<logger level="INFO" doc:name="Logger" doc:id="da59b16f-ea57-46b5-b617-8860ef7f0123" message="#[payload]"/>
+		<http:request method="GET" doc:name="Request" doc:id="554e3b88-e2aa-462f-a9d5-ec22a0c95ddb" config-ref="HTTP_Request_configuration" path="/api/deptdetails" responseTimeout="900000" target="b">
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="a0227376-a905-470a-8ebc-66a99214d311" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var c= vars.a
+var d= vars.b
+---
+c map (c1)->
+{
+(d filter($.*deptname contains c1.deptname) map(d1)->
+{ 
+                "deptId": d1.deptId,
+                "empid": c1.empid,
+                "fname": c1.fname,
+                "mname": c1.mname,
+                "lname": c1.lname,
+                "address": c1.address,
+                "emailID": c1.emailID,
+                "designation": c1.designation,
+                "joinDate": c1.joinDate,
+                "ttile": c1.title,
+                "phno": c1.phno,
+                "deptname": c1.deptname,
+                "status": c1.status
+            } )  
+} 
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="7b50215b-7d94-49c1-8fe7-b1c254678f60" message='"Deptartment End"'/>
+	</sub-flow>
+</mule>

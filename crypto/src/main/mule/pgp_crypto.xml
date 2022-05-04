@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:crypto="http://www.mulesoft.org/schema/mule/crypto" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/crypto http://www.mulesoft.org/schema/mule/crypto/current/mule-crypto.xsd">
+	<crypto:pgp-config name="Crypto_Pgp" doc:name="Crypto Pgp" doc:id="4273258f-310d-4432-b56c-ba0ec166dd8c" publicKeyring="mule_pub.gpg">
+		<crypto:pgp-key-infos >
+			<crypto:pgp-asymmetric-key-info keyId="pgp-key" fingerprint="29B692CA8EA97618" />
+		</crypto:pgp-key-infos>
+	</crypto:pgp-config>
+	<crypto:pgp-config name="Crypto_Pgp1" doc:name="Crypto Pgp" doc:id="c26babff-fa4d-4a92-be3e-5553bfc71429" privateKeyring="mule_private.gpg" >
+		<crypto:pgp-key-infos >
+			<crypto:pgp-asymmetric-key-info keyId="pgp-key" fingerprint="29B692CA8EA97618" passphrase="Btr@1234" />
+		</crypto:pgp-key-infos>
+	</crypto:pgp-config>
+	<flow name="pgp_cryptoFlow" doc:id="6074b587-0039-461f-9dac-ec6581a8e9ed" >
+		<http:listener doc:name="Listener" doc:id="ff456992-72c0-4e0a-b80b-06f86dadb312" config-ref="HTTP_Listener_config" path="/pgp"/>
+		<logger level="INFO" doc:name="Logger" doc:id="2eefa859-e648-4f4f-8c83-4fe388752fad" message="#[payload]"/>
+		<crypto:pgp-encrypt doc:name="Pgp encrypt" doc:id="b1eb5aba-ddd1-4a96-b19a-2a99f63b1904" config-ref="Crypto_Pgp" keyId="pgp-key" algorithm="AES_128"/>
+		<logger level="INFO" doc:name="Log encrypted Data" doc:id="f1f58467-7cde-4b11-b4d8-fac6c803b6c4" message='#["Encrypted Data: " ++ payload]'/>
+		<crypto:pgp-decrypt doc:name="Pgp decrypt" doc:id="cf12b30c-c338-47b2-a1cc-264e37e367c9" config-ref="Crypto_Pgp1"/>
+		<logger level="INFO" doc:name="Log decrypted data" doc:id="bff459a3-4439-4b88-924c-81d2ce000ea1" message='#["Decrypted Data: " ++ payload]'/>
+		<crypto:pgp-sign doc:name="Pgp sign" doc:id="f0f2b4fd-c01a-46b0-acaa-241f5528e9d6" config-ref="Crypto_Pgp" keyId="pgp-key" target="signed"/>
+		<logger level="INFO" doc:name="Log Signed Data" doc:id="a104e596-c126-45ea-a701-3a61d63a0c50" message='#["signed data: " ++ payload]'/>
+		<crypto:pgp-validate doc:name="Pgp validate" doc:id="49785593-b109-4b6d-8bfb-4e9e314ee210" config-ref="Crypto_Pgp1" expected="#[vars.signed]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="97f33f2a-4c82-4056-aed8-abc2506e9264" message='#["validated data: " ++ payload]'/>
+	</flow>
+</mule>

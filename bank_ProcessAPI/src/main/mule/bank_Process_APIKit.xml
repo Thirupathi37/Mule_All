@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:crypto="http://www.mulesoft.org/schema/mule/crypto" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/crypto http://www.mulesoft.org/schema/mule/crypto/current/mule-crypto.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+    <http:listener-config name="ProcessAPI_Listener">
+        <http:listener-connection host="0.0.0.0" port="8088" />
+    </http:listener-config>
+    <apikit:config name="bank-2-config" api="resource::82d9d92f-678c-439b-85f0-8a8fc22a1d46:bank_procapi:1.0.0:raml:zip:bank.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<api-gateway:autodiscovery apiId="17561025" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="13138a53-9df1-4c0d-a8e0-0b7979cdc371" flowRef="bank-2-main" />
+	<flow name="bank-2-main" doc:id="98ed426e-b740-4510-8ace-eadb3e295c10">
+        <http:listener config-ref="ProcessAPI_Listener" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 505]" reasonPhrase="#[vars.reasonPhrase]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+		<apikit:router config-ref="bank-2-config" />
+        <error-handler ref="global_ErrorHandler">
+                    </error-handler>
+    </flow>
+    <flow name="bank-2-console">
+        <http:listener config-ref="ProcessAPI_Listener" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="bank-2-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="post:\checkBalance:application\json:bank-2-config" initialState="started">
+		<flow-ref doc:name="Flow Reference" doc:id="593c02cb-9f47-4f0c-9c18-ce0e66260b3c" name="bank_checkBalanceFlow"/>
+    </flow>
+    <flow name="post:\createAccount:application\json:bank-2-config" doc:id="1d2679f6-6e85-478c-acd6-960e1f67c9e8">
+		<validation:is-email doc:name="Is email" doc:id="f5a2419e-b9b2-4d9f-97ae-406b37fbf21a" config-ref="Validation_Config" email="#[payload.mailId]"/>
+		<flow-ref doc:name="Flow Reference" doc:id="3671212c-23cb-4d85-9fae-80aaed52f254" name="createAccount_Flow"/>
+    </flow>
+    <flow name="post:\unblock:application\json:bank-2-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  status: "Account xxxxx is unblocked"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\withDraw:application\json:bank-2-config">
+		<flow-ref doc:name="Flow Reference" doc:id="5100378d-45fc-4fcd-9e49-d5024f3a9793" name="withdrawAmountFlow"/>
+    </flow>
+</mule>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="6b07dcd6-b75d-4931-9ab3-9f6bd6124099" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="cee3ff71-5061-4cef-b1e8-54cf4e147026" >
+		<http:request-connection protocol="HTTPS" host="ap16.salesforce.com" />
+	</http:request-config>
+	<flow name="sfdc-queryrest_api-callFlow" doc:id="85e2c3a6-0364-408f-91a4-e6109c5f51b2" >
+		<http:listener doc:name="Listener" doc:id="daaa7ded-6300-4a28-a627-94c60e868542" config-ref="HTTP_Listener_config" path="/sfdc"/>
+		<http:request method="POST" doc:name="Request" doc:id="818514bb-e889-4da1-8090-d225a0fda3af" config-ref="HTTP_Request_configuration" path="/services/oauth2/token">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/x-www-form-urlencoded"
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/json
+---
+{
+	"grant_type" : "password",
+	"client_id": "3MVG9pRzvMkjMb6nWsel3XfllZh87YKHYxI1TOMeD4BEVNI4caG75E4IWQERbiTRf1X6WAR7f2ZgMgGSWjD2z",
+	"client_secret": "908EFC57A0D68A182DE2D6CCEA777DBAD71A0441A75855EE72E4977D46904913
+",
+	"username": "tbommishetty@eniquesolutions.com",
+	"password": "Btr@1234"
+}]]]></http:query-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="c2543fc3-dfba-46ef-9d59-2dce5a3529ff" message="#[payload]"/>
+		<set-variable value="#[payload.access_token]" doc:name="Set Variable" doc:id="98ff797d-401c-4fff-81ea-7395f8fbfe2a" variableName="accessToken"/>
+		<http:request method="GET" doc:name="Request" doc:id="3d2db4bb-7d03-47ac-bc1c-9832bdd9005c" config-ref="HTTP_Request_configuration" path="/services/data/v42.0/query">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization": "Bearer " ++ vars.accessToken
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"q" : "SELECT id,lastname,lastmodifieddate from contact limit 10"
+}]]]></http:query-params>
+		</http:request>
+	</flow>
+</mule>

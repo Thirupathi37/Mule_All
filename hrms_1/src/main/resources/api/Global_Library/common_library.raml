@@ -1,0 +1,20 @@
+#%RAML 1.0 Library
+usage:
+  
+traits:
+ createEmpQuery: !include /Global_Library/common/queryParams/createEmp_trait.raml
+
+ File: !include /Global_Library/common/queryParams/File_trait.raml
+ createEmpHeader: !include /Global_Library/common/Headers/createEmpHeader_trait.raml
+
+
+
+
+types:
+  createEmpDatatype: !include /Global_Library/common/datatypes/createEmpPOST_dataType.raml
+
+  getEmp: !include /Global_Library/common/datatypes/getEmpDetails_dataType.raml
+
+  getAllEmps: !include /Global_Library/common/datatypes/getAllEmps_dataType.raml
+
+  commonError: !include /Global_Library/common/Error/commonError_dataType.raml

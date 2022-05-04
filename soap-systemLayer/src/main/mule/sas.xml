@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit-soap="http://www.mulesoft.org/schema/mule/apikit-soap" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/apikit-soap http://www.mulesoft.org/schema/mule/apikit-soap/current/mule-apikit-soap.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <http:listener-config name="api-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081"/>
+    </http:listener-config>
+    <apikit-soap:config httpStatusVarName="httpStatus" name="soapkit-config" port="AssignmentWSDLFileSOAP" service="AssignmentWSDLFile" wsdlLocation="AssignmentWSDLFile.wsdl"/>
+    <flow name="api-main">
+        <http:listener config-ref="api-httpListenerConfig" path="/AssignmentWSDLFile/AssignmentWSDLFileSOAP">
+            <http:response statusCode="#[attributes.additionalTransportData.statusCode default 200]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[attributes.protocolHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[attributes.additionalTransportData.statusCode default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[attributes.protocolHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+		<apikit-soap:router doc:name="SOAP Router" doc:id="283d8413-6a80-49bc-a879-55271cc1a048" config-ref="soapkit-config"/>
+    
+</flow>
+    <flow name="getOperation:\soapkit-config">
+		<ee:transform doc:name="Transform Message" doc:id="c1ef79f5-9bff-438f-be7e-4437112a5815" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="userId1" ><![CDATA[XmlModule::xpath('//*:userId1/text()',payload.body.^raw,{})]]></ee:set-variable>
+				<ee:set-variable variableName="userId2" ><![CDATA[XmlModule::xpath('//*:userId2/text()',payload.body.^raw,{})]]></ee:set-variable>
+				<ee:set-variable variableName="userId3" ><![CDATA[XmlModule::xpath('//*:userId3/text()',payload.body.^raw,{})]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="Flow Reference" doc:id="c4a04065-4755-43c0-b663-a75082af087f" name="soap-prcsImplFlow"/>
+    </flow>
+</mule>

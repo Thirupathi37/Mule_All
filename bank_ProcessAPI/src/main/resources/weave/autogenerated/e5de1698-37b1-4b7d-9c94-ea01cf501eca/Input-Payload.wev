@@ -1,0 +1,12 @@
+%dw 2.0
+
+type auto_e5de1698_37b1_4b7d_9c94_ea01cf501eca_Input_Payload = {
+  atmPin: String, 
+  depositAmount?: Number, 
+  accountNum: String, 
+  contact: String, 
+  mailId: String, 
+  ifscCode: String, 
+  _?: Any
+}
+

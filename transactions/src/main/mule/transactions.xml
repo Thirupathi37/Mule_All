@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:bti="http://www.mulesoft.org/schema/mule/ee/bti"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/bti http://www.mulesoft.org/schema/mule/ee/bti/current/mule-bti-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="5e115e8b-39e8-44b0-b3e9-acafc7bd45bb" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="aa56d5eb-7e3f-41f4-8081-eb09b7ec9289" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234" transactionIsolation="READ_UNCOMMITTED" useXaTransactions="true"/>
+	</db:config>
+	<bti:transaction-manager doc:name="Bitronix Transaction Manager" doc:id="941820ce-7ab5-4090-bc2a-8e2b0f3bcdff" />
+	<db:config name="Database_Config1" doc:name="Database Config" doc:id="c4160a3b-fc3a-4889-a087-e9adfb0e958b" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Btr@1234" useXaTransactions="true"/>
+	</db:config>
+	<flow name="transactionsFlow" doc:id="83f3f792-b297-4793-8ebe-c5021b16863c" >
+		<http:listener doc:name="Listener" doc:id="4406899a-6206-4675-88ea-57bd8899e766" config-ref="HTTP_Listener_config" path="/transactions" allowedMethods="POST"/>
+		<try doc:name="Try" doc:id="b08b56da-fbc3-4f58-b720-3c3ce667875d" transactionalAction="ALWAYS_BEGIN" transactionType="XA">
+			<logger level="INFO" doc:name="Logger" doc:id="fbac9c33-ec1c-4acb-8ed4-8c683cf012c9" message='"Try started"'/>
+			<db:insert doc:name="Insert" doc:id="97ce1f91-f4c1-4b8d-9840-73f183dbc0f7" config-ref="Database_Config" transactionalAction="NOT_SUPPORTED">
+				<db:sql ><![CDATA[insert into emp.emp1(empNo, empName, empDesign, empSal) values(:empNo, :empName, :empDesign, :empSal)]]></db:sql>
+				<db:input-parameters ><![CDATA[#[{
+	"empNo": payload.empNo,
+	"empName": payload.empName,
+	"empDesign": payload.empDesign,
+	"empSal": payload.empSal
+	
+	
+}]]]></db:input-parameters>
+			</db:insert>
+			<logger level="INFO" doc:name="Logger" doc:id="006763a2-4828-49f0-bebf-bb443e9427e5" message="#[payload]"/>
+			<db:select doc:name="Select" doc:id="370d40ab-b635-428a-877a-08dbf4596315" config-ref="Database_Config1">
+				<db:sql ><![CDATA[select * from emp.banking;]]></db:sql>
+			</db:select>
+			<ee:transform doc:name="Transform Message" doc:id="404a317e-3b91-4424-b641-21e4c032354e" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json deferred=true
+---
+'Hello']]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="561c4be8-f650-4e2d-bb5d-aa34c712a9ba" message='"Try End"'/>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="32ede463-9729-4f6d-8c6d-9cef8fcaae23" message='"main FLow End"'/>
+		<file:read doc:name="Read" doc:id="0a7e1e37-75a4-4bf6-9492-d44bdda24c89" />
+		<http:request method="GET" doc:name="Request" doc:id="4823c8e6-1a1d-46ee-86d2-e694a327dee8" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="8837b2ea-6105-4fd6-b1cb-79362957610d" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="ba7977cb-5701-4c15-8bf3-33574583356d" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+error.description]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

@@ -1,0 +1,24 @@
+{
+  "configs": [
+    "template.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "a44efcfc-2021-4dde-940d-a9863b4e8bd0:mule-logging-demo:1.0.2-SNAPSHOT",
+  "minMuleVersion": "4.1.1",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {}
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {
+      "groupId": "a44efcfc-2021-4dde-940d-a9863b4e8bd0",
+      "classifier": "mule-policy",
+      "artifactId": "mule-logging-demo",
+      "type": "jar",
+      "version": "1.0.2-SNAPSHOT"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="database_waterMarkingFlow" doc:id="826dde83-0112-4102-aac3-0d45e0d3c320" >
+		<logger level="INFO" doc:name="Logger" doc:id="fa099807-9c1c-453d-a145-e6cc6200b5ba" message='"start"'/>
+		<os:retrieve doc:name="Retrieve" doc:id="8295759e-48c3-43ec-a814-3030d6d5c6a6" key="userid" objectStore="Object_store">
+			<os:default-value ><![CDATA[1]]></os:default-value>
+		</os:retrieve>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="ca4f4aca-86a0-49d6-89fe-2b70f1e270a0" variableName="userid"/>
+		<db:select doc:name="Select" doc:id="0cd35b38-7999-4780-8d19-67d193d8cda5" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from emp1 where empNo > :empNo]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"empNo": vars.userid
+}]]]></db:input-parameters>
+		</db:select>
+		<os:store doc:name="Store" doc:id="bd89bfbb-9640-4ad7-9bff-bb2239c05bbe" failOnNullValue="false" key="id" objectStore="Object_store">
+			<os:value ><![CDATA[#[payload[0].empNo]]]></os:value>
+		</os:store>
+		<logger level="INFO" doc:name="Logger" doc:id="93d81e19-760a-4873-83c3-e5427addead6" message="#[payload]"/>
+	</flow>
+</mule>

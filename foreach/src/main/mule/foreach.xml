@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="79d8701d-5412-4896-a98c-ee061c88438c" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="ParallelForEach_1" doc:id="92bbf623-11c9-47e3-ad27-b5094a04e511" >
+		<set-variable value="#[[]]" doc:name="Set Variable" doc:id="6ea97022-1cc0-40a2-9b4b-c96f832b5acf" variableName="a1"/>
+		<parallel-foreach doc:name="Parallel For Each" doc:id="aacea3b7-1c7a-48ac-b811-ebeddf46bd58" collection="#[1 to 10]">
+			<logger level="INFO" doc:name="Logger" doc:id="d0548a06-2ec4-4042-866a-106eb3d80644" message='"inside Logger  " #[payload]'/>
+			<set-variable value="#[[] + payload]" doc:name="Set Variable" doc:id="2e2af852-df0b-47ce-ac6c-dacb569b8edd" variableName="a1"/>
+			<logger level="INFO" doc:name="Logger" doc:id="5963ba9f-6694-4c4f-850d-cf780f4f14f6" message='"a1:  " #[vars.a1]'/>
+		</parallel-foreach>
+		<logger level="INFO" doc:name="Logger" doc:id="51e59a89-6edb-4645-93f8-2a70c642ce77" message='"outside Parallel  " #[payload]'/>
+		<logger level="INFO" doc:name="Logger" doc:id="6b59bfd0-4fb4-4705-b174-d05a8c03f474" message='"a1 at outside  " #[vars.a1]'/>
+		<ee:transform doc:name="Transform Message" doc:id="6b379fda-0629-45ca-acb7-7de7bdd3e8ff" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---payload.payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="try_ParallelForEach" doc:id="8a870b59-0a7e-4969-87df-9fa3df01d7f3" >
+		<try doc:name="Try" doc:id="c2d13a29-81ad-4c82-99f6-831d70516960" >
+			<parallel-foreach doc:name="Parallel For Each" doc:id="2b64792a-7bc0-4355-8c84-37a134d39860" collection="#[1 to 10]">
+			<ee:transform doc:name="Transform Message" doc:id="71f4616c-92b0-4369-b49a-fcabe4869d46">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+import * from dw::Runtime
+---
+if((payload mod 2) == 0)
+payload
+else
+fail ('odd no')]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="9e59c16a-6f3a-4632-a762-c176c27f9d61" message="&quot;Even No's: &quot; #[payload]" />
+		</parallel-foreach>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="8fe0a93d-b505-45f9-80bc-98df6466da9b" type="ANY">
+					<logger level="INFO" doc:name="Logger" doc:id="136f069c-0a1f-4df3-8f14-2314a3f7f949" message='"Continue"'/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="8f51b991-4108-4474-8a89-bef7312fd475" message="#[output application/json&#10;---&#10;payload]"/>
+	</flow>
+	<flow name="parallelForEach_Try" doc:id="e48a75a5-8a2e-494d-be8b-eebc75fe722c" >
+		<parallel-foreach doc:name="Parallel For Each" doc:id="b5743c20-0bc9-4ad6-94e9-8be7f7c6bcbe" collection="#[1 to 10]">
+			<try doc:name="Try" doc:id="7ef54349-20c2-48de-aab2-e6b150373369" >
+				<ee:transform doc:name="Transform Message" doc:id="7c801e17-b5fc-4588-853a-28e46576a900">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+import * from dw::Runtime
+---
+if((payload mod 2) == 0)
+payload
+else
+fail ('odd no')]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="6fae43d9-19d5-418c-8903-6021ee12dfff" message="&quot;Even No's: &quot; #[payload]"/>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="844c4791-2894-4931-be45-da86a7de3ac8" type="ANY" >
+						<logger level="INFO" doc:name="Copy_of_Logger" doc:id="f051c352-bb30-474a-b57e-50b82a189570" message='"Continue"' />
+						<ee:transform doc:name="Transform Message" doc:id="41de2aea-c705-4a4a-b9dc-84705d00895f" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+(payload as String) ++ "Odd"]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</parallel-foreach>
+		<logger level="INFO" doc:name="Logger" doc:id="0f511688-7247-48a9-989e-e7c0251f9b9a" message="#[output application/json&#10;---&#10;payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="0356c26e-b233-4a1e-956c-eb422f3e1b75" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="maxConcurrency" doc:id="1915a768-c4c7-4a9f-ad52-7a4ef230bdac" >
+		<ee:transform doc:name="Transform Message" doc:id="92c278c7-2a70-4b72-9947-f195275aa0c6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var a=1 to 1000
+var data={
+	"empNo": "1",
+	"empName": "Thiru"
+}
+---
+a map(item, index)-> data]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[now()]" doc:name="Set Variable" doc:id="87c6dfaa-68ae-4230-ae5a-08ec9d552647" variableName="t1"/>
+		<parallel-foreach doc:name="Parallel For Each" doc:id="c14d77f1-b058-4ffd-a0ff-cd142fc94953" maxConcurrency="4" collection="#[payload]">
+			<ee:transform doc:name="Transform Message" doc:id="faf01d61-67da-45e4-8e95-dc8b19301164" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"empNo1": payload.empNo,
+	"empName1": payload.empName
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</parallel-foreach>
+		<logger level="INFO" doc:name="Logger" doc:id="4c01ce9a-9761-4b5a-8e69-dc285fbeafcd" message="#[output application/json&#10;---&#10;(now()-vars.t1)]"/>
+		<ee:transform doc:name="Transform Message" doc:id="e993ddf2-009c-4d1e-b8db-1c56b85f2003" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Completed"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	
+	
+	<flow name="foreach1_Flow" doc:id="a19bc3bb-f9f4-4ddb-b583-0612704575d2" >
+		<http:listener doc:name="Listener" doc:id="d026b47e-c90e-4262-a5ed-fd6e3134c8be" path="/foreach-1" config-ref="HTTP_Listener_config"/>
+		<set-payload value='#[["1","2","thiru","4","5"]]' doc:name='["1","2","thiru","4","5"]' doc:id="94cf9c7b-fc66-4732-8df9-2a7bdc25467a" />
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="38aa41a7-cd77-4251-abee-7948cd5ff665" variableName="var"/>
+		<foreach doc:name="For Each" doc:id="28ce6eaf-2a1d-4dff-ac76-a4177cca3bbb" collection='#[vars."var"]'>
+			<try doc:name="Try" doc:id="a98316b3-4380-4958-8089-c9ebdd2b669d" >
+				<set-payload value="#[payload * 10]" doc:name="Set Payload" doc:id="5503b467-e17b-4334-8323-9f6c7947c80a" />
+				<logger level="INFO" doc:name="Logger" doc:id="fce9b424-7d14-461c-844c-cc89e6aca9e7" message="#[payload]"/>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c4eece52-0ab3-4d1f-be14-4cfb150dcf18" type="ANY">
+						<logger level="INFO" doc:name="Logger" doc:id="69548802-40ed-470e-bd32-5799fb026483" message="#[payload]"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="29ad1630-776f-4f4d-8951-a4f1a54141b2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	
+	
+</mule>

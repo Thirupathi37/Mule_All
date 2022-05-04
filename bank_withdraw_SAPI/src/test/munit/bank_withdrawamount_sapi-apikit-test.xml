@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd http://www.mulesoft.org/schema/mule/munit-tools http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd ">
+    <munit:config name="bank_withdrawamount_sapi-apikit-test.xml" />
+    <http:request-config name="HTTP_Request_Configuration" basePath="/api">
+        <http:request-connection host="localhost" port="8083" />
+    </http:request-config>
+    <munit:test name="post:\withDraw:application\json:bank-config-200-application\json-FlowTest" description="Verifying functionality of [post:\withDraw:application\json:bank-config-200-application\json]">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="bankWithdraw_SAPI-main" />
+            <munit:enable-flow-source value="post:\withDraw:application\json:bank-config" />
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-payload value="#[MunitTools::getResourceAsString('scaffolder/request/post_withdraw_application_json.json')]" />
+			<munit-tools:mock-when doc:name="Mock when" doc:id="732b2dc4-99c1-424e-af2b-97c2f86099f3" processor="db:select">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="80cf34f5-df2a-4ab7-80c6-860395e67272" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Database_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+        </munit:behavior>
+        <munit:execution>
+            <http:request config-ref="HTTP_Request_Configuration" method="POST" path="/withDraw">
+                <http:headers>#[{"Accept":"application/json","Content-Type":"application/json"}]</http:headers>
+            </http:request>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[attributes.statusCode]" is="#[MunitTools::equalTo(200)]" message="The HTTP Status code is not correct!" doc:name="Assert That Status Code is 200" />
+            <munit-tools:assert-that expression="#[output application/java ---write(payload, 'application/json') as String]" is="#[MunitTools::equalTo(MunitTools::getResourceAsString('scaffolder/response/post_200_withdraw_application_json.json'))]" message="The response payload is not correct!" doc:name="Assert That - Payload is Expected" />
+        </munit:validation>
+    </munit:test>
+    <munit:test name="get:\withDraw\(getAccountDetails):bank-config-200-application\json-FlowTest" description="Verifying functionality of [get:\withDraw\(getAccountDetails):bank-config-200-application\json]">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="bankWithdraw_SAPI-main" />
+            <munit:enable-flow-source value="get:\withDraw\(getAccountDetails):bank-config" />
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="getAccountDetails" value="#['1234555551']" doc:name="getAccountDetails" />
+			<munit-tools:mock-when doc:name="getAcc_Details" doc:id="c98181a0-c36d-4704-9fdf-b0e9dce93ec1" processor="db:select">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="80cf34f5-df2a-4ab7-80c6-860395e67272" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Database_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[&#10;output application/json&#10;---&#10;[&#10;  {&#10;    "atmPin": "1234",&#10;    "accountType": "savings",&#10;    "phoneNumber": "8790120632",&#10;    "ifscCode": "123456789",&#10;    "wrongPin": 0,&#10;    "accountStatus": "Active",&#10;    "custAccNum": "1234555551",&#10;    "mailId": "thiru2018@gmail.com",&#10;    "bankName": "ICICI",&#10;    "transactionTimeStamp": "2021-12-16T22:15:14.6398403+05:30",&#10;    "totalBalance": 89,&#10;    "custName": "Raj1",&#10;    "branchName": "KarimNagar"&#10;  }&#10;]&#10;]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+        </munit:behavior>
+        <munit:execution>
+            <http:request config-ref="HTTP_Request_Configuration" method="GET" path="#['/withDraw/{getAccountDetails}']">
+				<http:headers><![CDATA[#[{"Accept":"application/json"}]]]></http:headers>
+				<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	getAccountDetails : "1234555551"
+}]]]></http:uri-params>
+				<http:query-params ><![CDATA[#[{
+ "bank": "ICICI",
+ "type": "savings"
+}]]]></http:query-params>
+            </http:request>
+			<logger level="INFO" doc:name="Logger" doc:id="36384824-2555-4cac-8fc6-b2d4f6322cc8" message="#[payload]"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::notNullValue()]" message="The HTTP Status code is not correct!" doc:name="Assert That Status Code is 200" />
+        </munit:validation>
+    </munit:test>
+    <munit:test name="post:\updateWrongPin:application\json:bank-config-200-application\json-FlowTest" description="Verifying functionality of [post:\updateWrongPin:application\json:bank-config-200-application\json]">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="bankWithdraw_SAPI-main" />
+            <munit:enable-flow-source value="post:\updateWrongPin:application\json:bank-config" />
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-payload value="#[MunitTools::getResourceAsString('scaffolder/request/post_updatewrongpin_application_json.json')]" />
+        </munit:behavior>
+        <munit:execution>
+            <http:request config-ref="HTTP_Request_Configuration" method="POST" path="/updateWrongPin">
+                <http:headers>#[{"Accept":"application/json","Content-Type":"application/json"}]</http:headers>
+            </http:request>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[attributes.statusCode]" is="#[MunitTools::equalTo(200)]" message="The HTTP Status code is not correct!" doc:name="Assert That Status Code is 200" />
+            <munit-tools:assert-that expression="#[output application/java ---write(payload, 'application/json') as String]" is="#[MunitTools::equalTo(MunitTools::getResourceAsString('scaffolder/response/post_200_updatewrongpin_application_json.json'))]" message="The response payload is not correct!" doc:name="Assert That - Payload is Expected" />
+        </munit:validation>
+    </munit:test>
+</mule>

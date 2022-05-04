@@ -1,0 +1,10 @@
+%dw 2.0
+
+type auto_292f964e_a660_46bc_be05_91ef7f8c63bf_Output_Variables_a = {
+  bank: String, 
+  "type": "current" | "savings", 
+  atmPin: String, 
+  accountNum: String, 
+  _?: Any
+}
+

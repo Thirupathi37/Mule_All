@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:salesforce-composite="http://www.mulesoft.org/schema/mule/salesforce-composite" xmlns:google-calendar="http://www.mulesoft.org/schema/mule/google-calendar" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/google-calendar http://www.mulesoft.org/schema/mule/google-calendar/current/mule-google-calendar.xsd
+http://www.mulesoft.org/schema/mule/salesforce-composite http://www.mulesoft.org/schema/mule/salesforce-composite/current/mule-salesforce-composite.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="6ef36720-7bea-4fe7-9995-789bf1093eff" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="0d9c4894-a7ac-44e1-a1b9-0330dfd62f3a" >
+		<salesforce:basic-connection username="tbommishetty@eniquesolutions.com" password="Btr@1234" securityToken="6XbhuIDvlcirO6g0GQDQbv61" />
+	</salesforce:sfdc-config>
+	<salesforce-composite:composite-config name="Salesforce_Composite_Config" doc:name="Salesforce Composite Config" doc:id="5a65f86d-bdd4-4bcf-a040-4589aed14501" >
+		<salesforce-composite:oauth-user-pass-connection consumerKey="3MVG9pRzvMkjMb6nWsel3XfllZht4iSovUGJcnffx.1if78j.b_DMRxibYnrIBT0mxntIkEG2lpEob1HFp7g6" consumerSecret="C31278519CCAC8D48B181F358D94797D88AD33F76FEE90E596B8CF0B043A365A" username="tbommishetty@eniquesolutions.com" password="Btr@1234" securityToken="6XbhuIDvlcirO6g0GQDQbv61" />
+	</salesforce-composite:composite-config>
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="584bc2ee-e03e-49e1-9dc1-6f0f1f0c829a" />
+	<flow name="leaves_hrmsFlow" doc:id="e2bd5f94-7c08-4e75-9964-442f3e7d626a" >
+		<http:listener doc:name="Listener" doc:id="af621a8e-140f-4aaa-b52b-dc0ac7221059" path="/leaves" config-ref="HTTP_Listener_config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="ab8efbca-378e-45c7-9a00-c23d0dfe9604" message="#[payload]"/>
+		<set-variable value="#[payload]" doc:name="input_Payload" doc:id="c0b66c6f-d141-4153-9713-86f95e8cad45" variableName="input"/>
+		<set-variable value='#[vars."input".leave_type]' doc:name="leave_type" doc:id="59fe119b-7748-4519-b651-9fac7197e702" variableName="leave_type"/>
+		<ee:transform doc:name="Transform Message" doc:id="14cffee8-4050-4f89-aeb4-cb437f18ce7f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+var a= vars."input".empId as String
+---
+{
+	"query": "SELECT Id, Available__c,empId__c,Name,Taken__c FROM " ++ vars.leave_type ++  "__c WHERE empId__c = " ++ "'" ++ a ++ "'"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:query doc:name="Query" doc:id="4a92c21a-df21-4a21-b411-ced61359d343" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[#[payload.query]]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="e49b649a-390e-45f6-8395-2d05a222bc5d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload reduce($)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="6205abf7-34b8-4f76-aa45-0cc4010105d3" >
+			<when expression='#[(payload.Available__c &gt;= vars."input".no_of_leaves)]'>
+				<ee:transform doc:name="Transform Message" doc:id="da238e7e-268d-43c7-9067-95def5c634f8">
+			<ee:message>
+			</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="resp" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"remaining_leaves": payload.Available__c - vars."input".no_of_leaves,
+	"taken_Leaves": payload.Taken__c + vars."input".no_of_leaves,
+	"Id": payload.Id
+}]]></ee:set-variable>
+					</ee:variables>
+		</ee:transform>
+				<ee:transform doc:name="Transform Message" doc:id="8744afdf-616d-494d-804b-43248b628b6d">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"empId__c": vars."input".empId,
+	"Available__c": vars.resp.remaining_leaves as String,
+	"Taken__c": vars.resp.taken_Leaves as String,
+	"Id": vars.resp.Id
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<flow-ref doc:name="Flow Reference" doc:id="ff29bf4d-aabe-4c4a-87c7-fe65341766ce" name="leave_Update_Flow"/>
+				<ee:transform doc:name="Transform Message" doc:id="8feef699-2ce9-4818-b0aa-4b4bc50a9e6e" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="bc9a8422-6c2d-4727-b09e-c92978d83bde" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"warning": "There is no sufficient " ++ vars.leave_type ++ "s"
+}
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="9f9cfad3-3b0a-4dc3-bc23-260ce2ed2235" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="e175690a-1cc7-49b6-92af-85261aefa7f7" message='"end"'/>
+	</flow>
+	<flow name="leave_Update_Flow" doc:id="98e277d8-46d5-4b0f-93c5-b45e608bd4e8" >
+		<choice doc:name="Choice" doc:id="62454bd4-2a90-472e-8ed7-baf668c619c6" >
+			<when expression='#[vars.leave_type == "casual_leave"]'>
+				<salesforce:update doc:name="casual_Leave_Update" doc:id="7243046b-4222-46d1-b8d9-e2b92a903afa" config-ref="Salesforce_Config" type="casual_leave__c">
+					<salesforce:records><![CDATA[#[[payload]]]]></salesforce:records>
+				</salesforce:update>
+				<ee:transform doc:name="Transform Message" doc:id="384c7f50-1edc-41f7-851a-1e3a943f322f" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"success": "Successfully Applied For " ++ vars.leave_type,
+	"remaining_Leaves": vars.resp.remaining_leaves,
+	"booked": vars.resp.taken_Leaves,
+	"leave_Id": vars.resp.Id
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<when expression='#[vars.leave_type == "sick_leave"]'>
+				<salesforce:update doc:name="sick_Leave_Update" doc:id="728b0287-5261-421e-b9fe-dff11ea2f718" config-ref="Salesforce_Config" type="sick_leave__c">
+					<salesforce:records ><![CDATA[#[[payload]]]]></salesforce:records>
+				</salesforce:update>
+				<ee:transform doc:name="Transform Message" doc:id="b5d1d75a-c233-4b48-bbb0-822cb3b8a098" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"success": "Successfully Applied For " ++ vars.leave_type,
+	"remaining_Leaves": vars.resp.remaining_leaves,
+	"booked": vars.resp.taken_Leaves,
+	"leave_Id": vars.resp.Id
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="92ea21d1-cb2c-457f-b2c9-8d56abbdcf00" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Invalid Leave Type"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="c8cafeab-e29d-42e6-a21d-a3a9db325eea" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="leave_Add_Scheduler_Flow" doc:id="35ece73e-7258-4f91-9062-7c0d4818d9de" >
+		<scheduler doc:name="Scheduler" doc:id="ae66039a-969c-4b7f-ac1f-ad777989d2d9" >
+			<scheduling-strategy >
+				<cron expression="0 0 12 1 1/1 ? *" timeZone="IST" />
+			</scheduling-strategy>
+		</scheduler>
+		<ee:transform doc:name="Transform Message" doc:id="bd5e2b18-4756-4321-a631-bdb60bc4e9f4">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"allOrNone": true,
+"batchRequests" : [
+    {
+    "method" : "GET",
+    "url" : "v53.0/queryAll?q=select Id, Available__c,empId__c from casual_leave__c"
+    },
+    {
+    "method" : "GET",
+    "url" : "v53.0/queryAll?q=select Id, Available__c,empId__c from sick_leave__c"
+    }
+    ]
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="0f86d7ed-4f7d-4477-84c4-5c533a2779c1" message="#[attributes.uriParams.age]"/>
+		<salesforce-composite:execute-composite-batch doc:name="Execute composite batch" doc:id="dbeaa81a-2fcc-429e-ba89-f1d76e62c6f0" config-ref="Salesforce_Composite_Config">
+			<salesforce-composite:sub-requests ><![CDATA[#[payload.batchRequests]]]></salesforce-composite:sub-requests>
+		</salesforce-composite:execute-composite-batch>
+		<ee:transform doc:name="Transform Message" doc:id="980cb55e-8fd2-499e-b637-c0800035e0cf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+flatten(payload.results.result.records) map{
+    "Available__c": $.Available__c + 1,
+    "type": $.attributes."type",
+    "Id": $.Id,
+    "empId__c": $.empId__c
+}
+
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="abc" ><![CDATA[%dw 2.0
+output application/json
+---
+flatten(payload.results.result.records) map{
+    "Available__c": $.Available__c + 1,
+    "type": $.attributes."type",
+    "Id": $.Id,
+    "empId__c": $.empId__c
+}
+
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<batch:job jobName="BatchJob" doc:id="aed20b6d-aae1-46b9-9243-06766df1ec01" maxFailedRecords="-1">
+					<batch:process-records>
+						<batch:step name="casual_leave_Type" doc:id="a67fe43c-dae4-4b1a-9ede-6cfd96795c43" acceptExpression='#[payload."type" == "casual_leave__c"]' acceptPolicy="ALL">
+							<ee:transform doc:name="Transform Message" doc:id="dcfef71c-98b1-46cd-a9ec-97f619df48a6">
+								<ee:message>
+									<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"Available__c": payload.Available__c as String,
+	"empId__c": payload.empId__c as String,
+	"Id": payload.Id as String
+}]]></ee:set-payload>
+								</ee:message>
+							</ee:transform>
+					<salesforce:update type="casual_leave__c" doc:name="casual_Leave_Update" doc:id="6ba5a245-dd79-4e32-b9ee-f076a7fd8a16" config-ref="Salesforce_Config">
+						<salesforce:records ><![CDATA[#[[payload]]]]></salesforce:records>
+							</salesforce:update>
+					<ee:transform doc:name="Transform Message" doc:id="50a550f6-9b1f-457b-a4f2-ae7ee3aa64ba" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+						</batch:step>
+				<batch:step name="sick_leave_Type" doc:id="f85dc060-fbe1-4eac-a5d2-6757ba7c98e9" acceptExpression='#[payload."type" == "sick_leave__c"]' acceptPolicy="ALL">
+					<ee:transform doc:name="Transform Message" doc:id="69c7dfa9-646b-4cb9-97e0-54d922272a02">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"Available__c": payload.Available__c as String,
+	"empId__c": payload.empId__c as String,
+	"Id": payload.Id as String
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<salesforce:update type="sick_leave__c" doc:name="sick_Leave_Update" doc:id="adbfc0f9-fbbb-45df-8bcd-2de9a269d653" config-ref="Salesforce_Config">
+							<salesforce:records><![CDATA[#[[payload]]]]></salesforce:records>
+						</salesforce:update>
+					<ee:transform doc:name="Transform Message" doc:id="6fe92168-e16b-44ce-8c92-a3f683b44576" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</batch:step>
+					</batch:process-records>
+			<batch:on-complete >
+				<ee:transform doc:name="Transform Message" doc:id="0d181ed0-6ece-4381-b4c1-8e04473f9f2b" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="5dd8a0fb-91e3-4afc-a805-a793e8ed4af3" message="#[payload]"/>
+			</batch:on-complete>
+				</batch:job>
+		<ee:transform doc:name="Transform Message" doc:id="929bba84-b14f-4d34-887d-be39f28d9fe8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
